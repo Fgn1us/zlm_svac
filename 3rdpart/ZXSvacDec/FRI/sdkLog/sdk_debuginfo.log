@@ -1,0 +1,54 @@
+FRI_SUT 17:07:08:316 CRIT subfun.cpp 561: Config: log_level0=3.
+FRI_SUT 17:07:08:317 CRIT subfun.cpp 569: Config: log_level1=3.
+FRI_SUT 17:07:08:317 ALRT configini.cpp 432: ConfigFile Information:
+FRI_SUT 17:07:08:317 ALRT configini.cpp 433: =================SUT.version=V1.81C10.=================
+FRI_SUT 17:07:08:318 ALRT configini.cpp 434: =================SDK.BULDVER=B00202407101800.=================
+FRI_SUT 17:07:08:318 ALRT configini.cpp 435: =================Config.loglevel=3.=================
+FRI_SUT 17:07:08:318 ALRT configini.cpp 436: =================Config.rgstmode=0.=================
+FRI_SUT 17:07:08:318 ALRT configini.cpp 437: =================Config.cypttype=0.=================
+FRI_SUT 17:07:08:318 ALRT configini.cpp 438: =================Config.signtype=0.=================
+FRI_SUT 17:07:08:355 ALRT configini.cpp 439: =================Config.signvrfy=0.=================
+FRI_SUT 17:07:08:356 ALRT configini.cpp 440: =================Config.runmode=0.=================
+FRI_SUT 17:07:08:356 ALRT configini.cpp 441: =================Config.signmode=1.=================
+FRI_SUT 17:07:08:356 ALRT configini.cpp 442: =================Config.testmode=0.=================
+FRI_SUT 17:07:08:356 CRIT configini.cpp 443: =================Config.logpath=f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\\sdkLog.=================
+FRI_SUT 17:07:08:357 ALRT configini.cpp 444: =================Config.datapath=d:\viss.=================
+FRI_SUT 17:07:08:357 ALRT configini.cpp 445: =================Config.logmode=0.=================
+FRI_SUT 17:07:08:358 CRIT configini.cpp 446: =================Config.logmaxsize=100.=================
+FRI_SUT 17:07:08:368 CRIT regist.cpp 967: US_GMSDOpen OK,hDev = 0x00000001
+FRI_SUT 17:07:08:370 ALRT regist.cpp 977: GetDeviceID OK,Device Esn:1621022022061230200005.
+FRI_SUT 17:07:08:382 ALRT regist.cpp 1090: GetDeviceID OK,Device Esn:1621022022061230200005.
+FRI_SUT 17:07:08:382 ALRT videorecord.cpp 709: ZDC_SKF_CreateFile Set AuthenicFile Length,ulAuthenicFileLen=2584.
+FRI_SUT 17:07:08:415 ERRO videorecord.cpp 1877: ZDC_SKF_ReadFile info,ulReadDataLen:696,uiAuthenicFileLen:1024.
+FRI_SUT 17:07:08:421 ERRO videorecord.cpp 1877: ZDC_SKF_ReadFile info,ulReadDataLen:740,uiAuthenicFileLen:1024.
+FRI_SUT 17:07:08:423 CRIT subfun.cpp 1256: ============================================================================================
+FRI_SUT 17:07:08:423 CRIT subfun.cpp 1257: ============================================================================================
+FRI_SUT 17:07:08:424 CRIT subfun.cpp 1258: ============================================================================================
+FRI_SUT 17:07:08:424 CRIT subfun.cpp 1259: ====================RUN_MODE: FRI_SDCard_API can be invoked under SEC_APPY_MODE.============
+FRI_SUT 17:07:08:424 CRIT subfun.cpp 1260: ============================================================================================
+FRI_SUT 17:07:08:424 CRIT subfun.cpp 1261: ============================================================================================
+FRI_SUT 17:07:08:424 CRIT subfun.cpp 1262: ============================================================================================
+FRI_SUT 17:07:08:425 CRIT subfun.cpp 1052: ====================SDK Version: V1.81C10===================================================
+FRI_SUT 17:07:08:425 CRIT subfun.cpp 1053: ====================SDK BUILD_VER: B00202407101800==============================================
+FRI_SUT 17:07:08:426 CRIT subfun.cpp 1054: ====================SDK BuildTime: Jul 10 2024 18:08:01.======================================
+FRI_SUT 17:07:08:426 CRIT subfun.cpp 1058: ====================SDK SkfLinkMode : SKF_STATIC_LINK========================================
+FRI_SUT 17:07:08:426 CRIT subfun.cpp 1059: ====================SDK UssdDrvMode: GUX======================================================
+FRI_SUT 17:07:08:426 CRIT subfun.cpp 1060: ====================SDK XriMode: 0======================================================
+FRI_SUT 17:07:08:426 CRIT subfun.cpp 1063: ====================SDK DebugInform: RELEASE---0,_LICENSE---0.===============================
+FRI_SUT 17:07:08:427 CRIT subfun.cpp 1067: ====================SDK CompileInfo: STAMP:Fri Apr 12 08:54:14 2024.========================
+FRI_SUT 17:07:08:427 CRIT subfun.cpp 1068: ====================SDK CompileInfo: SIGNFLAG:0,ALGTHTYPE:0.================================
+FRI_SUT 17:07:08:427 CRIT subfun.cpp 1077: ====================SDK CompileInfo: OS:WINx64.=============================================
+FRI_SUT 17:07:08:428 ALRT subfun.cpp 1304: SUB_Digest_SOFT can be used,gbluiSysChanNum=4.
+FRI_SUT 17:07:08:437 CRIT subfun.cpp 1398: ====================STEP0: FRI_SDCard_Init OK.====================
+FRI_SUT 17:07:08:437 EMEG vkekprocess.cpp 189: MUTI_ImportVkekInfo cannot find the vkekversion,so PUSH_BACK the vkekversion:2024-08-29T16:36:42.
+FRI_SUT 17:07:08:438 EMEG vkekprocess.cpp 194: MUTI_ImportVkekInfo PUSH_BACK info,uiSize=1.
+FRI_SUT 17:07:08:438 EMEG vkekprocess.cpp 189: MUTI_ImportVkekInfo cannot find the vkekversion,so PUSH_BACK the vkekversion:2024-08-29T16:36:42.
+FRI_SUT 17:07:08:438 EMEG vkekprocess.cpp 290: MUTI_ImportVkekInfo OK,uiSize=1.
+FRI_SUT 17:07:08:438 EMEG vkekprocess.cpp 189: MUTI_ImportVkekInfo cannot find the vkekversion,so PUSH_BACK the vkekversion:2024-08-29T15:55:28.
+FRI_SUT 17:07:08:439 EMEG vkekprocess.cpp 189: MUTI_ImportVkekInfo cannot find the vkekversion,so PUSH_BACK the vkekversion:2024-08-29T15:55:28.
+FRI_SUT 17:07:08:439 EMEG vkekprocess.cpp 194: MUTI_ImportVkekInfo PUSH_BACK info,uiSize=1.
+FRI_SUT 17:07:08:439 EMEG vkekprocess.cpp 194: MUTI_ImportVkekInfo PUSH_BACK info,uiSize=1.
+FRI_SUT 17:07:08:439 EMEG vkekprocess.cpp 194: MUTI_ImportVkekInfo PUSH_BACK info,uiSize=1.
+FRI_SUT 17:07:08:439 EMEG vkekprocess.cpp 290: MUTI_ImportVkekInfo OK,uiSize=1.
+FRI_SUT 17:07:08:440 EMEG vkekprocess.cpp 290: MUTI_ImportVkekInfo OK,uiSize=1.
+FRI_SUT 17:07:08:440 EMEG vkekprocess.cpp 290: MUTI_ImportVkekInfo OK,uiSize=1.
