@@ -145,16 +145,33 @@ bool GB35114Process::inputRtp(bool, const char *data, size_t data_len) {
             }
             ref = std::make_shared<RtpReceiverImp>(90000, [this](RtpPacket::Ptr rtp) { onRtpSorted(std::move(rtp)); });
 
-            //auto track = Factory::getTrackByCodecId(CodecSVACV);
-            auto track = std::make_shared<SvacTrack>();
+            // auto track = Factory::getTrackByCodecId(CodecSVACV);
+            // auto track = std::make_shared<SvacTrack>();
+            // [AUTO-TRANSLATED: Fix Track Ready]
+            // 定义一个总是 Ready 的 PS Track，因为我们不解析 PS，无法获取宽高
+            // Define a PS Track that is always Ready, because we do not parse PS, we cannot get width and height
+            class PsTrack : public VideoTrackImp {
+            public:
+                using Ptr = std::shared_ptr<PsTrack>;
+                PsTrack() : VideoTrackImp(CodecPS, 0, 0, 25) {}
+                bool ready() const override { return true; }
+                
+                // 必须重写 clone，否则 MediaSink 克隆时会退化为 VideoTrackImp，导致 ready() 失效
+                // Must override clone, otherwise it will degenerate to VideoTrackImp when MediaSink clones, causing ready() to fail
+                Track::Ptr clone() const override { return std::make_shared<PsTrack>(*this); }
+            };
+
+            auto track = std::make_shared<PsTrack>();
             CHECK(track);
             track->setIndex(pt);
             _interface->addTrack(track);
 
-            // ts或ps负载  [AUTO-TRANSLATED:3ca31480]
+            // ts或ps负载
             // ts or ps payload
-            _rtp_decoder[pt] = std::make_shared<CommonRtpDecoder>(CodecInvalid, 32 * 1024);
-            // 设置dump目录  [AUTO-TRANSLATED:23c88ace]
+            // 明确指定 CodecPS，使输出 Frame 类型正确
+            // Explicitly specify CodecPS to ensure correct output Frame type
+            _rtp_decoder[pt] = std::make_shared<CommonRtpDecoder>(CodecPS, 32 * 1024);
+            // 设置dump目录
             // Set dump directory
             GET_CONFIG(string, dump_dir, RtpProxy::kDumpDir);
             if (!dump_dir.empty()) {
@@ -165,6 +182,11 @@ bool GB35114Process::inputRtp(bool, const char *data, size_t data_len) {
                     }
                 });
             }
+            
+            // [AUTO-TRANSLATED: Complete Track Adding]
+            // 立即通知 Track 添加完成，因为我们不会再添加其他 Track
+            // Immediately notify Track addition completion, because we will not add other Tracks
+            _interface->addTrackCompleted();
         } while (false);
 
         // 设置frame回调  [AUTO-TRANSLATED:dec7590f]
@@ -199,33 +221,41 @@ void GB35114Process::onRtpDecode(const Frame::Ptr &frame) {
         return; // 直接跳过不转发
     }
 
-    // 这是TS或PS保存  [AUTO-TRANSLATED:55782860]
-    // This is TS or PS
+    // 这是TS或PS保存
     if (_save_file_ps) {
         fwrite(frame->data(), frame->size(), 1, _save_file_ps.get());
     }
+    
+    _interface->inputFrame(frame);
+    return; 
 
+    /* 
+     * 原始逻辑：创建解码器解析 PS/TS (Disabled for Passthrough)
+     * Original logic: Create decoder to parse PS/TS
+     */
+    /*
     if (!_decoder) {
-        // 创建解码器  [AUTO-TRANSLATED:0cc03d90]
+        // 创建解码器
         // Create decoder
         if (checkTS((uint8_t *)frame->data(), frame->size())) {
-            // 猜测是ts负载  [AUTO-TRANSLATED:c2be3a47]
+            // 猜测是ts负载
             // Guess it is a ts payload
             InfoL << _media_info.stream << " judged to be TS";
             _decoder = DecoderImp::createDecoder(DecoderImp::decoder_ts, _interface);
         } else {
-            // 猜测是ps负载  [AUTO-TRANSLATED:b7c0ff45]
+            // 猜测是ps负载
             // Guess it is a ps payload
             InfoL << _media_info.stream << " judged to be PS";
             _decoder = DecoderImp::createDecoder(DecoderImp::decoder_ps, _interface);
         }
     }
 
-    // 此处解码并转发  [AUTO-TRANSLATED:3f3f3f4e]
+    // 此处解码并转发
     if (_decoder) {
         _decoder->input(reinterpret_cast<const uint8_t *>(frame->data()), frame->size());
     }
-    _interface->inputFrame(frame); // 转发原始数据  [AUTO-TRANSLATED:1a2b3c4d]
+    _interface->inputFrame(frame); // 转发原始数据
+    */
 }
 
 // 验签视频帧是否有效，返回true表示有效  [AUTO-TRANSLATED:6f3e2f3f]

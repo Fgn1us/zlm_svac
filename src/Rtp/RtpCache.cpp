@@ -33,6 +33,19 @@ void RtpCachePS::flush() {
     RtpCache::flush();
 }
 
+// [AUTO-TRANSLATED: Bypass Muxer Implementation]
+bool RtpCachePS::inputFrame(const Frame::Ptr &frame) {
+    if (frame->getCodecId() == CodecPS) {
+        // CodecPS 直接透传，不经过 MpegMuxer
+        // CodecPS pass through directly, bypassing MpegMuxer
+        // 使用 static_pointer_cast 实现 Frame -> Buffer 的零拷贝转换
+        // Use static_pointer_cast to implement Zero-copy conversion from Frame to Buffer
+        PSEncoderImp::onWrite(std::static_pointer_cast<Buffer>(frame), frame->pts(), frame->keyFrame());
+        return true;
+    }
+    return MpegMuxer::inputFrame(frame);
+}
+
 void RtpCachePS::onRTP(Buffer::Ptr buffer, bool is_key) {
     auto rtp = std::static_pointer_cast<RtpPacket>(buffer);
     auto stamp = rtp->getStampMS();

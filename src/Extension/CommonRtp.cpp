@@ -72,6 +72,7 @@ bool CommonRtpDecoder::inputRtp(const RtpPacket::Ptr &rtp, bool){
 ////////////////////////////////////////////////////////////////
 
 bool CommonRtpEncoder::inputFrame(const Frame::Ptr &frame){
+    
     auto stamp = frame->pts();
     auto ptr = frame->data() + frame->prefixSize();
     auto len = frame->size() - frame->prefixSize();

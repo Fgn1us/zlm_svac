@@ -50,6 +50,11 @@ public:
 
     void flush() override;
 
+    // [AUTO-TRANSLATED: Bypass Muxer]
+    // 重写 inputFrame 以便拦截 CodecPS 直接转发，避免 MpegMuxer 重复打包
+    // Override inputFrame to intercept CodecPS direct forwarding to avoid MpegMuxer repackaging
+    bool inputFrame(const Frame::Ptr &frame) override;
+
 protected:
     void onRTP(toolkit::Buffer::Ptr rtp, bool is_key = false) override;
 };
