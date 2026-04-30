@@ -140,7 +140,9 @@ bool GB28181Process::inputRtp(bool, const char *data, size_t data_len) {
             // ts或ps负载  [AUTO-TRANSLATED:3ca31480]
             // ts or ps payload
             _rtp_decoder[pt] = std::make_shared<CommonRtpDecoder>(CodecInvalid, 32 * 1024);
-            // 设置dump目录  [AUTO-TRANSLATED:23c88ace]
+            // 设置
+            // 
+            // 目录  [AUTO-TRANSLATED:23c88ace]
             // Set dump directory
             GET_CONFIG(string, dump_dir, RtpProxy::kDumpDir);
             if (!dump_dir.empty()) {

@@ -9,6 +9,8 @@
  */
 
 #if defined(ENABLE_RTPPROXY)
+#include <chrono>
+#include <iomanip>
 #include "GB28181Process.h"
 #include "GB35114Process.h"
 #include "RtpProcess.h"
@@ -37,8 +39,12 @@ RtpProcess::RtpProcess(const MediaTuple &tuple) {
     static_cast<MediaTuple &>(_media_info) = tuple;
 
     GET_CONFIG(string, dump_dir, RtpProxy::kDumpDir);
+    auto now = std::chrono::system_clock::now();
+    auto time_t = std::chrono::system_clock::to_time_t(now);
+    std::stringstream ss;
+    ss << std::put_time(std::localtime(&time_t), "%Y%m%d_%H%M%S");
     {
-        FILE *fp = !dump_dir.empty() ? File::create_file(File::absolutePath(_media_info.stream + ".rtp", dump_dir), "wb") : nullptr;
+        FILE *fp = !dump_dir.empty() ? File::create_file(File::absolutePath(_media_info.stream + "_" + ss.str() + ".rtp", dump_dir), "wb") : nullptr;
         if (fp) {
             _save_file_rtp.reset(fp, [](FILE *fp) {
                 fclose(fp);

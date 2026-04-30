@@ -80,6 +80,8 @@ private:
     std::unordered_map<uint8_t, std::shared_ptr<RtpReceiverImp> > _rtp_receiver;
     //TODO: 验签公钥定义
     EVP_PKEY *_pub_key;
+    //新增
+    uint32_t _mock_timestamp = 0;
 };
 
 }//namespace mediakit

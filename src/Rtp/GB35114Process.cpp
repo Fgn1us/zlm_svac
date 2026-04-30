@@ -9,6 +9,8 @@
  */
 
 #if defined(ENABLE_RTPPROXY)
+#include <chrono>
+#include <iomanip>
 #include "GB35114Process.h"
 #include "Extension/CommonRtp.h"
 #include "Extension/Factory.h"
@@ -72,7 +74,7 @@ void GB35114Process::flush() {
 }
 
 bool GB35114Process::inputRtp(bool, const char *data, size_t data_len) {
-
+    //以上为新增内容
     GET_CONFIG(uint32_t, h264_pt, RtpProxy::kH264PT);
     GET_CONFIG(uint32_t, h265_pt, RtpProxy::kH265PT);
     GET_CONFIG(uint32_t, ps_pt, RtpProxy::kPSPT);
@@ -140,28 +142,15 @@ bool GB35114Process::inputRtp(bool, const char *data, size_t data_len) {
                 break;
             }
 
+
+
             if (pt != Rtsp::PT_MP2T && pt != ps_pt) {
                 WarnL << "Unknown rtp payload type(" << (int)pt << "), decode it as mpeg-ps or mpeg-ts";
             }
             ref = std::make_shared<RtpReceiverImp>(90000, [this](RtpPacket::Ptr rtp) { onRtpSorted(std::move(rtp)); });
 
             // auto track = Factory::getTrackByCodecId(CodecSVACV);
-            // auto track = std::make_shared<SvacTrack>();
-            // [AUTO-TRANSLATED: Fix Track Ready]
-            // 定义一个总是 Ready 的 PS Track，因为我们不解析 PS，无法获取宽高
-            // Define a PS Track that is always Ready, because we do not parse PS, we cannot get width and height
-            class PsTrack : public VideoTrackImp {
-            public:
-                using Ptr = std::shared_ptr<PsTrack>;
-                PsTrack() : VideoTrackImp(CodecPS, 0, 0, 25) {}
-                bool ready() const override { return true; }
-                
-                // 必须重写 clone，否则 MediaSink 克隆时会退化为 VideoTrackImp，导致 ready() 失效
-                // Must override clone, otherwise it will degenerate to VideoTrackImp when MediaSink clones, causing ready() to fail
-                Track::Ptr clone() const override { return std::make_shared<PsTrack>(*this); }
-            };
-
-            auto track = std::make_shared<PsTrack>();
+            auto track = std::make_shared<SvacTrack>();
             CHECK(track);
             track->setIndex(pt);
             _interface->addTrack(track);
@@ -174,8 +163,14 @@ bool GB35114Process::inputRtp(bool, const char *data, size_t data_len) {
             // 设置dump目录
             // Set dump directory
             GET_CONFIG(string, dump_dir, RtpProxy::kDumpDir);
+
+            auto now = std::chrono::system_clock::now();
+            auto time_t = std::chrono::system_clock::to_time_t(now);
+            std::stringstream ss;
+            ss << std::put_time(std::localtime(&time_t), "%Y%m%d_%H%M%S");
+
             if (!dump_dir.empty()) {
-                auto save_path = File::absolutePath(_media_info.stream + ".mpeg", dump_dir);
+                auto save_path = File::absolutePath(_media_info.stream + "_" + ss.str() + ".mpeg", dump_dir);
                 _save_file_ps.reset(File::create_file(save_path.data(), "wb"), [](FILE *fp) {
                     if (fp) {
                         fclose(fp);

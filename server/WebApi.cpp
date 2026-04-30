@@ -2067,6 +2067,21 @@ void installWebApi() {
             invoker(200, headerOut, val.toStyledString());
         });
     });
+    api_regist("/index/api/startSVACRecord", [](API_ARGS_MAP) {
+        CHECK_SECRET();
+
+        // 获取参数
+        std::string stream = allArgs["stream"];
+        int bitrate = allArgs["bitrate"].as<int>();
+
+        // 参数校验
+        if (stream.empty()) {
+            // 抛出异常：参数无效
+            throw ApiRetException("stream parameter is required", API::InvalidArgs);
+        }
+
+        // 业务逻辑 ...
+    });
 
 #ifdef ENABLE_WEBRTC
     api_regist("/index/api/webrtc",[](API_ARGS_STRING_ASYNC){
@@ -2230,6 +2245,7 @@ void installWebApi() {
             val["data"].append(item);
         });
     });
+
 #endif
 
 #if defined(ENABLE_VERSION)

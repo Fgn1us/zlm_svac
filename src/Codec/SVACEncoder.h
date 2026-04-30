@@ -6,10 +6,11 @@
 
 namespace mediakit {
 
-class SvacTrack : public VideoTrack {
+class SvacTrack : public VideoTrackImp {
 public:
  using Ptr = std::shared_ptr<SvacTrack>;
- SvacTrack()=default;
+    SvacTrack()
+     : VideoTrackImp(CodecSVACV, 0, 0, 25) {}
 
  CodecId getCodecId() const override;
  // 可根据需要扩展 ready、clone、getSdp 等接口
