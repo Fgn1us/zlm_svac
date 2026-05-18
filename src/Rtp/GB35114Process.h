@@ -55,12 +55,23 @@ public:
 
     /**
      * 刷新输出所有缓存
-     * Refresh and output all caches
-     
-     
-     * [AUTO-TRANSLATED:4509b01f]
      */
     void flush() override;
+
+    /**
+     * 开始 dump 数据到文件
+     */
+    bool startDump(const std::string &dump_dir, const std::string &stream_id, const std::string &prefix = "") override;
+
+    /**
+     * 停止 dump 数据
+     */
+    bool stopDump() override;
+
+    /**
+     * 轮转 dump 文件（关闭当前文件，打开下个整点的新文件）
+     */
+    bool rotateFile() override;
 
 protected:
     void onRtpSorted(RtpPacket::Ptr rtp);
@@ -70,6 +81,9 @@ private:
 
     // 验签视频帧是否有效，返回true表示有效
     bool verifyVideoFrame(const Frame::Ptr &frame);
+
+    // 打开 PS dump 文件（按小时命名）
+    void openPsDumpFile();
 
 private:
     MediaInfo _media_info;
@@ -82,6 +96,12 @@ private:
     EVP_PKEY *_pub_key;
     //新增
     uint32_t _mock_timestamp = 0;
+    // dump 控制
+    bool _dumping = false;
+    std::string _dump_dir;
+    std::string _stream_id;
+    std::string _prefix;
+    std::time_t _last_dump_hour_tm = 0;
 };
 
 }//namespace mediakit

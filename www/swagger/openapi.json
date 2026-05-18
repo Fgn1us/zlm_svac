@@ -4352,6 +4352,218 @@
                     }
                 }
             }
+        },
+        "/index/api/recordSVAC": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "SVAC 录制 (recordSVAC)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api 操作密钥 (配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的虚拟主机，例如 __defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的 id 名，例如 test",
+                        "example": "test"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "SVAC 录制 (recordSVAC)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api 操作密钥 (配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的虚拟主机，例如 __defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的 id 名，例如 test",
+                        "example": "test"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/stopRecordSVAC": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "停止 SVAC 录制 (stopRecordSVAC)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api 操作密钥 (配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的虚拟主机，例如 __defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的 id 名，例如 test",
+                        "example": "test"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "停止 SVAC 录制 (stopRecordSVAC)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api 操作密钥 (配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的虚拟主机，例如 __defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的 id 名，例如 test",
+                        "example": "test"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
         }
     }
 }

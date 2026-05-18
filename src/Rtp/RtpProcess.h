@@ -78,12 +78,28 @@ public:
     /**
      * 设置为单track，单音频/单视频时可以加快媒体注册速度
      * 请在inputRtp前调用此方法，否则可能会是空操作
-     * Set to single track, single audio/single video can speed up media registration
-     * Please call this method before inputRtp, otherwise it may be a null operation
-     
-     * [AUTO-TRANSLATED:55095289]
      */
     void setOnlyTrack(OnlyTrack only_track);
+
+    /**
+     * 开始 dump RTP 数据到文件（按小时自动切片）
+     * @param dump_dir dump 根目录
+     */
+    // 自动 dump（构造时触发，前缀为空）
+    void startAutoDump(const std::string &dump_dir);
+
+    // 手动 dump（API 触发，前缀 "manual_"）
+    void startManualDump(const std::string &dump_dir);
+
+    /**
+     * 停止手动 dump
+     */
+    void stopDump();
+
+    /**
+     * 是否正在手动 dump
+     */
+    bool isDumping() const;
 
     /**
      * flush输出缓存
@@ -126,6 +142,8 @@ private:
     bool alive();
     void onManager();
     void createTimer();
+    void openRtpDumpFile(const std::string &prefix, std::shared_ptr<FILE> &file);
+    void checkDumpRotate();
 
 private:
     bool _pause_timeout = false;
@@ -139,8 +157,12 @@ private:
     MediaInfo _media_info;
     toolkit::Ticker _last_frame_time;
     onDetachCB _on_detach;
-    std::shared_ptr<FILE> _save_file_rtp;
-    std::shared_ptr<FILE> _save_file_video;
+    // 自动 dump
+    bool _auto_enabled = false;
+    std::shared_ptr<FILE> _save_file_rtp_auto;
+    // 手动 dump
+    bool _manual_enabled = false;
+    std::shared_ptr<FILE> _save_file_rtp_manual;
     ProcessInterface::Ptr _process;
     MultiMediaSourceMuxer::Ptr _muxer;
     toolkit::Timer::Ptr _timer;
@@ -148,6 +170,9 @@ private:
     std::recursive_mutex _func_mtx;
     toolkit::Ticker _cache_ticker;
     std::deque<std::function<void()> > _cached_func;
+    // dump 控制（共享）
+    std::string _dump_dir;
+    std::time_t _last_dump_hour_tm = 0;
 };
 
 }//namespace mediakit

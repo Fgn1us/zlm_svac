@@ -2083,6 +2083,64 @@ void installWebApi() {
         // 业务逻辑 ...
     });
 
+#if defined(ENABLE_RTPPROXY) && defined(_WIN32)
+    api_regist("/index/api/recordSVAC", [](API_ARGS_MAP) {
+        CHECK_SECRET();
+        CHECK_ARGS("vhost","app","stream");
+
+        GET_CONFIG(string, dump_dir, RtpProxy::kDumpDir);
+        if (dump_dir.empty()) {
+            throw ApiRetException("dumpDir is not configured, please set rtp_proxy.dumpDir in config", API::OtherFailed);
+        }
+
+        auto src = MediaSource::find(allArgs["vhost"], allArgs["app"], allArgs["stream"]);
+        if (!src) {
+            throw ApiRetException("can not find the stream", API::NotFound);
+        }
+
+        auto process = src->getRtpProcess();
+        if (!process) {
+            throw ApiRetException("can not get rtp process for this stream", API::NotFound);
+        }
+
+        if (process->isDumping()) {
+            InfoL << "[recordSVAC] already manual recording, ignore: vhost=" << allArgs["vhost"] << ", app=" << allArgs["app"] << ", stream=" << allArgs["stream"];
+            val["code"] = API::Success;
+            val["msg"] = "already recording, ignore";
+            return;
+        }
+
+        process->startManualDump(dump_dir);
+        InfoL << "[recordSVAC] vhost=" << allArgs["vhost"] << ", app=" << allArgs["app"] << ", stream=" << allArgs["stream"];
+        val["code"] = API::Success;
+        val["msg"] = "recordSVAC started successfully";
+    });
+
+    api_regist("/index/api/stopRecordSVAC", [](API_ARGS_MAP) {
+        CHECK_SECRET();
+        CHECK_ARGS("vhost","app","stream");
+
+        auto src = MediaSource::find(allArgs["vhost"], allArgs["app"], allArgs["stream"]);
+        if (!src) {
+            throw ApiRetException("can not find the stream", API::NotFound);
+        }
+
+        auto process = src->getRtpProcess();
+        if (!process) {
+            throw ApiRetException("can not get rtp process for this stream", API::NotFound);
+        }
+
+        if (!process->isDumping()) {
+            throw ApiRetException("no manual recording in progress for this stream", API::OtherFailed);
+        }
+
+        process->stopDump();
+        InfoL << "[stopRecordSVAC] vhost=" << allArgs["vhost"] << ", app=" << allArgs["app"] << ", stream=" << allArgs["stream"];
+        val["code"] = API::Success;
+        val["msg"] = "stopRecordSVAC called successfully";
+    });
+#endif // defined(ENABLE_RTPPROXY) && defined(_WIN32)
+
 #ifdef ENABLE_WEBRTC
     api_regist("/index/api/webrtc",[](API_ARGS_STRING_ASYNC){
         CHECK_ARGS("type");

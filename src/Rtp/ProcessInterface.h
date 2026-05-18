@@ -46,6 +46,26 @@ public:
      * [AUTO-TRANSLATED:4509b01f]
      */
     virtual void flush() {}
+
+    /**
+     * 开始 dump 数据到文件
+     * @param dump_dir dump 根目录
+     * @param stream_id 流标识，用于文件命名
+     * @return 是否成功
+     */
+    virtual bool startDump(const std::string &dump_dir, const std::string &stream_id, const std::string &prefix = "") { return false; }
+
+    /**
+     * 停止 dump 数据
+     * @return 是否成功
+     */
+    virtual bool stopDump() { return false; }
+
+    /**
+     * 轮转 dump 文件（关闭当前文件，打开下个整点的新文件）
+     * @return 是否成功
+     */
+    virtual bool rotateFile() { return false; }
 };
 
 }//namespace mediakit

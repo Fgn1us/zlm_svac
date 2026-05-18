@@ -160,23 +160,6 @@ bool GB35114Process::inputRtp(bool, const char *data, size_t data_len) {
             // 明确指定 CodecPS，使输出 Frame 类型正确
             // Explicitly specify CodecPS to ensure correct output Frame type
             _rtp_decoder[pt] = std::make_shared<CommonRtpDecoder>(CodecPS, 32 * 1024);
-            // 设置dump目录
-            // Set dump directory
-            GET_CONFIG(string, dump_dir, RtpProxy::kDumpDir);
-
-            auto now = std::chrono::system_clock::now();
-            auto time_t = std::chrono::system_clock::to_time_t(now);
-            std::stringstream ss;
-            ss << std::put_time(std::localtime(&time_t), "%Y%m%d_%H%M%S");
-
-            if (!dump_dir.empty()) {
-                auto save_path = File::absolutePath(_media_info.stream + "_" + ss.str() + ".mpeg", dump_dir);
-                _save_file_ps.reset(File::create_file(save_path.data(), "wb"), [](FILE *fp) {
-                    if (fp) {
-                        fclose(fp);
-                    }
-                });
-            }
             
             // [AUTO-TRANSLATED: Complete Track Adding]
             // 立即通知 Track 添加完成，因为我们不会再添加其他 Track
@@ -217,7 +200,7 @@ void GB35114Process::onRtpDecode(const Frame::Ptr &frame) {
     }
 
     // 这是TS或PS保存
-    if (_save_file_ps) {
+    if (_dumping && _save_file_ps) {
         fwrite(frame->data(), frame->size(), 1, _save_file_ps.get());
     }
     
@@ -288,6 +271,94 @@ bool GB35114Process::verifyVideoFrame(const Frame::Ptr &frame) {
     //TODO: 验签逻辑， 如果通过则设置vr=true [AUTO-TRANSLATED:4b5c6d7e]
     //TODO: vr = verify(data, len, _pub_key)
     return vr;
+}
+
+void GB35114Process::openPsDumpFile() {
+    auto now = std::chrono::system_clock::now();
+    auto time_t_now = std::chrono::system_clock::to_time_t(now);
+    // 取整到当前小时的起点
+    _last_dump_hour_tm = time_t_now - (time_t_now % 3600);
+    std::tm *tm = std::localtime(&time_t_now);
+
+    // 查找不重复的文件名（处理中断重连场景）
+    // 手动录制精确到秒，自动录制精确到小时
+    int seq = 0;
+    char path[1024];
+    bool manual = !_prefix.empty();
+    while (true) {
+        if (seq == 0) {
+            if (manual) {
+                snprintf(path, sizeof(path), "%s/%04d/%02d/%s%s_%02d_%02d_%02d_%02d_%02d.mpeg",
+                         _dump_dir.c_str(),
+                         tm->tm_year + 1900, tm->tm_mon + 1,
+                         _prefix.c_str(), _stream_id.c_str(),
+                         tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
+            } else {
+                snprintf(path, sizeof(path), "%s/%04d/%02d/%s_%02d_%02d_%02d.mpeg",
+                         _dump_dir.c_str(),
+                         tm->tm_year + 1900, tm->tm_mon + 1,
+                         _stream_id.c_str(),
+                         tm->tm_mon + 1, tm->tm_mday, tm->tm_hour);
+            }
+        } else {
+            if (manual) {
+                snprintf(path, sizeof(path), "%s/%04d/%02d/%s%s_%02d_%02d_%02d_%02d_%02d_%d.mpeg",
+                         _dump_dir.c_str(),
+                         tm->tm_year + 1900, tm->tm_mon + 1,
+                         _prefix.c_str(), _stream_id.c_str(),
+                         tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, seq);
+            } else {
+                snprintf(path, sizeof(path), "%s/%04d/%02d/%s_%02d_%02d_%02d_%d.mpeg",
+                         _dump_dir.c_str(),
+                         tm->tm_year + 1900, tm->tm_mon + 1,
+                         _stream_id.c_str(),
+                         tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, seq);
+            }
+        }
+        // 检查文件是否已存在
+        FILE *test_fp = fopen(path, "rb");
+        if (!test_fp) {
+            break; // 文件不存在，可以使用
+        }
+        fclose(test_fp);
+        seq++;
+    }
+
+    _save_file_ps.reset(File::create_file(path, "wb"), [](FILE *fp) {
+        if (fp) {
+            fclose(fp);
+        }
+    });
+    if (_save_file_ps) {
+        InfoL << "[GB35114Process] dump file opened: " << path;
+    } else {
+        WarnL << "[GB35114Process] failed to open dump file: " << path;
+    }
+}
+
+bool GB35114Process::startDump(const std::string &dump_dir, const std::string &stream_id, const std::string &prefix) {
+    _dump_dir = dump_dir;
+    _stream_id = stream_id;
+    _prefix = prefix;
+    _dumping = true;
+    openPsDumpFile();
+    InfoL << "[GB35114Process] startDump: " << _prefix << stream_id << " -> " << _dump_dir;
+    return true;
+}
+
+bool GB35114Process::stopDump() {
+    _dumping = false;
+    _save_file_ps.reset();
+    InfoL << "[GB35114Process] stopDump: " << _stream_id;
+    return true;
+}
+
+bool GB35114Process::rotateFile() {
+    if (_dumping && !_dump_dir.empty()) {
+        _save_file_ps.reset();
+        openPsDumpFile();
+    }
+    return true;
 }
 
 } // namespace mediakit
