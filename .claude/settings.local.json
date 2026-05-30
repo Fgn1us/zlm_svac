@@ -5,7 +5,22 @@
       "Bash(python3 *)",
       "Bash(grep *)",
       "Bash(node *)",
-      "Bash(dir /b /s src\\\\Rtp\\\\RtpSelector*)"
+      "Bash(dir /b /s src\\\\Rtp\\\\RtpSelector*)",
+      "Bash(cmake --build out/build/x64-Debug --target zlmediakit)",
+      "Bash(cmake -S . -B out/build/x64-Debug -G Ninja -DCMAKE_BUILD_TYPE=Debug)",
+      "Bash(cmake .)",
+      "Bash(cmake . -DCMAKE_POLICY_VERSION_MINIMUM=3.5)",
+      "Bash(cmake -S . -B out/build/x64-Debug -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_POLICY_VERSION_MINIMUM=3.5)",
+      "Bash(cmake --build out/build/x64-Debug --target zlmediakit -- -k)",
+      "Bash(ccache C:/mingw64/bin/c++.exe -DDBUG_OFF -DENABLE_HLS -DENABLE_MP4 -DENABLE_RTPPROXY -DENABLE_SRT -DENABLE_VERSION -DMP4V2_NO_STDINT_DEFS -DWIN32_LEAN_AND_MEAN -D_CRT_SECURE_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS -IE:/ZLM/zlmediakit-src/out/build/x64-Debug -IE:/ZLM/zlmediakit-src/3rdpart -IE:/ZLM/zlmediakit-src/src -IE:/ZLM/zlmediakit-src/src/.. -IE:/ZLM/zlmediakit-src/3rdpart/jsoncpp/include -IE:/ZLM/zlmediakit-src/3rdpart/media-server/libflv/include -IE:/ZLM/zlmediakit-src/3rdpart/media-server/libmov/include -IE:/ZLM/zlmediakit-src/3rdpart/media-server/libmpeg/include -IE:/ZLM/zlmediakit-src/3rdpart/ZLToolKit/src -g -std=gnu++11 -c E:/ZLM/zlmediakit-src/src/Rtp/RtpDumpPlayer.cpp -o /dev/null)",
+      "Bash(/c/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.33.31629/bin/Hostx64/x64/cl.exe *)",
+      "Bash(cmd.exe //c 'call \"C:\\\\Program Files\\\\Microsoft Visual Studio\\\\2022\\\\Community\\\\VC\\\\Auxiliary\\\\Build\\\\vcvars64.bat\" && cd /d E:\\\\ZLM\\\\zlmediakit-src && cmake -S . -B out\\\\build\\\\x64-Debug -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_POLICY_VERSION_MINIMUM=3.5 2>&1 | findstr /C:\"complete\" /C:\"error\" /C:\"Configuring done\"')",
+      "Bash(python -c \"import json; json.load\\(open\\('E:/ZLM/zlmediakit-src/www/swagger/openapi.json', encoding='utf-8'\\)\\); print\\('JSON valid'\\)\")",
+      "Bash(cd /d E:\\\\ZLM\\\\zlmediakit-src)",
+      "Bash(cmake --build out\\\\build\\\\x64-Debug --target MediaServer)",
+      "Bash(cmake --build out/build/x64-Debug --target MediaServer)",
+      "Bash(cmd //c 'call \"C:\\\\Program Files\\\\Microsoft Visual Studio\\\\2022\\\\Community\\\\VC\\\\Auxiliary\\\\Build\\\\vcvars64.bat\" > NUL && cd /d E:\\\\ZLM\\\\zlmediakit-src && cmake --build out/build/x64-Debug --target MediaServer')",
+      "Bash(where cl.exe)"
     ]
   }
 }

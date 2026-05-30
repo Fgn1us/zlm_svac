@@ -60,7 +60,9 @@ GB35114Process::GB35114Process(const MediaInfo &media_info, MediaSinkInterface *
     // InfoL << "App: " << _media_info.app << ", Stream: " << _media_info.stream; // no information
     _media_info = media_info;
     _interface = sink;
+#if defined(ENABLE_OPENSSL)
     _pub_key = nullptr;
+#endif
 }
 
 void GB35114Process::onRtpSorted(RtpPacket::Ptr rtp) {
@@ -241,6 +243,7 @@ bool GB35114Process::verifyVideoFrame(const Frame::Ptr &frame) {
 
     // 第一版直接转发，后续版本完善验签逻辑  [AUTO-TRANSLATED:8b9a0c1d]
     return true;
+#if defined(ENABLE_OPENSSL)
     // 准备验签公钥  [AUTO-TRANSLATED:1a2b3c4d]
     // 未配置验签公钥，加载/获取验签公钥  [AUTO-TRANSLATED:3e1f4c2e]
     if (!_pub_key) {
@@ -252,12 +255,12 @@ bool GB35114Process::verifyVideoFrame(const Frame::Ptr &frame) {
         // 如果从数据流获取证书，则调用SSLUtil::loadPublicKey加载时最后一个参数isFile为false
         // string cert_file_path_data = "";
         // auto X509_list = SSLUtil::loadPublicKey(cert_file_path_data, "", false);
-        
+
         if (X509_list.empty()) { // 加载公钥失败  [AUTO-TRANSLATED:2e1a4b5c]
             WarnL << "Load public key failed for verify video frame!";
             return false;
         }
-            
+
         _pub_key = X509_get_pubkey(X509_list[0].get());
         if (!_pub_key) // 加载公钥失败  [AUTO-TRANSLATED:2e1a4b5c]
             return false;
@@ -271,6 +274,7 @@ bool GB35114Process::verifyVideoFrame(const Frame::Ptr &frame) {
     //TODO: 验签逻辑， 如果通过则设置vr=true [AUTO-TRANSLATED:4b5c6d7e]
     //TODO: vr = verify(data, len, _pub_key)
     return vr;
+#endif // defined(ENABLE_OPENSSL)
 }
 
 void GB35114Process::openPsDumpFile() {

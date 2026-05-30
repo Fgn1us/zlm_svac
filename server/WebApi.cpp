@@ -21,6 +21,7 @@
 
 #include <functional>
 #include <unordered_map>
+#include <mutex>
 #include <regex>
 #include "Util/MD5.h"
 #include "Util/util.h"
@@ -51,6 +52,7 @@
 
 #if defined(ENABLE_RTPPROXY)
 #include "Rtp/RtpServer.h"
+#include "Rtp/RtpDumpPlayer.h"
 #endif
 
 #ifdef ENABLE_WEBRTC
@@ -2140,6 +2142,134 @@ void installWebApi() {
         val["msg"] = "stopRecordSVAC called successfully";
     });
 #endif // defined(ENABLE_RTPPROXY) && defined(_WIN32)
+
+#if defined(ENABLE_RTPPROXY)
+    static std::unordered_map<std::string, RtpDumpPlayer::Ptr> s_playback_sessions;
+    static std::mutex s_playback_mtx;
+
+    api_regist("/index/api/playBackSVAC", [](API_ARGS_MAP) {
+        CHECK_SECRET();
+        CHECK_ARGS("file_path", "dst_url", "dst_port", "stream");
+
+        std::string file_path = allArgs["file_path"];
+        std::string dst_url = allArgs["dst_url"];
+        uint16_t dst_port = allArgs["dst_port"].as<uint16_t>();
+        std::string stream = allArgs["stream"];
+
+        // 解析 file_path：相对路径则相对于 dumpDir
+        GET_CONFIG(string, dump_dir, RtpProxy::kDumpDir);
+        std::string abs_path;
+        if (dump_dir.empty()) {
+            // dumpDir 未配置，file_path 必须是绝对路径
+            abs_path = file_path;
+            if (!File::fileExist(abs_path)) {
+                auto err_msg = "dump file not found: " + file_path;
+                throw ApiRetException(err_msg.c_str(), API::NotFound);
+            }
+        } else {
+            // 尝试解析为相对于 dumpDir 的路径
+            abs_path = File::absolutePath(file_path, dump_dir);
+            if (!File::fileExist(abs_path)) {
+                auto err_msg = "dump file not found: " + file_path + " (resolved to " + abs_path + ")";
+                throw ApiRetException(err_msg.c_str(), API::NotFound);
+            }
+        }
+
+        // 目标端口校验
+        if (dst_port == 0) {
+            throw ApiRetException("dst_port must be valid (1-65535)", API::InvalidArgs);
+        }
+
+        // 可选参数
+        float speed = allArgs["speed"].empty() ? 1.0f : allArgs["speed"].as<float>();
+        uint16_t src_port = allArgs["src_port"].empty() ? 0 : allArgs["src_port"].as<uint16_t>();
+
+        if (speed <= 0) {
+            throw ApiRetException("speed must be positive", API::InvalidArgs);
+        }
+
+        // 同 stream 名不可重复回放，不同 stream 名可并发同一文件
+        {
+            std::lock_guard<std::mutex> lck(s_playback_mtx);
+            auto it = s_playback_sessions.find(stream);
+            if (it != s_playback_sessions.end() && it->second && it->second->isPlaying()) {
+                auto err_msg = "playback already in progress for stream: " + stream;
+                throw ApiRetException(err_msg.c_str(), API::OtherFailed);
+            }
+        }
+
+        // 创建回放器
+        auto player = std::make_shared<RtpDumpPlayer>();
+
+        RtpDumpPlayer::PlayArgs args;
+        args.file_path = abs_path;
+        args.dst_url = dst_url;
+        args.dst_port = dst_port;
+        args.src_port = src_port;
+        args.speed = speed;
+
+        // 存入 map（stream 名作为 key，调用方保证不同用户用不同 stream 名）
+        {
+            std::lock_guard<std::mutex> lck(s_playback_mtx);
+            s_playback_sessions[stream] = player;
+        }
+
+        player->start(args,
+            // on_complete
+            [stream]() {
+                InfoL << "[playBackSVAC] playback completed for stream: " << stream;
+                std::lock_guard<std::mutex> lck(s_playback_mtx);
+                s_playback_sessions.erase(stream);
+            },
+            // on_error
+            [stream](const SockException &ex) {
+                WarnL << "[playBackSVAC] playback error for stream: " << stream << ", err: " << ex.what();
+                std::lock_guard<std::mutex> lck(s_playback_mtx);
+                s_playback_sessions.erase(stream);
+            }
+        );
+
+        InfoL << "[playBackSVAC] started: stream=" << stream
+              << ", file=" << abs_path
+              << " -> " << dst_url << ":" << dst_port
+              << ", speed=" << speed
+              << ", local_port=" << player->getLocalPort();
+
+        val["code"] = API::Success;
+        val["local_port"] = player->getLocalPort();
+    });
+
+    api_regist("/index/api/stopPlayBackSVAC", [](API_ARGS_MAP) {
+        CHECK_SECRET();
+        CHECK_ARGS("stream");
+
+        std::string stream = allArgs["stream"];
+
+        RtpDumpPlayer::Ptr player;
+        {
+            std::lock_guard<std::mutex> lck(s_playback_mtx);
+            auto it = s_playback_sessions.find(stream);
+            if (it == s_playback_sessions.end() || !it->second || !it->second->isPlaying()) {
+                auto err_msg = "no active playback for stream: " + stream;
+                throw ApiRetException(err_msg.c_str(), API::NotFound);
+            }
+            player = it->second;
+            s_playback_sessions.erase(it);
+        }
+
+        player->stop();
+
+        InfoL << "[stopPlayBackSVAC] stream=" << stream
+              << ", sent_packets=" << player->getSentPackets()
+              << ", sent_bytes=" << player->getSentBytes();
+
+        val["code"] = API::Success;
+        val["msg"] = "playback stopped successfully";
+        val["stream"] = stream;
+        val["sent_packets"] = (Json::UInt64)player->getSentPackets();
+        val["sent_bytes"] = (Json::UInt64)player->getSentBytes();
+    });
+#endif // defined(ENABLE_RTPPROXY)
 
 #ifdef ENABLE_WEBRTC
     api_regist("/index/api/webrtc",[](API_ARGS_STRING_ASYNC){

@@ -4564,6 +4564,236 @@
                     }
                 }
             }
+        },
+        "/index/api/playBackSVAC": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "SVAC 录像回放 (playBackSVAC)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api 操作密钥 (配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的 id 名，用于 session 管理",
+                        "example": "test"
+                    },
+                    {
+                        "name": "file_path",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "dump 文件路径，相对于 rtp_proxy.dumpDir 的路径，或绝对路径",
+                        "example": "2026/05/test_05_30_14.rtp"
+                    },
+                    {
+                        "name": "dst_url",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "回放目标 IP 地址",
+                        "example": "192.168.1.100"
+                    },
+                    {
+                        "name": "dst_port",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "回放目标 UDP 端口 (1-65535)",
+                        "example": 6000
+                    },
+                    {
+                        "name": "speed",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "description": "播放速率倍数，1.0=原始速度，2.0=两倍速 (默认: 1.0)",
+                        "example": 1.0
+                    },
+                    {
+                        "name": "src_port",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "本地 UDP 绑定端口，0=随机 (默认: 0)",
+                        "example": 0
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response. 返回 local_port(本地发送端口)。同一 stream 名不可重复回放，不同 stream 名可并发播放同一文件",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "SVAC 录像回放 (playBackSVAC)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api 操作密钥 (配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的 id 名，用于 session 管理",
+                        "example": "test"
+                    },
+                    {
+                        "name": "file_path",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "dump 文件路径，相对于 rtp_proxy.dumpDir 的路径，或绝对路径",
+                        "example": "2026/05/test_05_30_14.rtp"
+                    },
+                    {
+                        "name": "dst_url",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "回放目标 IP 地址",
+                        "example": "192.168.1.100"
+                    },
+                    {
+                        "name": "dst_port",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "回放目标 UDP 端口 (1-65535)",
+                        "example": 6000
+                    },
+                    {
+                        "name": "speed",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "description": "播放速率倍数，1.0=原始速度，2.0=两倍速 (默认: 1.0)",
+                        "example": 1.0
+                    },
+                    {
+                        "name": "src_port",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "本地 UDP 绑定端口，0=随机 (默认: 0)",
+                        "example": 0
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response. 返回 local_port(本地端口), total_packets(总包数), duration_ms(总时长毫秒)",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/stopPlayBackSVAC": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "停止 SVAC 录像回放 (stopPlayBackSVAC)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api 操作密钥 (配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的 id 名，用于定位回放会话",
+                        "example": "34020000001320000001"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response. 返回 sent_packets(已发送包数), sent_bytes(已发送字节数)",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "停止 SVAC 录像回放 (stopPlayBackSVAC)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api 操作密钥 (配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的 id 名，用于定位回放会话",
+                        "example": "34020000001320000001"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response. 返回 sent_packets(已发送包数), sent_bytes(已发送字节数)",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
         }
     }
 }

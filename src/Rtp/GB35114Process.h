@@ -21,6 +21,7 @@
 #include "Util/SSLBox.h"
 #include "Util/SSLUtil.h"
 
+#if defined(ENABLE_OPENSSL)
 #include <openssl/bio.h>
 #include <openssl/conf.h>
 #include <openssl/crypto.h>
@@ -28,6 +29,7 @@
 #include <openssl/ossl_typ.h>
 #include <openssl/rand.h>
 #include <openssl/ssl.h>
+#endif
 
 
 namespace mediakit{
@@ -93,7 +95,9 @@ private:
     std::unordered_map<uint8_t, RtpCodec::Ptr> _rtp_decoder;
     std::unordered_map<uint8_t, std::shared_ptr<RtpReceiverImp> > _rtp_receiver;
     //TODO: 验签公钥定义
+#if defined(ENABLE_OPENSSL)
     EVP_PKEY *_pub_key;
+#endif
     //新增
     uint32_t _mock_timestamp = 0;
     // dump 控制
