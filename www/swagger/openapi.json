@@ -1,0 +1,4907 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "ZLMediaKit HTTP API",
+        "description": "You can test the HTTP API provided by ZlMediaKit here. For usage documentation, please refer to [here](https://docs.zlmediakit.com/guide/media_server/restful_api.html)",
+        "version": "ZLMediaKit(git hash:\"5028151\"/\"2023-12-01T14:43:35+08:00\",branch:\"master\",build time:\"2023-12-01T07:54:14\")",
+        "x-logo": {
+            "url": "/logo.png",
+            "backgroundColor": "#FFFFFF",
+            "altText": "ZLMediaKit"
+        },
+        "termsOfService": "https://docs.zlmediakit.com",
+        "contact": {
+            "name": "Contact Support",
+            "url": "https://docs.zlmediakit.com/more/contact.html",
+            "email": "1213642868@qq.com"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://docs.zlmediakit.com/more/license.html"
+        }
+    },
+    "externalDocs": {
+        "url": "https://docs.zlmediakit.com",
+        "description": "ZLMediaKit Documentation"
+    },
+    "servers": [
+        {
+            "url": "/",
+            "description": "Localhost"
+        }
+    ],
+    "paths": {
+        "/index/api/getApiList": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "获取服务器api列表(getApiList)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "获取服务器api列表(getApiList)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/getThreadsLoad": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "获取网络线程负载(getThreadsLoad)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "获取网络线程负载(getThreadsLoad)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/getStatistic": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "获取主要对象个数(getStatistic)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "获取主要对象个数(getStatistic)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/getWorkThreadsLoad": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "获取后台线程负载(getWorkThreadsLoad)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "获取后台线程负载(getWorkThreadsLoad)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/getServerConfig": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "获取服务器配置(getServerConfig)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "获取服务器配置(getServerConfig)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/setServerConfig": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "设置服务器配置(setServerConfig)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "api.apiDebug",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "配置键与配置项值",
+                        "example": "0"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "设置服务器配置(setServerConfig)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "api.apiDebug",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "配置键与配置项值",
+                        "example": "0"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/restartServer": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "重启服务器(restartServer)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "重启服务器(restartServer)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/getMediaList": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "获取流列表(getMediaList)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "获取流列表(getMediaList)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/close_stream": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "关断单个流(close_stream)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "schema",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "协议，例如 rtsp或rtmp",
+                        "example": "rtsp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流id，例如 test",
+                        "example": "test"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "关断单个流(close_stream)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "schema",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "协议，例如 rtsp或rtmp",
+                        "example": "rtsp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流id，例如 test",
+                        "example": "test"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/close_streams": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "批量关断流(close_streams)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "schema",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "协议，例如 rtsp或rtmp",
+                        "example": "rtsp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流id，例如 test",
+                        "example": "test"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "批量关断流(close_streams)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "schema",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "协议，例如 rtsp或rtmp",
+                        "example": "rtsp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流id，例如 test",
+                        "example": "test"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/getAllSession": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "获取Session列表(getAllSession)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "获取Session列表(getAllSession)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/kick_session": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "断开tcp连接(kick_session)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "客户端唯一id，可以通过getAllSession接口获取",
+                        "example": "123456"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "断开tcp连接(kick_session)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "客户端唯一id，可以通过getAllSession接口获取",
+                        "example": "123456"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/kick_sessions": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "批量断开tcp连接(kick_sessions)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "批量断开tcp连接(kick_sessions)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/addStreamProxy": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "添加rtsp/rtmp/hls拉流代理(addStreamProxy)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "添加的流的虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "添加的流的应用名，例如live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "添加的流的id名，例如test",
+                        "example": "test"
+                    },
+                    {
+                        "name": "url",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "拉流地址，例如rtmp://live.hkstv.hk.lxdns.com/live/hks2",
+                        "example": "rtmp://live.hkstv.hk.lxdns.com/live/hks2"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "添加rtsp/rtmp/hls拉流代理(addStreamProxy)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "添加的流的虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "添加的流的应用名，例如live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "添加的流的id名，例如test",
+                        "example": "test"
+                    },
+                    {
+                        "name": "url",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "拉流地址，例如rtmp://live.hkstv.hk.lxdns.com/live/hks2",
+                        "example": "rtmp://live.hkstv.hk.lxdns.com/live/hks2"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/delStreamProxy": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "关闭拉流代理(delStreamProxy)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "key",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "addStreamProxy接口返回的key",
+                        "example": "__defaultVhost__/live/1"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "关闭拉流代理(delStreamProxy)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "key",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "addStreamProxy接口返回的key",
+                        "example": "__defaultVhost__/live/1"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/addStreamPusherProxy": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "添加rtsp/rtmp推流(addStreamPusherProxy)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "schema",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "推流协议，支持rtsp、rtmp，大小写敏感",
+                        "example": "rtmp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "已注册流的虚拟主机，一般为__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "已注册流的应用名，例如live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "已注册流的id名，例如test",
+                        "example": "test"
+                    },
+                    {
+                        "name": "dst_url",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "推流地址，需要与schema字段协议一致",
+                        "example": "rtmp://192.168.1.104/live/push"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "添加rtsp/rtmp推流(addStreamPusherProxy)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "schema",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "推流协议，支持rtsp、rtmp，大小写敏感",
+                        "example": "rtmp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "已注册流的虚拟主机，一般为__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "已注册流的应用名，例如live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "已注册流的id名，例如test",
+                        "example": "test"
+                    },
+                    {
+                        "name": "dst_url",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "推流地址，需要与schema字段协议一致",
+                        "example": "rtmp://192.168.1.104/live/push"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/delStreamPusherProxy": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "关闭推流(delStreamPusherProxy)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "key",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "addStreamPusherProxy接口返回的key",
+                        "example": "rtmp/__defaultVhost__/live/test/f40a8ab006cac16ecc0858409e890491"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "关闭推流(delStreamPusherProxy)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "key",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "addStreamPusherProxy接口返回的key",
+                        "example": "rtmp/__defaultVhost__/live/test/f40a8ab006cac16ecc0858409e890491"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/addFFmpegSource": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "添加FFmpeg拉流代理(addFFmpegSource)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "src_url",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "FFmpeg拉流地址,支持任意协议或格式(只要FFmpeg支持即可)",
+                        "example": "http://hefeng.live.tempsource.cjyun.org/videotmp/s10100-hftv.m3u8"
+                    },
+                    {
+                        "name": "dst_url",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "FFmpeg rtmp推流地址，一般都是推给自己，例如rtmp://127.0.0.1/live/stream_form_ffmpeg",
+                        "example": "rtmp://127.0.0.1/live/hks2"
+                    },
+                    {
+                        "name": "timeout_ms",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "FFmpeg推流成功超时时间,单位毫秒",
+                        "example": "10000"
+                    },
+                    {
+                        "name": "enable_hls",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "是否开启hls录制",
+                        "example": "0"
+                    },
+                    {
+                        "name": "enable_mp4",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "是否开启mp4录制",
+                        "example": "0"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "添加FFmpeg拉流代理(addFFmpegSource)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "src_url",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "FFmpeg拉流地址,支持任意协议或格式(只要FFmpeg支持即可)",
+                        "example": "http://hefeng.live.tempsource.cjyun.org/videotmp/s10100-hftv.m3u8"
+                    },
+                    {
+                        "name": "dst_url",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "FFmpeg rtmp推流地址，一般都是推给自己，例如rtmp://127.0.0.1/live/stream_form_ffmpeg",
+                        "example": "rtmp://127.0.0.1/live/hks2"
+                    },
+                    {
+                        "name": "timeout_ms",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "FFmpeg推流成功超时时间,单位毫秒",
+                        "example": "10000"
+                    },
+                    {
+                        "name": "enable_hls",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "是否开启hls录制",
+                        "example": "0"
+                    },
+                    {
+                        "name": "enable_mp4",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "是否开启mp4录制",
+                        "example": "0"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/delFFmpegSource": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "关闭FFmpeg拉流代理(delFFmpegSource)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "key",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "5f748d2ef9712e4b2f6f970c1d44d93a"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "关闭FFmpeg拉流代理(delFFmpegSource)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "key",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "5f748d2ef9712e4b2f6f970c1d44d93a"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/isMediaOnline": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "流是否在线(isMediaOnline)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "schema",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "协议，例如 rtsp或rtmp",
+                        "example": "rtsp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "应用名，例如 live",
+                        "example": "proxy"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "流id，例如 test",
+                        "example": "1"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "流是否在线(isMediaOnline)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "schema",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "协议，例如 rtsp或rtmp",
+                        "example": "rtsp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "应用名，例如 live",
+                        "example": "proxy"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "流id，例如 test",
+                        "example": "1"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/getMediaPlayerList": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "获取媒体流播放器列表(getMediaPlayerList)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "schema",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "协议，例如 rtsp或rtmp",
+                        "example": "rtsp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "应用名，例如 live",
+                        "example": "proxy"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "流id，例如 test",
+                        "example": "1"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "获取媒体流播放器列表(getMediaPlayerList)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "schema",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "协议，例如 rtsp或rtmp",
+                        "example": "rtsp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "应用名，例如 live",
+                        "example": "proxy"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "流id，例如 test",
+                        "example": "1"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/broadcastMessage": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "广播webrtc datachannel消息(broadcastMessage)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "schema",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "协议，例如 rtsp或rtmp，目前仅支持rtsp协议",
+                        "example": "rtsp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流id，例如 test",
+                        "example": "test"
+                    },
+                    {
+                        "name": "msg",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "Hello ZLMediakit"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "广播webrtc datachannel消息(broadcastMessage)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "schema",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "协议，例如 rtsp或rtmp，目前仅支持rtsp协议",
+                        "example": "rtsp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流id，例如 test",
+                        "example": "test"
+                    },
+                    {
+                        "name": "msg",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "Hello ZLMediakit"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/getMediaInfo": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "获取流信息(getMediaInfo)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "schema",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "协议，例如 rtsp或rtmp",
+                        "example": "rtsp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流id，例如 test",
+                        "example": "mym9"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "获取流信息(getMediaInfo)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "schema",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "协议，例如 rtsp或rtmp",
+                        "example": "rtsp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流id，例如 test",
+                        "example": "mym9"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/getMp4RecordFile": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "获取流信息(getMp4RecordFile)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "应用名，例如 live",
+                        "example": "proxy"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "流id，例如 test",
+                        "example": "2"
+                    },
+                    {
+                        "name": "customized_path",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "录像文件保存自定义根目录，为空则采用配置文件设置",
+                        "example": "/www"
+                    },
+                    {
+                        "name": "period",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的录像日期，格式为2020-02-01,如果不是完整的日期，那么是搜索录像文件夹列表，否则搜索对应日期下的mp4文件列表",
+                        "example": "2020-05-26"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "获取流信息(getMp4RecordFile)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "应用名，例如 live",
+                        "example": "proxy"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "流id，例如 test",
+                        "example": "2"
+                    },
+                    {
+                        "name": "customized_path",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "录像文件保存自定义根目录，为空则采用配置文件设置",
+                        "example": "/www"
+                    },
+                    {
+                        "name": "period",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的录像日期，格式为2020-02-01,如果不是完整的日期，那么是搜索录像文件夹列表，否则搜索对应日期下的mp4文件列表",
+                        "example": "2020-05-26"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/deleteRecordDirectory": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "删除录像文件夹(deleteRecordDirectory)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "应用名，例如 live",
+                        "example": "proxy"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "流id，例如 test",
+                        "example": "2"
+                    },
+                    {
+                        "name": "period",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的录像日期，格式为2020-01-01,如果不是完整的日期，那么会删除失败",
+                        "example": "2020-01-01"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "删除录像文件夹(deleteRecordDirectory)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "应用名，例如 live",
+                        "example": "proxy"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "流id，例如 test",
+                        "example": "2"
+                    },
+                    {
+                        "name": "period",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的录像日期，格式为2020-01-01,如果不是完整的日期，那么会删除失败",
+                        "example": "2020-01-01"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/startRecord": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "开始录制(startRecord)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "0为hls，1为mp4",
+                        "example": "1"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流id，例如 obs",
+                        "example": "obs"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "开始录制(startRecord)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "0为hls，1为mp4",
+                        "example": "1"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流id，例如 obs",
+                        "example": "obs"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/setRecordSpeed": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "设置录像速度(setRecordSpeed)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流id，例如 obs",
+                        "example": "obs"
+                    },
+                    {
+                        "name": "speed",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "description": "要设置的录像倍速",
+                        "example": "2.0"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "设置录像速度(setRecordSpeed)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流id，例如 obs",
+                        "example": "obs"
+                    },
+                    {
+                        "name": "speed",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "description": "要设置的录像倍速",
+                        "example": "2.0"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/seekRecordStamp": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "设置录像流播放位置(seekRecordStamp)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流id，例如 obs",
+                        "example": "obs"
+                    },
+                    {
+                        "name": "stamp",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "要设置的录像播放位置",
+                        "example": "1000"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "设置录像流播放位置(seekRecordStamp)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流id，例如 obs",
+                        "example": "obs"
+                    },
+                    {
+                        "name": "stamp",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "要设置的录像播放位置",
+                        "example": "1000"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/stopRecord": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "停止录制(stopRecord)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "0为hls，1为mp4",
+                        "example": "1"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流id，例如 obs",
+                        "example": "obs"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "停止录制(stopRecord)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "0为hls，1为mp4",
+                        "example": "1"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流id，例如 obs",
+                        "example": "obs"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/isRecording": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "是否正在录制(isRecording)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "0为hls，1为mp4",
+                        "example": "1"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流id，例如 obs",
+                        "example": "obs"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "是否正在录制(isRecording)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "0为hls，1为mp4",
+                        "example": "1"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流id，例如 obs",
+                        "example": "obs"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/getSnap": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "获取截图(getSnap)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "url",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "需要截图的url，可以是本机的，也可以是远程主机的",
+                        "example": "rtsp://www.mym9.com/101065?from=2019-06-28/01:12:13"
+                    },
+                    {
+                        "name": "timeout_sec",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "截图失败超时时间，防止FFmpeg一直等待截图",
+                        "example": "10"
+                    },
+                    {
+                        "name": "expire_sec",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "截图的过期时间，该时间内产生的截图都会作为缓存返回",
+                        "example": "1"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "获取截图(getSnap)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "url",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "需要截图的url，可以是本机的，也可以是远程主机的",
+                        "example": "rtsp://www.mym9.com/101065?from=2019-06-28/01:12:13"
+                    },
+                    {
+                        "name": "timeout_sec",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "截图失败超时时间，防止FFmpeg一直等待截图",
+                        "example": "10"
+                    },
+                    {
+                        "name": "expire_sec",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "截图的过期时间，该时间内产生的截图都会作为缓存返回",
+                        "example": "1"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/getRtpInfo": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "获取rtp推流信息(getRtpInfo)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "stream_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流id",
+                        "example": "test"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "获取rtp推流信息(getRtpInfo)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "stream_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流id",
+                        "example": "test"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/openRtpServer": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "创建多路复用RTP服务器(openRtpServerMultiplex)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "port",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "绑定的端口，0时为随机端口",
+                        "example": "0"
+                    },
+                    {
+                        "name": "tcp_mode",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "tcp模式，0时为不启用tcp监听，1时为启用tcp监听",
+                        "example": "1"
+                    },
+                    {
+                        "name": "stream_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "该端口绑定的流id\n",
+                        "example": "test"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "创建多路复用RTP服务器(openRtpServerMultiplex)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "port",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "绑定的端口，0时为随机端口",
+                        "example": "0"
+                    },
+                    {
+                        "name": "tcp_mode",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "tcp模式，0时为不启用tcp监听，1时为启用tcp监听",
+                        "example": "1"
+                    },
+                    {
+                        "name": "stream_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "该端口绑定的流id\n",
+                        "example": "test"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/connectRtpServer": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "连接RTP服务器(connectRtpServer)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "dst_url",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "tcp主动模式时服务端地址",
+                        "example": "0"
+                    },
+                    {
+                        "name": "dst_port",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "tcp主动模式时服务端端口",
+                        "example": "1"
+                    },
+                    {
+                        "name": "stream_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "OpenRtpServer时绑定的流id\n",
+                        "example": "test"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "连接RTP服务器(connectRtpServer)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "dst_url",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "tcp主动模式时服务端地址",
+                        "example": "0"
+                    },
+                    {
+                        "name": "dst_port",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "tcp主动模式时服务端端口",
+                        "example": "1"
+                    },
+                    {
+                        "name": "stream_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "OpenRtpServer时绑定的流id\n",
+                        "example": "test"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/closeRtpServer": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "关闭RTP服务器(closeRtpServer)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "stream_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "该端口绑定的流id",
+                        "example": "test"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "关闭RTP服务器(closeRtpServer)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "stream_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "该端口绑定的流id",
+                        "example": "test"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/updateRtpServerSSRC": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "更新RTP服务器过滤SSRC(updateRtpServerSSRC)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "stream_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "该端口绑定的流id",
+                        "example": "test"
+                    },
+                    {
+                        "name": "ssrc",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "十进制ssrc",
+                        "example": "123456"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "更新RTP服务器过滤SSRC(updateRtpServerSSRC)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "stream_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "该端口绑定的流id",
+                        "example": "test"
+                    },
+                    {
+                        "name": "ssrc",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "十进制ssrc",
+                        "example": "123456"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/pauseRtpCheck": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "暂停RTP超时检查(pauseRtpCheck)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "stream_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "该端口绑定的流id",
+                        "example": "test"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "暂停RTP超时检查(pauseRtpCheck)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "stream_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "该端口绑定的流id",
+                        "example": "test"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/resumeRtpCheck": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "恢复RTP超时检查(resumeRtpCheck)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "stream_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "该端口绑定的流id",
+                        "example": "test"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "恢复RTP超时检查(resumeRtpCheck)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "stream_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "该端口绑定的流id",
+                        "example": "test"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/listRtpServer": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "获取RTP服务器列表(listRtpServer)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "获取RTP服务器列表(listRtpServer)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/startSendRtp": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "开始发送rtp(startSendRtp)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流id，例如 obs",
+                        "example": "obs"
+                    },
+                    {
+                        "name": "ssrc",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "rtp推流的ssrc",
+                        "example": "1"
+                    },
+                    {
+                        "name": "dst_url",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "目标ip或域名",
+                        "example": "127.0.0.1"
+                    },
+                    {
+                        "name": "dst_port",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "目标端口",
+                        "example": "10000"
+                    },
+                    {
+                        "name": "is_udp",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "是否为udp模式,否则为tcp模式",
+                        "example": "0"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "开始发送rtp(startSendRtp)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流id，例如 obs",
+                        "example": "obs"
+                    },
+                    {
+                        "name": "ssrc",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "rtp推流的ssrc",
+                        "example": "1"
+                    },
+                    {
+                        "name": "dst_url",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "目标ip或域名",
+                        "example": "127.0.0.1"
+                    },
+                    {
+                        "name": "dst_port",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "目标端口",
+                        "example": "10000"
+                    },
+                    {
+                        "name": "is_udp",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "是否为udp模式,否则为tcp模式",
+                        "example": "0"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/startSendRtpPassive": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "开始tcp passive被动发送rtp(startSendRtpPassive)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流id，例如 obs",
+                        "example": "test"
+                    },
+                    {
+                        "name": "ssrc",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "rtp推流的ssrc，ssrc不同时，可以推流到多个上级服务器",
+                        "example": "1"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "开始tcp passive被动发送rtp(startSendRtpPassive)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流id，例如 obs",
+                        "example": "test"
+                    },
+                    {
+                        "name": "ssrc",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "rtp推流的ssrc，ssrc不同时，可以推流到多个上级服务器",
+                        "example": "1"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/stopSendRtp": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "停止 发送rtp(stopSendRtp)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流id，例如 obs",
+                        "example": "obs"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "停止 发送rtp(stopSendRtp)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流id，例如 obs",
+                        "example": "obs"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/version": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "获取版本信息(version)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "获取版本信息(version)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/getProxyInfo": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "获取拉流代理信息(getProxyInfo)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "key",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "__defaultVhost__/live/test"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "获取拉流代理信息(getProxyInfo)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "key",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "__defaultVhost__/live/test"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/getProxyPusherInfo": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "获取推流代理信息(getProxyPusherInfo)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "key",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "rtmp/__defaultVhost__/live/test/f40a8ab006cac16ecc0858409e890491"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "获取推流代理信息(getProxyPusherInfo)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "key",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "rtmp/__defaultVhost__/live/test/f40a8ab006cac16ecc0858409e890491"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/loadMP4File": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "点播mp4文件(loadMP4File)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "添加的流的虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "添加的流的应用名，例如live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "添加的流的id名，例如test",
+                        "example": "test"
+                    },
+                    {
+                        "name": "file_path",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "mp4文件绝对路径",
+                        "example": "/path/to/mp4/file.mp4"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "点播mp4文件(loadMP4File)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api操作密钥(配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "添加的流的虚拟主机，例如__defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "添加的流的应用名，例如live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "添加的流的id名，例如test",
+                        "example": "test"
+                    },
+                    {
+                        "name": "file_path",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "mp4文件绝对路径",
+                        "example": "/path/to/mp4/file.mp4"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/recordSVAC": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "SVAC 录制 (recordSVAC)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api 操作密钥 (配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的虚拟主机，例如 __defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的 id 名，例如 test",
+                        "example": "test"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "SVAC 录制 (recordSVAC)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api 操作密钥 (配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的虚拟主机，例如 __defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的 id 名，例如 test",
+                        "example": "test"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/stopRecordSVAC": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "停止 SVAC 录制 (stopRecordSVAC)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api 操作密钥 (配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的虚拟主机，例如 __defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的 id 名，例如 test",
+                        "example": "test"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "停止 SVAC 录制 (stopRecordSVAC)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api 操作密钥 (配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的虚拟主机，例如 __defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的 id 名，例如 test",
+                        "example": "test"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/startPlaybackSVAC": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "SVAC 回放推流 (startPlaybackSVAC)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api 操作密钥 (配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的虚拟主机，例如 __defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的 id 名，例如 test",
+                        "example": "test"
+                    },
+                    {
+                        "name": "file_path",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "本地 .mpeg 文件的绝对路径",
+                        "example": "/path/to/recorded.mpeg"
+                    },
+                    {
+                        "name": "dst_url",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "目标 IP 地址或域名",
+                        "example": "192.168.1.100"
+                    },
+                    {
+                        "name": "dst_port",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "目标端口号",
+                        "example": 30000
+                    },
+                    {
+                        "name": "ssrc",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "RTP SSRC 标识符",
+                        "example": "12345"
+                    },
+                    {
+                        "name": "is_udp",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "是否 UDP 模式，0=TCP, 1=UDP (默认1)",
+                        "example": 1
+                    },
+                    {
+                        "name": "src_port",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "指定本地发送端口，0 表示随机端口",
+                        "example": 0
+                    },
+                    {
+                        "name": "pt",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "RTP payload type (默认 96 对应 PS)",
+                        "example": 96
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "SVAC 回放推流 (startPlaybackSVAC)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api 操作密钥 (配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的虚拟主机，例如 __defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的 id 名，例如 test",
+                        "example": "test"
+                    },
+                    {
+                        "name": "file_path",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "本地 .mpeg 文件的绝对路径",
+                        "example": "/path/to/recorded.mpeg"
+                    },
+                    {
+                        "name": "dst_url",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "目标 IP 地址或域名",
+                        "example": "192.168.1.100"
+                    },
+                    {
+                        "name": "dst_port",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "目标端口号",
+                        "example": 30000
+                    },
+                    {
+                        "name": "ssrc",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "RTP SSRC 标识符",
+                        "example": "12345"
+                    },
+                    {
+                        "name": "is_udp",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "是否 UDP 模式，0=TCP, 1=UDP (默认1)",
+                        "example": 1
+                    },
+                    {
+                        "name": "src_port",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "指定本地发送端口，0 表示随机端口",
+                        "example": 0
+                    },
+                    {
+                        "name": "pt",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "RTP payload type (默认 96 对应 PS)",
+                        "example": 96
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/stopPlaybackSVAC": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "停止 SVAC 回放推流 (stopPlaybackSVAC)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api 操作密钥 (配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的虚拟主机，例如 __defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的 id 名，例如 test",
+                        "example": "test"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "停止 SVAC 回放推流 (stopPlaybackSVAC)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api 操作密钥 (配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "vhost",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的虚拟主机，例如 __defaultVhost__",
+                        "example": "__defaultVhost__"
+                    },
+                    {
+                        "name": "app",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的应用名，例如 live",
+                        "example": "live"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "流的 id 名，例如 test",
+                        "example": "test"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

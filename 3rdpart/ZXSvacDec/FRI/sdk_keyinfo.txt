@@ -1,0 +1,152 @@
+FRI_SUT 14:37:48:845 INFO configini.cpp 625: SUB_GetCommonPath set sdk-ini-directory to sdk-run-directory,sdk-run-directory:f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\.
+FRI_SUT 14:37:48:846 DEBG configini.cpp 641: SUB_GetCommonPath Opendir OK,gblRunPath:f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\.
+FRI_SUT 14:37:48:846 DEBG Mut.cpp 533: CPT_SDC_Init SUB_GetCommonPath OK.
+FRI_SUT 14:37:48:847 ALRT subfun.cpp 1094: ====================STEP0: FRI_SDCard_Init BEGINS.====================
+FRI_SUT 14:37:48:847 ALRT subfun.cpp 1095: ====================SDK Version: V1.81C10===================================================
+FRI_SUT 14:37:48:848 ALRT subfun.cpp 1096: ====================SDK BUILDVER: B00202407101800===============================================
+FRI_SUT 14:37:48:848 INFO subfun.cpp 543: read ConfigInfo File,szConfigPathName:f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\/FRI_SUT_SDK.cfg.
+FRI_SUT 14:37:48:850 CRIT configini.cpp 224: ====================FRI_SDCard_Init info,szFilePathCfg:[d:\viss].====================
+FRI_SUT 14:37:48:850 DEBG configini.cpp 667: Cannot find KEY:./ in szLine:d:\viss.
+FRI_SUT 14:37:48:850 DEBG configini.cpp 672: The CfgItem is Absolute-Directory, Cannot find KEY:./ and .\ in szLine:d:\viss.
+FRI_SUT 14:37:48:850 DEBG configini.cpp 716: ChangeRelpathToAbspath get absolute directory,szDirPath:d:\viss.
+FRI_SUT 14:37:48:851 CRIT configini.cpp 232: SetSdkFilePath szItem:.
+FRI_SUT 14:37:48:851 CRIT configini.cpp 233: ====================FRI_SDCard_Init SetSdkFilePath info,szItem:[f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\]------>[d:\viss].====================
+FRI_SUT 14:37:48:851 CRIT configini.cpp 224: ====================FRI_SDCard_Init info,szFilePathCfg:[.\sdkLog].====================
+FRI_SUT 14:37:48:851 DEBG configini.cpp 667: Cannot find KEY:./ in szLine:.\sdkLog.
+FRI_SUT 14:37:48:852 DEBG configini.cpp 684: The CfgItem is Relative-Directory,Find KEY:.\ in szLine:.\sdkLog.
+FRI_SUT 14:37:48:852 DEBG configini.cpp 712: ChangeRelpathToAbspath set absolute directory,szDirPath:f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\\sdkLog.
+FRI_SUT 14:37:48:852 CRIT configini.cpp 232: SetSdkFilePath szItem:.
+FRI_SUT 14:37:48:852 CRIT configini.cpp 233: ====================FRI_SDCard_Init SetSdkFilePath info,szItem:[f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\]------>[f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\\sdkLog].====================
+FRI_SUT 14:38:44:847 INFO configini.cpp 625: SUB_GetCommonPath set sdk-ini-directory to sdk-run-directory,sdk-run-directory:f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\.
+FRI_SUT 14:38:44:848 DEBG configini.cpp 641: SUB_GetCommonPath Opendir OK,gblRunPath:f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\.
+FRI_SUT 14:38:44:848 DEBG Mut.cpp 533: CPT_SDC_Init SUB_GetCommonPath OK.
+FRI_SUT 14:38:44:848 ALRT subfun.cpp 1094: ====================STEP0: FRI_SDCard_Init BEGINS.====================
+FRI_SUT 14:38:44:849 ALRT subfun.cpp 1095: ====================SDK Version: V1.81C10===================================================
+FRI_SUT 14:38:44:849 ALRT subfun.cpp 1096: ====================SDK BUILDVER: B00202407101800===============================================
+FRI_SUT 14:38:44:849 INFO subfun.cpp 543: read ConfigInfo File,szConfigPathName:f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\/FRI_SUT_SDK.cfg.
+FRI_SUT 14:38:44:850 CRIT configini.cpp 224: ====================FRI_SDCard_Init info,szFilePathCfg:[d:\viss].====================
+FRI_SUT 14:38:44:851 DEBG configini.cpp 667: Cannot find KEY:./ in szLine:d:\viss.
+FRI_SUT 14:38:44:851 DEBG configini.cpp 672: The CfgItem is Absolute-Directory, Cannot find KEY:./ and .\ in szLine:d:\viss.
+FRI_SUT 14:38:44:851 DEBG configini.cpp 716: ChangeRelpathToAbspath get absolute directory,szDirPath:d:\viss.
+FRI_SUT 14:38:44:852 CRIT configini.cpp 232: SetSdkFilePath szItem:.
+FRI_SUT 14:38:44:852 CRIT configini.cpp 233: ====================FRI_SDCard_Init SetSdkFilePath info,szItem:[f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\]------>[d:\viss].====================
+FRI_SUT 14:38:44:852 CRIT configini.cpp 224: ====================FRI_SDCard_Init info,szFilePathCfg:[.\sdkLog].====================
+FRI_SUT 14:38:44:852 DEBG configini.cpp 667: Cannot find KEY:./ in szLine:.\sdkLog.
+FRI_SUT 14:38:44:853 DEBG configini.cpp 684: The CfgItem is Relative-Directory,Find KEY:.\ in szLine:.\sdkLog.
+FRI_SUT 14:38:44:853 DEBG configini.cpp 712: ChangeRelpathToAbspath set absolute directory,szDirPath:f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\\sdkLog.
+FRI_SUT 14:38:44:853 CRIT configini.cpp 232: SetSdkFilePath szItem:.
+FRI_SUT 14:38:44:853 CRIT configini.cpp 233: ====================FRI_SDCard_Init SetSdkFilePath info,szItem:[f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\]------>[f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\\sdkLog].====================
+FRI_SUT 15:42:48:189 INFO configini.cpp 625: SUB_GetCommonPath set sdk-ini-directory to sdk-run-directory,sdk-run-directory:f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\.
+FRI_SUT 15:42:48:198 DEBG configini.cpp 641: SUB_GetCommonPath Opendir OK,gblRunPath:f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\.
+FRI_SUT 15:42:48:199 DEBG Mut.cpp 533: CPT_SDC_Init SUB_GetCommonPath OK.
+FRI_SUT 15:42:48:199 ALRT subfun.cpp 1094: ====================STEP0: FRI_SDCard_Init BEGINS.====================
+FRI_SUT 15:42:48:199 ALRT subfun.cpp 1095: ====================SDK Version: V1.81C10===================================================
+FRI_SUT 15:42:48:200 ALRT subfun.cpp 1096: ====================SDK BUILDVER: B00202407101800===============================================
+FRI_SUT 15:42:48:200 INFO subfun.cpp 543: read ConfigInfo File,szConfigPathName:f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\/FRI_SUT_SDK.cfg.
+FRI_SUT 15:42:48:201 CRIT configini.cpp 224: ====================FRI_SDCard_Init info,szFilePathCfg:[d:\viss].====================
+FRI_SUT 15:42:48:203 DEBG configini.cpp 667: Cannot find KEY:./ in szLine:d:\viss.
+FRI_SUT 15:42:48:203 DEBG configini.cpp 672: The CfgItem is Absolute-Directory, Cannot find KEY:./ and .\ in szLine:d:\viss.
+FRI_SUT 15:42:48:203 DEBG configini.cpp 716: ChangeRelpathToAbspath get absolute directory,szDirPath:d:\viss.
+FRI_SUT 15:42:48:203 CRIT configini.cpp 232: SetSdkFilePath szItem:.
+FRI_SUT 15:42:48:203 CRIT configini.cpp 233: ====================FRI_SDCard_Init SetSdkFilePath info,szItem:[f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\]------>[d:\viss].====================
+FRI_SUT 15:42:48:203 CRIT configini.cpp 224: ====================FRI_SDCard_Init info,szFilePathCfg:[.\sdkLog].====================
+FRI_SUT 15:42:48:203 DEBG configini.cpp 667: Cannot find KEY:./ in szLine:.\sdkLog.
+FRI_SUT 15:42:48:203 DEBG configini.cpp 684: The CfgItem is Relative-Directory,Find KEY:.\ in szLine:.\sdkLog.
+FRI_SUT 15:42:48:204 DEBG configini.cpp 712: ChangeRelpathToAbspath set absolute directory,szDirPath:f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\\sdkLog.
+FRI_SUT 15:42:48:204 CRIT configini.cpp 232: SetSdkFilePath szItem:.
+FRI_SUT 15:42:48:204 CRIT configini.cpp 233: ====================FRI_SDCard_Init SetSdkFilePath info,szItem:[f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\]------>[f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\\sdkLog].====================
+FRI_SUT 15:58:13:134 INFO configini.cpp 625: SUB_GetCommonPath set sdk-ini-directory to sdk-run-directory,sdk-run-directory:f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\.
+FRI_SUT 15:58:13:225 DEBG configini.cpp 641: SUB_GetCommonPath Opendir OK,gblRunPath:f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\.
+FRI_SUT 15:58:13:226 DEBG Mut.cpp 533: CPT_SDC_Init SUB_GetCommonPath OK.
+FRI_SUT 15:58:13:245 ALRT subfun.cpp 1094: ====================STEP0: FRI_SDCard_Init BEGINS.====================
+FRI_SUT 15:58:13:247 ALRT subfun.cpp 1095: ====================SDK Version: V1.81C10===================================================
+FRI_SUT 15:58:13:248 ALRT subfun.cpp 1096: ====================SDK BUILDVER: B00202407101800===============================================
+FRI_SUT 15:58:13:248 INFO subfun.cpp 543: read ConfigInfo File,szConfigPathName:f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\/FRI_SUT_SDK.cfg.
+FRI_SUT 15:58:13:259 CRIT configini.cpp 224: ====================FRI_SDCard_Init info,szFilePathCfg:[d:\viss].====================
+FRI_SUT 15:58:13:259 DEBG configini.cpp 667: Cannot find KEY:./ in szLine:d:\viss.
+FRI_SUT 15:58:13:259 DEBG configini.cpp 672: The CfgItem is Absolute-Directory, Cannot find KEY:./ and .\ in szLine:d:\viss.
+FRI_SUT 15:58:13:259 DEBG configini.cpp 716: ChangeRelpathToAbspath get absolute directory,szDirPath:d:\viss.
+FRI_SUT 15:58:13:260 CRIT configini.cpp 232: SetSdkFilePath szItem:.
+FRI_SUT 15:58:13:260 CRIT configini.cpp 233: ====================FRI_SDCard_Init SetSdkFilePath info,szItem:[f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\]------>[d:\viss].====================
+FRI_SUT 15:58:13:260 CRIT configini.cpp 224: ====================FRI_SDCard_Init info,szFilePathCfg:[.\sdkLog].====================
+FRI_SUT 15:58:13:260 DEBG configini.cpp 667: Cannot find KEY:./ in szLine:.\sdkLog.
+FRI_SUT 15:58:13:261 DEBG configini.cpp 684: The CfgItem is Relative-Directory,Find KEY:.\ in szLine:.\sdkLog.
+FRI_SUT 15:58:13:261 DEBG configini.cpp 712: ChangeRelpathToAbspath set absolute directory,szDirPath:f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\\sdkLog.
+FRI_SUT 15:58:13:261 CRIT configini.cpp 232: SetSdkFilePath szItem:.
+FRI_SUT 15:58:13:261 CRIT configini.cpp 233: ====================FRI_SDCard_Init SetSdkFilePath info,szItem:[f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\]------>[f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\\sdkLog].====================
+FRI_SUT 16:54:23:755 INFO configini.cpp 625: SUB_GetCommonPath set sdk-ini-directory to sdk-run-directory,sdk-run-directory:f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\.
+FRI_SUT 16:54:23:767 DEBG configini.cpp 641: SUB_GetCommonPath Opendir OK,gblRunPath:f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\.
+FRI_SUT 16:54:23:767 DEBG Mut.cpp 533: CPT_SDC_Init SUB_GetCommonPath OK.
+FRI_SUT 16:54:23:767 ALRT subfun.cpp 1094: ====================STEP0: FRI_SDCard_Init BEGINS.====================
+FRI_SUT 16:54:23:768 ALRT subfun.cpp 1095: ====================SDK Version: V1.81C10===================================================
+FRI_SUT 16:54:23:768 ALRT subfun.cpp 1096: ====================SDK BUILDVER: B00202407101800===============================================
+FRI_SUT 16:54:23:769 INFO subfun.cpp 543: read ConfigInfo File,szConfigPathName:f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\/FRI_SUT_SDK.cfg.
+FRI_SUT 16:54:23:770 CRIT configini.cpp 224: ====================FRI_SDCard_Init info,szFilePathCfg:[d:\viss].====================
+FRI_SUT 16:54:23:770 DEBG configini.cpp 667: Cannot find KEY:./ in szLine:d:\viss.
+FRI_SUT 16:54:23:770 DEBG configini.cpp 672: The CfgItem is Absolute-Directory, Cannot find KEY:./ and .\ in szLine:d:\viss.
+FRI_SUT 16:54:23:771 DEBG configini.cpp 716: ChangeRelpathToAbspath get absolute directory,szDirPath:d:\viss.
+FRI_SUT 16:54:23:771 CRIT configini.cpp 232: SetSdkFilePath szItem:.
+FRI_SUT 16:54:23:771 CRIT configini.cpp 233: ====================FRI_SDCard_Init SetSdkFilePath info,szItem:[f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\]------>[d:\viss].====================
+FRI_SUT 16:54:23:771 CRIT configini.cpp 224: ====================FRI_SDCard_Init info,szFilePathCfg:[.\sdkLog].====================
+FRI_SUT 16:54:23:771 DEBG configini.cpp 667: Cannot find KEY:./ in szLine:.\sdkLog.
+FRI_SUT 16:54:23:772 DEBG configini.cpp 684: The CfgItem is Relative-Directory,Find KEY:.\ in szLine:.\sdkLog.
+FRI_SUT 16:54:23:772 DEBG configini.cpp 712: ChangeRelpathToAbspath set absolute directory,szDirPath:f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\\sdkLog.
+FRI_SUT 16:54:23:773 CRIT configini.cpp 232: SetSdkFilePath szItem:.
+FRI_SUT 16:54:23:773 CRIT configini.cpp 233: ====================FRI_SDCard_Init SetSdkFilePath info,szItem:[f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\]------>[f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\\sdkLog].====================
+FRI_SUT 17:03:59:943 INFO configini.cpp 625: SUB_GetCommonPath set sdk-ini-directory to sdk-run-directory,sdk-run-directory:f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\.
+FRI_SUT 17:03:59:944 DEBG configini.cpp 641: SUB_GetCommonPath Opendir OK,gblRunPath:f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\.
+FRI_SUT 17:03:59:944 DEBG Mut.cpp 533: CPT_SDC_Init SUB_GetCommonPath OK.
+FRI_SUT 17:03:59:944 ALRT subfun.cpp 1094: ====================STEP0: FRI_SDCard_Init BEGINS.====================
+FRI_SUT 17:03:59:945 ALRT subfun.cpp 1095: ====================SDK Version: V1.81C10===================================================
+FRI_SUT 17:03:59:945 ALRT subfun.cpp 1096: ====================SDK BUILDVER: B00202407101800===============================================
+FRI_SUT 17:03:59:946 INFO subfun.cpp 543: read ConfigInfo File,szConfigPathName:f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\/FRI_SUT_SDK.cfg.
+FRI_SUT 17:03:59:946 CRIT configini.cpp 224: ====================FRI_SDCard_Init info,szFilePathCfg:[d:\viss].====================
+FRI_SUT 17:03:59:947 DEBG configini.cpp 667: Cannot find KEY:./ in szLine:d:\viss.
+FRI_SUT 17:03:59:947 DEBG configini.cpp 672: The CfgItem is Absolute-Directory, Cannot find KEY:./ and .\ in szLine:d:\viss.
+FRI_SUT 17:03:59:948 DEBG configini.cpp 716: ChangeRelpathToAbspath get absolute directory,szDirPath:d:\viss.
+FRI_SUT 17:03:59:948 CRIT configini.cpp 232: SetSdkFilePath szItem:.
+FRI_SUT 17:03:59:948 CRIT configini.cpp 233: ====================FRI_SDCard_Init SetSdkFilePath info,szItem:[f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\]------>[d:\viss].====================
+FRI_SUT 17:03:59:948 CRIT configini.cpp 224: ====================FRI_SDCard_Init info,szFilePathCfg:[.\sdkLog].====================
+FRI_SUT 17:03:59:948 DEBG configini.cpp 667: Cannot find KEY:./ in szLine:.\sdkLog.
+FRI_SUT 17:03:59:948 DEBG configini.cpp 684: The CfgItem is Relative-Directory,Find KEY:.\ in szLine:.\sdkLog.
+FRI_SUT 17:03:59:949 DEBG configini.cpp 712: ChangeRelpathToAbspath set absolute directory,szDirPath:f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\\sdkLog.
+FRI_SUT 17:03:59:949 CRIT configini.cpp 232: SetSdkFilePath szItem:.
+FRI_SUT 17:03:59:950 CRIT configini.cpp 233: ====================FRI_SDCard_Init SetSdkFilePath info,szItem:[f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\]------>[f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\\sdkLog].====================
+FRI_SUT 17:05:10:895 INFO configini.cpp 625: SUB_GetCommonPath set sdk-ini-directory to sdk-run-directory,sdk-run-directory:f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\.
+FRI_SUT 17:05:10:895 DEBG configini.cpp 641: SUB_GetCommonPath Opendir OK,gblRunPath:f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\.
+FRI_SUT 17:05:10:895 DEBG Mut.cpp 533: CPT_SDC_Init SUB_GetCommonPath OK.
+FRI_SUT 17:05:10:896 ALRT subfun.cpp 1094: ====================STEP0: FRI_SDCard_Init BEGINS.====================
+FRI_SUT 17:05:10:896 ALRT subfun.cpp 1095: ====================SDK Version: V1.81C10===================================================
+FRI_SUT 17:05:10:896 ALRT subfun.cpp 1096: ====================SDK BUILDVER: B00202407101800===============================================
+FRI_SUT 17:05:10:896 INFO subfun.cpp 543: read ConfigInfo File,szConfigPathName:f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\/FRI_SUT_SDK.cfg.
+FRI_SUT 17:05:10:898 CRIT configini.cpp 224: ====================FRI_SDCard_Init info,szFilePathCfg:[d:\viss].====================
+FRI_SUT 17:05:10:898 DEBG configini.cpp 667: Cannot find KEY:./ in szLine:d:\viss.
+FRI_SUT 17:05:10:898 DEBG configini.cpp 672: The CfgItem is Absolute-Directory, Cannot find KEY:./ and .\ in szLine:d:\viss.
+FRI_SUT 17:05:10:898 DEBG configini.cpp 716: ChangeRelpathToAbspath get absolute directory,szDirPath:d:\viss.
+FRI_SUT 17:05:10:899 CRIT configini.cpp 232: SetSdkFilePath szItem:.
+FRI_SUT 17:05:10:899 CRIT configini.cpp 233: ====================FRI_SDCard_Init SetSdkFilePath info,szItem:[f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\]------>[d:\viss].====================
+FRI_SUT 17:05:10:899 CRIT configini.cpp 224: ====================FRI_SDCard_Init info,szFilePathCfg:[.\sdkLog].====================
+FRI_SUT 17:05:10:900 DEBG configini.cpp 667: Cannot find KEY:./ in szLine:.\sdkLog.
+FRI_SUT 17:05:10:900 DEBG configini.cpp 684: The CfgItem is Relative-Directory,Find KEY:.\ in szLine:.\sdkLog.
+FRI_SUT 17:05:10:900 DEBG configini.cpp 712: ChangeRelpathToAbspath set absolute directory,szDirPath:f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\\sdkLog.
+FRI_SUT 17:05:10:900 CRIT configini.cpp 232: SetSdkFilePath szItem:.
+FRI_SUT 17:05:10:900 CRIT configini.cpp 233: ====================FRI_SDCard_Init SetSdkFilePath info,szItem:[f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\]------>[f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\\sdkLog].====================
+FRI_SUT 17:07:08:310 INFO configini.cpp 625: SUB_GetCommonPath set sdk-ini-directory to sdk-run-directory,sdk-run-directory:f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\.
+FRI_SUT 17:07:08:310 DEBG configini.cpp 641: SUB_GetCommonPath Opendir OK,gblRunPath:f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\.
+FRI_SUT 17:07:08:310 DEBG Mut.cpp 533: CPT_SDC_Init SUB_GetCommonPath OK.
+FRI_SUT 17:07:08:310 ALRT subfun.cpp 1094: ====================STEP0: FRI_SDCard_Init BEGINS.====================
+FRI_SUT 17:07:08:311 ALRT subfun.cpp 1095: ====================SDK Version: V1.81C10===================================================
+FRI_SUT 17:07:08:311 ALRT subfun.cpp 1096: ====================SDK BUILDVER: B00202407101800===============================================
+FRI_SUT 17:07:08:311 INFO subfun.cpp 543: read ConfigInfo File,szConfigPathName:f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\/FRI_SUT_SDK.cfg.
+FRI_SUT 17:07:08:312 CRIT configini.cpp 224: ====================FRI_SDCard_Init info,szFilePathCfg:[d:\viss].====================
+FRI_SUT 17:07:08:313 DEBG configini.cpp 667: Cannot find KEY:./ in szLine:d:\viss.
+FRI_SUT 17:07:08:313 DEBG configini.cpp 672: The CfgItem is Absolute-Directory, Cannot find KEY:./ and .\ in szLine:d:\viss.
+FRI_SUT 17:07:08:314 DEBG configini.cpp 716: ChangeRelpathToAbspath get absolute directory,szDirPath:d:\viss.
+FRI_SUT 17:07:08:314 CRIT configini.cpp 232: SetSdkFilePath szItem:.
+FRI_SUT 17:07:08:314 CRIT configini.cpp 233: ====================FRI_SDCard_Init SetSdkFilePath info,szItem:[f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\]------>[d:\viss].====================
+FRI_SUT 17:07:08:314 CRIT configini.cpp 224: ====================FRI_SDCard_Init info,szFilePathCfg:[.\sdkLog].====================
+FRI_SUT 17:07:08:314 DEBG configini.cpp 667: Cannot find KEY:./ in szLine:.\sdkLog.
+FRI_SUT 17:07:08:315 DEBG configini.cpp 684: The CfgItem is Relative-Directory,Find KEY:.\ in szLine:.\sdkLog.
+FRI_SUT 17:07:08:315 DEBG configini.cpp 712: ChangeRelpathToAbspath set absolute directory,szDirPath:f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\\sdkLog.
+FRI_SUT 17:07:08:315 CRIT configini.cpp 232: SetSdkFilePath szItem:.
+FRI_SUT 17:07:08:316 CRIT configini.cpp 233: ====================FRI_SDCard_Init SetSdkFilePath info,szItem:[f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\]------>[f:\playsdk-new\tag\tag_zxsvacdeclib_v1.1.4.x\releasepackage\windows\x64\sdk\FRI\\sdkLog].====================
