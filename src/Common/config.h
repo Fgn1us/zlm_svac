@@ -52,6 +52,10 @@ extern const std::string kBroadcastRecordMP4;
 extern const std::string kBroadcastRecordTs;
 #define BroadcastRecordTsArgs const RecordInfo &info
 
+// SVAC录像dump切片完成后广播
+extern const std::string kBroadcastRecordSVAC;
+#define BroadcastRecordSVACArgs const RecordInfo &info
+
 // 收到http api请求广播  [AUTO-TRANSLATED:c72e7c3f]
 // Broadcast for receiving http api request
 extern const std::string kBroadcastHttpRequest;

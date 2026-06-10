@@ -41,6 +41,7 @@ const string kStreamChangedSchemas = HOOK_FIELD "stream_changed_schemas";
 const string kOnStreamNotFound = HOOK_FIELD "on_stream_not_found";
 const string kOnRecordMp4 = HOOK_FIELD "on_record_mp4";
 const string kOnRecordTs = HOOK_FIELD "on_record_ts";
+const string kOnRecordSvac = HOOK_FIELD "on_record_svac";
 const string kOnShellLogin = HOOK_FIELD "on_shell_login";
 const string kOnStreamNoneReader = HOOK_FIELD "on_stream_none_reader";
 const string kOnHttpAccess = HOOK_FIELD "on_http_access";
@@ -67,6 +68,7 @@ static onceToken token([]() {
     mINI::Instance()[kOnStreamNotFound] = "";
     mINI::Instance()[kOnRecordMp4] = "";
     mINI::Instance()[kOnRecordTs] = "";
+    mINI::Instance()[kOnRecordSvac] = "";
     mINI::Instance()[kOnShellLogin] = "";
     mINI::Instance()[kOnStreamNoneReader] = "";
     mINI::Instance()[kOnHttpAccess] = "";
@@ -603,6 +605,23 @@ void installWebHook() {
         // 执行 hook  [AUTO-TRANSLATED:d9d66f75]
         // Execute hook
         do_http_hook(hook_record_ts, getRecordInfo(info), nullptr);
+    });
+
+    // SVAC录像切片完成事件
+    NoticeCenter::Instance().addListener(&web_hook_tag, Broadcast::kBroadcastRecordSVAC, [](BroadcastRecordSVACArgs) {
+        GET_CONFIG(string, hook_record_svac, Hook::kOnRecordSvac);
+        if (!hook_enable || hook_record_svac.empty()) {
+            return;
+        }
+        ArgsType body;
+        body["stream"] = info.stream;
+        body["file_name"] = info.file_name;
+        body["file_path"] = info.file_path;
+        body["file_size"] = (Json::UInt64)info.file_size;
+        body["start_time"] = (Json::UInt64)info.start_time;
+        body["time_len"] = info.time_len;
+        // 执行hook
+        do_http_hook(hook_record_svac, body, nullptr);
     });
 
     NoticeCenter::Instance().addListener(&web_hook_tag, Broadcast::kBroadcastShellLogin, [](BroadcastShellLoginArgs) {

@@ -16,6 +16,7 @@
 #include "RtpProcess.h"
 #include "Util/File.h"
 #include "Common/config.h"
+#include "Record/Recorder.h"
 
 using namespace std;
 using namespace toolkit;
@@ -342,7 +343,7 @@ const toolkit::Socket::Ptr& RtpProcess::getSock() const {
     return _sock;
 }
 
-void RtpProcess::openRtpDumpFile(const std::string &prefix, std::shared_ptr<FILE> &file) {
+void RtpProcess::openRtpDumpFile(const std::string &prefix, std::shared_ptr<FILE> &file, std::string &out_path) {
     auto now = std::chrono::system_clock::now();
     auto time_t_now = std::chrono::system_clock::to_time_t(now);
     // 取整到当前小时的起点
@@ -393,6 +394,7 @@ void RtpProcess::openRtpDumpFile(const std::string &prefix, std::shared_ptr<FILE
         seq++;
     }
 
+    out_path = path;
     file.reset(File::create_file(path, "wb"), [](FILE *fp) {
         fclose(fp);
     });
@@ -403,23 +405,99 @@ void RtpProcess::openRtpDumpFile(const std::string &prefix, std::shared_ptr<FILE
     }
 }
 
+void RtpProcess::emitRecordSVAC(const std::string &file_path, const std::string &file_name_prefix, float time_len) {
+    // 获取文件大小
+    auto file_size = File::fileSize(file_path.data());
+    if (file_size <= 0) {
+        // 空文件不发送回调
+        return;
+    }
+
+    // 根据前缀判断是自动dump还是手动dump
+    bool is_auto = file_name_prefix.empty();
+
+    // 计算 start_time（当天的第几分钟）
+    time_t start_time_minutes = 0;
+    if (is_auto) {
+        // 自动dump: 文件名格式 {stream}_{MM}_{DD}_{HH}.rtp，小时起点
+        std::tm *lt = std::localtime(&_last_dump_hour_tm);
+        start_time_minutes = lt->tm_hour * 60;
+    } else {
+        // 手动dump: 文件名格式 manual_{stream}_{MM}_{DD}_{HH}_{MM}_{SS}.rtp
+        // 从文件路径解析出小时分钟
+        auto now = std::chrono::system_clock::now();
+        auto time_t_now = std::chrono::system_clock::to_time_t(now);
+        std::tm *lt = std::localtime(&time_t_now);
+        // 回退 time_len 秒得到开始时间
+        auto start_epoch = time_t_now - (time_t)time_len;
+        lt = std::localtime(&start_epoch);
+        start_time_minutes = lt->tm_hour * 60 + lt->tm_min;
+    }
+
+    // 提取文件名
+    auto pos = file_path.rfind('/');
+#ifdef _WIN32
+    auto pos2 = file_path.rfind('\\');
+    if (pos2 != std::string::npos && (pos == std::string::npos || pos2 > pos)) {
+        pos = pos2;
+    }
+#endif
+    std::string file_name = (pos != std::string::npos) ? file_path.substr(pos + 1) : file_path;
+
+    RecordInfo info;
+    info.stream = _media_info.stream;
+    info.app = _media_info.app;
+    info.vhost = _media_info.vhost;
+    // 计算相对路径：去掉 _dump_dir 前缀
+    std::string relative_path = file_path;
+    if (!_dump_dir.empty() && file_path.find(_dump_dir) == 0) {
+        relative_path = file_path.substr(_dump_dir.size());
+        // 去掉开头的路径分隔符
+        if (!relative_path.empty() && (relative_path[0] == '/' || relative_path[0] == '\\')) {
+            relative_path = relative_path.substr(1);
+        }
+    }
+    info.file_path = relative_path;
+    info.file_name = file_name;
+    info.file_size = file_size;
+    info.start_time = start_time_minutes;  // 存储"当天第几分钟"
+    info.time_len = time_len;
+    info.folder = file_path.substr(0, pos != std::string::npos ? pos : 0);
+    info.url = "";
+
+    NOTICE_EMIT(BroadcastRecordSVACArgs, Broadcast::kBroadcastRecordSVAC, info);
+    InfoL << "[RtpProcess] emitRecordSVAC: stream=" << info.stream
+          << ", file=" << file_name
+          << ", size=" << file_size
+          << ", start_time=" << start_time_minutes
+          << ", time_len=" << time_len;
+}
+
 void RtpProcess::startAutoDump(const std::string &dump_dir) {
     _dump_dir = dump_dir;
     _auto_enabled = true;
-    openRtpDumpFile("", _save_file_rtp_auto);
+    openRtpDumpFile("", _save_file_rtp_auto, _save_file_rtp_auto_path);
+    _auto_dump_ticker.resetTime();
     InfoL << "[RtpProcess] startAutoDump: " << _media_info.stream << " -> " << _dump_dir;
 }
 
 void RtpProcess::startManualDump(const std::string &dump_dir) {
     _dump_dir = dump_dir;
     _manual_enabled = true;
-    openRtpDumpFile("manual_", _save_file_rtp_manual);
+    openRtpDumpFile("manual_", _save_file_rtp_manual, _save_file_rtp_manual_path);
+    _manual_dump_ticker.resetTime();
     InfoL << "[RtpProcess] startManualDump: " << _media_info.stream << " -> " << _dump_dir;
 }
 
 void RtpProcess::stopDump() {
+    // 在关闭文件前发送录像回调
+    if (_save_file_rtp_manual && !_save_file_rtp_manual_path.empty()) {
+        float time_len = _manual_dump_ticker.elapsedTime() / 1000.0f;
+        _save_file_rtp_manual.reset(); // 先关闭文件，确保数据刷盘
+        emitRecordSVAC(_save_file_rtp_manual_path, "manual_", time_len);
+    }
     _manual_enabled = false;
-    _save_file_rtp_manual.reset();
+    _save_file_rtp_manual_path.clear();
     InfoL << "[RtpProcess] stopDump: " << _media_info.stream;
 }
 
@@ -441,13 +519,27 @@ void RtpProcess::checkDumpRotate() {
 
         // 轮转自动 dump 文件
         if (_auto_enabled) {
-            _save_file_rtp_auto.reset();
-            openRtpDumpFile("", _save_file_rtp_auto);
+            // 在关闭旧文件前发送录像回调
+            if (_save_file_rtp_auto && !_save_file_rtp_auto_path.empty()) {
+                float time_len = _auto_dump_ticker.elapsedTime() / 1000.0f;
+                _save_file_rtp_auto.reset(); // 先关闭旧文件，确保数据刷盘
+                emitRecordSVAC(_save_file_rtp_auto_path, "", time_len);
+                _save_file_rtp_auto_path.clear();
+            }
+            openRtpDumpFile("", _save_file_rtp_auto, _save_file_rtp_auto_path);
+            _auto_dump_ticker.resetTime();
         }
         // 轮转手动 dump 文件
         if (_manual_enabled) {
-            _save_file_rtp_manual.reset();
-            openRtpDumpFile("manual_", _save_file_rtp_manual);
+            // 在关闭旧文件前发送录像回调
+            if (_save_file_rtp_manual && !_save_file_rtp_manual_path.empty()) {
+                float time_len = _manual_dump_ticker.elapsedTime() / 1000.0f;
+                _save_file_rtp_manual.reset(); // 先关闭旧文件，确保数据刷盘
+                emitRecordSVAC(_save_file_rtp_manual_path, "manual_", time_len);
+                _save_file_rtp_manual_path.clear();
+            }
+            openRtpDumpFile("manual_", _save_file_rtp_manual, _save_file_rtp_manual_path);
+            _manual_dump_ticker.resetTime();
         }
         _last_dump_hour_tm = current_hour_tm;
     }

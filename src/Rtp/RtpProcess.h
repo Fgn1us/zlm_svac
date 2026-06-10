@@ -142,7 +142,8 @@ private:
     bool alive();
     void onManager();
     void createTimer();
-    void openRtpDumpFile(const std::string &prefix, std::shared_ptr<FILE> &file);
+    void openRtpDumpFile(const std::string &prefix, std::shared_ptr<FILE> &file, std::string &out_path);
+    void emitRecordSVAC(const std::string &file_path, const std::string &file_name_prefix, float time_len);
     void checkDumpRotate();
 
 private:
@@ -160,9 +161,13 @@ private:
     // 自动 dump
     bool _auto_enabled = false;
     std::shared_ptr<FILE> _save_file_rtp_auto;
+    std::string _save_file_rtp_auto_path;
+    toolkit::Ticker _auto_dump_ticker;
     // 手动 dump
     bool _manual_enabled = false;
     std::shared_ptr<FILE> _save_file_rtp_manual;
+    std::string _save_file_rtp_manual_path;
+    toolkit::Ticker _manual_dump_ticker;
     ProcessInterface::Ptr _process;
     MultiMediaSourceMuxer::Ptr _muxer;
     toolkit::Timer::Ptr _timer;
