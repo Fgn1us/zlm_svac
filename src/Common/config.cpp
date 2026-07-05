@@ -358,6 +358,7 @@ static onceToken token([]() {
 namespace RtpProxy {
 #define RTP_PROXY_FIELD "rtp_proxy."
 const string kDumpDir = RTP_PROXY_FIELD "dumpDir";
+const string kStorageRoot = RTP_PROXY_FIELD "storageRoot";
 const string kTimeoutSec = RTP_PROXY_FIELD "timeoutSec";
 const string kPortRange = RTP_PROXY_FIELD "port_range";
 const string kH264PT = RTP_PROXY_FIELD "h264_pt";
@@ -372,6 +373,7 @@ const std::string kVerifyCertFilePath = RTP_PROXY_FIELD "cert_file_path";
 
 static onceToken token([]() {
     mINI::Instance()[kDumpDir] = "";
+    mINI::Instance()[kStorageRoot] = "/mnt";
     mINI::Instance()[kTimeoutSec] = 15;
     mINI::Instance()[kPortRange] = "30000-35000";
     mINI::Instance()[kH264PT] = 98;

@@ -4565,6 +4565,132 @@
                 }
             }
         },
+        "/index/api/getStorageList": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "获取存储空间列表 (getStorageList)",
+                "description": "扫描 rtp_proxy.storageRoot 目录下的子目录，返回每个子目录的磁盘总空间(MB)、剩余空间(MB)及 is_current(是否与 dumpDir 一致，即当前录像写入的磁盘)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api 操作密钥 (配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response. 返回 data 数组，每项含 path(路径), total_mb(总空间MB), free_mb(剩余空间MB), is_current(是否当前存储)",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "获取存储空间列表 (getStorageList)",
+                "description": "扫描 rtp_proxy.storageRoot 目录下的子目录，返回每个子目录的磁盘总空间(MB)、剩余空间(MB)及 is_current(是否与 dumpDir 一致，即当前录像写入的磁盘)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api 操作密钥 (配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response. 返回 data 数组，每项含 path(路径), total_mb(总空间MB), free_mb(剩余空间MB), is_current(是否当前存储)",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/setStoragePath": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "设置当前存储路径 (setStoragePath)",
+                "description": "将指定路径设为 rtp_proxy.dumpDir（当前录像存储目录），路径必须在 storageRoot 下。修改后立即持久化到 config.ini，新开始的录像生效，当前正在录制的流不受影响",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api 操作密钥 (配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "path",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "要设为当前存储的路径，相对于 rtp_proxy.storageRoot 的子目录名（如 disk1），也支持绝对路径",
+                        "example": "/mnt/disk1"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response. 返回 path(设置的路径)",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "设置当前存储路径 (setStoragePath)",
+                "description": "将指定路径设为 rtp_proxy.dumpDir（当前录像存储目录），路径必须在 storageRoot 下。修改后立即持久化到 config.ini，新开始的录像生效，当前正在录制的流不受影响",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api 操作密钥 (配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "path",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "要设为当前存储的路径，相对于 rtp_proxy.storageRoot 的子目录名（如 disk1），也支持绝对路径",
+                        "example": "/mnt/disk1"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response. 返回 path(设置的路径)",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
         "/index/api/playBackSVAC": {
             "get": {
                 "tags": [
@@ -4596,7 +4722,7 @@
                         "schema": {
                             "type": "string"
                         },
-                        "description": "dump 文件路径，相对于 rtp_proxy.dumpDir 的路径，或绝对路径",
+                        "description": "dump 文件路径，相对于 rtp_proxy.storageRoot 的子目录路径（如 disk1/stream_05_07_12.rtp），或绝对路径",
                         "example": "2026/05/test_05_30_14.rtp"
                     },
                     {
@@ -4675,7 +4801,7 @@
                         "schema": {
                             "type": "string"
                         },
-                        "description": "dump 文件路径，相对于 rtp_proxy.dumpDir 的路径，或绝对路径",
+                        "description": "dump 文件路径，相对于 rtp_proxy.storageRoot 的子目录路径（如 disk1/stream_05_07_12.rtp），或绝对路径",
                         "example": "2026/05/test_05_30_14.rtp"
                     },
                     {

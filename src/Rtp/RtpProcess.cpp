@@ -358,29 +358,25 @@ void RtpProcess::openRtpDumpFile(const std::string &prefix, std::shared_ptr<FILE
     while (true) {
         if (seq == 0) {
             if (manual) {
-                snprintf(path, sizeof(path), "%s/%04d/%02d/%s%s_%02d_%02d_%02d_%02d_%02d.rtp",
+                snprintf(path, sizeof(path), "%s/%s%s_%02d_%02d_%02d_%02d_%02d.rtp",
                          _dump_dir.c_str(),
-                         tm->tm_year + 1900, tm->tm_mon + 1,
                          prefix.c_str(), _media_info.stream.c_str(),
                          tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
             } else {
-                snprintf(path, sizeof(path), "%s/%04d/%02d/%s_%02d_%02d_%02d.rtp",
+                snprintf(path, sizeof(path), "%s/%s_%02d_%02d_%02d.rtp",
                          _dump_dir.c_str(),
-                         tm->tm_year + 1900, tm->tm_mon + 1,
                          _media_info.stream.c_str(),
                          tm->tm_mon + 1, tm->tm_mday, tm->tm_hour);
             }
         } else {
             if (manual) {
-                snprintf(path, sizeof(path), "%s/%04d/%02d/%s%s_%02d_%02d_%02d_%02d_%02d_%d.rtp",
+                snprintf(path, sizeof(path), "%s/%s%s_%02d_%02d_%02d_%02d_%02d_%d.rtp",
                          _dump_dir.c_str(),
-                         tm->tm_year + 1900, tm->tm_mon + 1,
                          prefix.c_str(), _media_info.stream.c_str(),
                          tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, seq);
             } else {
-                snprintf(path, sizeof(path), "%s/%04d/%02d/%s_%02d_%02d_%02d_%d.rtp",
+                snprintf(path, sizeof(path), "%s/%s_%02d_%02d_%02d_%d.rtp",
                          _dump_dir.c_str(),
-                         tm->tm_year + 1900, tm->tm_mon + 1,
                          _media_info.stream.c_str(),
                          tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, seq);
             }

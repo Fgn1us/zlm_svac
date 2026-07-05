@@ -744,23 +744,6 @@ static bool getDiskSpace(const std::string &path, uint64_t &total_bytes, uint64_
 }
 #endif
 
-// 路径解析：相对路径拼到 base 下；绝对路径原样返回  [AUTO-TRANSLATED:b1c2d3e4]
-// Path resolution: relative paths are appended to base; absolute paths returned as-is
-static std::string resolvePath(const std::string &path, const std::string &base) {
-    if (path.empty()) return base;
-#ifdef _WIN32
-    if (path.size() >= 2 && path[1] == ':') return path;
-    if (path.size() >= 2 && path[0] == '\\' && path[1] == '\\') return path;
-#else
-    if (path[0] == '/') return path;
-#endif
-    std::string result = base;
-    for (auto &c : result) if (c == '\\') c = '/';
-    if (result.back() != '/') result += '/';
-    for (auto c : path) result += (c == '\\' ? '/' : c);
-    return result;
-}
-
 void installWebApi() {
     addHttpListener();
     GET_CONFIG(string,api_secret,API::kSecret);
@@ -2198,33 +2181,29 @@ void installWebApi() {
         if (storage_root.empty()) {
             throw ApiRetException("storageRoot is not configured, please set rtp_proxy.storageRoot in config", API::OtherFailed);
         }
-        // 相对路径展开为绝对路径
-        std::string abs_root = resolvePath(storage_root, exeDir());
-        if (!File::is_dir(abs_root)) {
-            auto err_msg = "storageRoot is not a valid directory: " + storage_root + " (resolved to " + abs_root + ")";
+        if (!File::is_dir(storage_root)) {
+            auto err_msg = "storageRoot is not a valid directory: " + storage_root;
             throw ApiRetException(err_msg.c_str(), API::NotFound);
         }
 
-        // 路径标准化：统一用 / 分隔符
-        auto norm = [](const std::string &p) {
-            auto s = p;
-            for (auto &c : s) if (c == '\\') c = '/';
-            return s;
-        };
-
         Json::Value data(Json::arrayValue);
-        File::scanDir(abs_root, [&](const std::string &path, bool isDir) -> bool {
+        File::scanDir(storage_root, [&](const std::string &path, bool isDir) -> bool {
             if (!isDir) {
                 return true; // 跳过文件，只列目录
+            }
+
+            // 提取目录名（仅子目录名，不含完整路径）
+            std::string dir_name = path;
+            size_t pos = path.rfind('/');
+            if (pos != std::string::npos) {
+                dir_name = path.substr(pos + 1);
             }
 
             uint64_t total_bytes = 0, free_bytes = 0;
             bool space_ok = getDiskSpace(path, total_bytes, free_bytes);
 
-            std::string norm_path = norm(path);
-
             Json::Value item;
-            item["path"] = norm_path;
+            item["path"] = path;
             if (space_ok) {
                 item["total_mb"] = (Json::UInt64)(total_bytes / (1024 * 1024));
                 item["free_mb"] = (Json::UInt64)(free_bytes / (1024 * 1024));
@@ -2232,8 +2211,9 @@ void installWebApi() {
                 item["total_mb"] = 0;
                 item["free_mb"] = 0;
             }
-            // 与 dumpDir 比对（路径标准化后比较）
-            item["is_current"] = (!dump_dir.empty() && norm_path == norm(dump_dir));
+            // 与 dumpDir 比对，标记当前使用的存储  [AUTO-TRANSLATED:d8e9f0a1]
+            // Compare with dumpDir to mark the currently used storage
+            item["is_current"] = (!dump_dir.empty() && path == dump_dir);
 
             data.append(item);
             return true;
@@ -2253,44 +2233,38 @@ void installWebApi() {
         if (storage_root.empty()) {
             throw ApiRetException("storageRoot is not configured, please set rtp_proxy.storageRoot in config", API::OtherFailed);
         }
-        // 展开 storageRoot 为绝对路径
-        std::string abs_root = resolvePath(storage_root, exeDir());
 
-        // 相对路径 → 相对于 abs_root 解析为绝对路径
-        std::string abs_path = resolvePath(path, abs_root);
-        if (!File::is_dir(abs_path)) {
-            auto err_msg = "path is not a valid directory: " + path + " (resolved to " + abs_path + ")";
-            throw ApiRetException(err_msg.c_str(), API::NotFound);
+        // 校验 path 必须在 storageRoot 目录下  [AUTO-TRANSLATED:a1b2c3d4]
+        // Validate that path must be under storageRoot directory
+        std::string storage_root_normalized = storage_root;
+        if (storage_root_normalized.back() != '/') {
+            storage_root_normalized += '/';
         }
-
-        // 校验解析后的路径必须在 storageRoot 目录下
-        auto norm = [](const std::string &p) {
-            auto s = p;
-            for (auto &c : s) if (c == '\\') c = '/';
-            return s;
-        };
-        std::string norm_path = norm(abs_path);
-        std::string norm_root = norm(abs_root);
-        if (norm_root.back() != '/') {
-            norm_root += '/';
-        }
-        if (norm_path.compare(0, norm_root.size(), norm_root) != 0
-            || norm_path.size() <= norm_root.size()) {
+        if (path.compare(0, storage_root_normalized.size(), storage_root_normalized) != 0
+            || path.size() <= storage_root_normalized.size()) {
             auto err_msg = "path must be a subdirectory under storageRoot: " + storage_root;
             throw ApiRetException(err_msg.c_str(), API::InvalidArgs);
         }
 
-        // 修改 dumpDir 配置并持久化到 config 文件（存绝对路径）
+        // 校验目录存在  [AUTO-TRANSLATED:e5f6a7b8]
+        // Validate that the directory exists
+        if (!File::is_dir(path)) {
+            auto err_msg = "path is not a valid directory: " + path;
+            throw ApiRetException(err_msg.c_str(), API::NotFound);
+        }
+
+        // 修改 dumpDir 配置并持久化到 config 文件  [AUTO-TRANSLATED:c9d0e1f2]
+        // Modify dumpDir config and persist to config file
         auto &ini = mINI::Instance();
-        ini[RtpProxy::kDumpDir] = abs_path;
+        ini[RtpProxy::kDumpDir] = path;
         NOTICE_EMIT(BroadcastReloadConfigArgs, Broadcast::kBroadcastReloadConfig);
         ini.dumpFile(g_ini_file);
 
-        InfoL << "[setStoragePath] dumpDir changed to: " << abs_path;
+        InfoL << "[setStoragePath] dumpDir changed to: " << path;
 
         val["code"] = API::Success;
         val["msg"] = "storage path updated successfully";
-        val["path"] = abs_path;
+        val["path"] = path;
     });
 
     api_regist("/index/api/playBackSVAC", [](API_ARGS_MAP) {
@@ -2302,19 +2276,19 @@ void installWebApi() {
         uint16_t dst_port = allArgs["dst_port"].as<uint16_t>();
         std::string stream = allArgs["stream"];
 
-        // 解析 file_path：相对路径则相对于 storageRoot
-        GET_CONFIG(string, storage_root, RtpProxy::kStorageRoot);
+        // 解析 file_path：相对路径则相对于 dumpDir
+        GET_CONFIG(string, dump_dir, RtpProxy::kDumpDir);
         std::string abs_path;
-        if (storage_root.empty()) {
-            // storageRoot 未配置，file_path 必须是绝对路径
+        if (dump_dir.empty()) {
+            // dumpDir 未配置，file_path 必须是绝对路径
             abs_path = file_path;
             if (!File::fileExist(abs_path)) {
                 auto err_msg = "dump file not found: " + file_path;
                 throw ApiRetException(err_msg.c_str(), API::NotFound);
             }
         } else {
-            // 解析为相对于 storageRoot 的路径
-            abs_path = File::absolutePath(file_path, storage_root);
+            // 尝试解析为相对于 dumpDir 的路径
+            abs_path = File::absolutePath(file_path, dump_dir);
             if (!File::fileExist(abs_path)) {
                 auto err_msg = "dump file not found: " + file_path + " (resolved to " + abs_path + ")";
                 throw ApiRetException(err_msg.c_str(), API::NotFound);
