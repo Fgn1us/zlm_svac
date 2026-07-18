@@ -4395,6 +4395,15 @@
                         },
                         "description": "流的 id 名，例如 test",
                         "example": "test"
+                    },
+                    {
+                        "name": "file_name",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "录像文件名（不含扩展名），必填",
+                        "example": "my_record"
                     }
                 ],
                 "responses": {
@@ -4447,6 +4456,15 @@
                         },
                         "description": "流的 id 名，例如 test",
                         "example": "test"
+                    },
+                    {
+                        "name": "file_name",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "录像文件名（不含扩展名），必填",
+                        "example": "my_record"
                     }
                 ],
                 "responses": {
@@ -4464,7 +4482,7 @@
                 "tags": [
                     "GET"
                 ],
-                "summary": "停止 SVAC 录制 (stopRecordSVAC)",
+                        "summary": "停止 SVAC 录制 (stopRecordSVAC)",
                 "parameters": [
                     {
                         "name": "secret",
@@ -4501,6 +4519,15 @@
                         },
                         "description": "流的 id 名，例如 test",
                         "example": "test"
+                    },
+                    {
+                        "name": "file_name",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "录像文件名（不含扩展名），必填，需与开始录制时一致",
+                        "example": "my_record"
                     }
                 ],
                 "responses": {
@@ -4516,7 +4543,7 @@
                 "tags": [
                     "POST"
                 ],
-                "summary": "停止 SVAC 录制 (stopRecordSVAC)",
+                        "summary": "停止 SVAC 录制 (stopRecordSVAC)",
                 "parameters": [
                     {
                         "name": "secret",
@@ -4553,6 +4580,15 @@
                         },
                         "description": "流的 id 名，例如 test",
                         "example": "test"
+                    },
+                    {
+                        "name": "file_name",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "录像文件名（不含扩展名），必填，需与开始录制时一致",
+                        "example": "my_record"
                     }
                 ],
                 "responses": {

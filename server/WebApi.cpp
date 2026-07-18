@@ -2130,13 +2130,15 @@ void installWebApi() {
 #if defined(ENABLE_RTPPROXY) && defined(_WIN32)
     api_regist("/index/api/recordSVAC", [](API_ARGS_MAP) {
         CHECK_SECRET();
-        CHECK_ARGS("vhost","app","stream");
+        CHECK_ARGS("vhost","app","stream","file_name");
 
         GET_CONFIG(string, dump_dir, RtpProxy::kDumpDir);
         if (dump_dir.empty()) {
             throw ApiRetException("dumpDir is not configured, please set rtp_proxy.dumpDir in config", API::OtherFailed);
         }
 
+        std::string file_name = allArgs["file_name"];
+
         auto src = MediaSource::find(allArgs["vhost"], allArgs["app"], allArgs["stream"]);
         if (!src) {
             throw ApiRetException("can not find the stream", API::NotFound);
@@ -2147,22 +2149,26 @@ void installWebApi() {
             throw ApiRetException("can not get rtp process for this stream", API::NotFound);
         }
 
-        if (process->isDumping()) {
-            InfoL << "[recordSVAC] already manual recording, ignore: vhost=" << allArgs["vhost"] << ", app=" << allArgs["app"] << ", stream=" << allArgs["stream"];
+        if (process->isDumping(file_name)) {
+            InfoL << "[recordSVAC] already recording with same file_name, ignore: vhost=" << allArgs["vhost"]
+                  << ", app=" << allArgs["app"] << ", stream=" << allArgs["stream"] << ", file_name=" << file_name;
             val["code"] = API::Success;
             val["msg"] = "already recording, ignore";
             return;
         }
 
-        process->startManualDump(dump_dir);
-        InfoL << "[recordSVAC] vhost=" << allArgs["vhost"] << ", app=" << allArgs["app"] << ", stream=" << allArgs["stream"];
+        process->startManualDump(dump_dir, file_name);
+        InfoL << "[recordSVAC] vhost=" << allArgs["vhost"] << ", app=" << allArgs["app"] << ", stream=" << allArgs["stream"]
+              << ", file_name=" << file_name;
         val["code"] = API::Success;
         val["msg"] = "recordSVAC started successfully";
     });
 
     api_regist("/index/api/stopRecordSVAC", [](API_ARGS_MAP) {
         CHECK_SECRET();
-        CHECK_ARGS("vhost","app","stream");
+        CHECK_ARGS("vhost","app","stream","file_name");
+
+        std::string file_name = allArgs["file_name"];
 
         auto src = MediaSource::find(allArgs["vhost"], allArgs["app"], allArgs["stream"]);
         if (!src) {
@@ -2174,14 +2180,23 @@ void installWebApi() {
             throw ApiRetException("can not get rtp process for this stream", API::NotFound);
         }
 
-        if (!process->isDumping()) {
-            throw ApiRetException("no manual recording in progress for this stream", API::OtherFailed);
+        if (!process->isDumping(file_name)) {
+            throw ApiRetException("no matching recording in progress for this stream and file_name", API::OtherFailed);
         }
 
-        process->stopDump();
-        InfoL << "[stopRecordSVAC] vhost=" << allArgs["vhost"] << ", app=" << allArgs["app"] << ", stream=" << allArgs["stream"];
+        std::string file_path = process->getSlotPath(file_name);
+        process->stopDump(file_name);
+        uint64_t file_size = File::fileSize(file_path);
+
+        InfoL << "[stopRecordSVAC] vhost=" << allArgs["vhost"] << ", app=" << allArgs["app"] << ", stream=" << allArgs["stream"]
+              << ", file_name=" << file_name << ", path=" << file_path << ", size=" << file_size;
+
         val["code"] = API::Success;
         val["msg"] = "stopRecordSVAC called successfully";
+        val["stream"] = allArgs["stream"];
+        val["file_name"] = file_name;
+        val["file_path"] = file_path;
+        val["file_size"] = (Json::UInt64)file_size;
     });
 #endif // defined(ENABLE_RTPPROXY) && defined(_WIN32)
 

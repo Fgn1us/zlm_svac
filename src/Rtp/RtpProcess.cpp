@@ -119,11 +119,14 @@ bool RtpProcess::inputRtp(bool is_udp, const Socket::Ptr &sock, const char *data
         fwrite((uint8_t *) &size, 2, 1, _save_file_rtp_auto.get());
         fwrite((uint8_t *) data, len, 1, _save_file_rtp_auto.get());
     }
-    if (_manual_enabled && _save_file_rtp_manual) {
-        uint16_t size = (uint16_t)len;
-        size = htons(size);
-        fwrite((uint8_t *) &size, 2, 1, _save_file_rtp_manual.get());
-        fwrite((uint8_t *) data, len, 1, _save_file_rtp_manual.get());
+    for (auto &pr : _manual_slots) {
+        auto &slot = pr.second;
+        if (slot.file) {
+            uint16_t size = (uint16_t)len;
+            size = htons(size);
+            fwrite((uint8_t *) &size, 2, 1, slot.file.get());
+            fwrite((uint8_t *) data, len, 1, slot.file.get());
+        }
     }
     if (!_process) {
         _media_info.protocol = is_udp ? "udp" : "tcp";
@@ -351,43 +354,56 @@ void RtpProcess::openRtpDumpFile(const std::string &prefix, std::shared_ptr<FILE
     std::tm *tm = std::localtime(&time_t_now);
 
     // 查找不重复的文件名（处理中断重连场景）
-    // 手动录制精确到秒，自动录制精确到小时
     int seq = 0;
     char path[1024];
     bool manual = !prefix.empty();
-    while (true) {
-        if (seq == 0) {
-            if (manual) {
-                snprintf(path, sizeof(path), "%s/%s%s_%02d_%02d_%02d_%02d_%02d.rtp",
-                         _dump_dir.c_str(),
-                         prefix.c_str(), _media_info.stream.c_str(),
-                         tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
-            } else {
-                snprintf(path, sizeof(path), "%s/%s_%02d_%02d_%02d.rtp",
-                         _dump_dir.c_str(),
-                         _media_info.stream.c_str(),
-                         tm->tm_mon + 1, tm->tm_mday, tm->tm_hour);
-            }
-        } else {
-            if (manual) {
-                snprintf(path, sizeof(path), "%s/%s%s_%02d_%02d_%02d_%02d_%02d_%d.rtp",
-                         _dump_dir.c_str(),
-                         prefix.c_str(), _media_info.stream.c_str(),
-                         tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, seq);
-            } else {
-                snprintf(path, sizeof(path), "%s/%s_%02d_%02d_%02d_%d.rtp",
-                         _dump_dir.c_str(),
-                         _media_info.stream.c_str(),
-                         tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, seq);
-            }
+
+    // 如果指定了自定义文件名，直接使用
+    if (!_custom_file_name.empty()) {
+        snprintf(path, sizeof(path), "%s/%s.rtp", _dump_dir.c_str(), _custom_file_name.c_str());
+        while (true) {
+            FILE *test_fp = fopen(path, "rb");
+            if (!test_fp) break;
+            fclose(test_fp);
+            seq++;
+            snprintf(path, sizeof(path), "%s/%s_%d.rtp", _dump_dir.c_str(), _custom_file_name.c_str(), seq);
         }
-        // 检查文件是否已存在
-        FILE *test_fp = fopen(path, "rb");
-        if (!test_fp) {
-            break; // 文件不存在，可以使用
+    } else {
+        // 原有逻辑：按时间戳自动命名
+        while (true) {
+            if (seq == 0) {
+                if (manual) {
+                    snprintf(path, sizeof(path), "%s/%s%s_%02d_%02d_%02d_%02d_%02d.rtp",
+                             _dump_dir.c_str(),
+                             prefix.c_str(), _media_info.stream.c_str(),
+                             tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
+                } else {
+                    snprintf(path, sizeof(path), "%s/%s_%02d_%02d_%02d.rtp",
+                             _dump_dir.c_str(),
+                             _media_info.stream.c_str(),
+                             tm->tm_mon + 1, tm->tm_mday, tm->tm_hour);
+                }
+            } else {
+                if (manual) {
+                    snprintf(path, sizeof(path), "%s/%s%s_%02d_%02d_%02d_%02d_%02d_%d.rtp",
+                             _dump_dir.c_str(),
+                             prefix.c_str(), _media_info.stream.c_str(),
+                             tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, seq);
+                } else {
+                    snprintf(path, sizeof(path), "%s/%s_%02d_%02d_%02d_%d.rtp",
+                             _dump_dir.c_str(),
+                             _media_info.stream.c_str(),
+                             tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, seq);
+                }
+            }
+            // 检查文件是否已存在
+            FILE *test_fp = fopen(path, "rb");
+            if (!test_fp) {
+                break; // 文件不存在，可以使用
+            }
+            fclose(test_fp);
+            seq++;
         }
-        fclose(test_fp);
-        seq++;
     }
 
     out_path = path;
@@ -469,40 +485,71 @@ void RtpProcess::emitRecordSVAC(const std::string &file_path, const std::string 
           << ", time_len=" << time_len;
 }
 
-void RtpProcess::startAutoDump(const std::string &dump_dir) {
+void RtpProcess::startAutoDump(const std::string &dump_dir, const std::string &file_name) {
     _dump_dir = dump_dir;
+    _custom_file_name = file_name;
     _auto_enabled = true;
     openRtpDumpFile("", _save_file_rtp_auto, _save_file_rtp_auto_path);
     _auto_dump_ticker.resetTime();
     InfoL << "[RtpProcess] startAutoDump: " << _media_info.stream << " -> " << _dump_dir;
 }
 
-void RtpProcess::startManualDump(const std::string &dump_dir) {
+void RtpProcess::startManualDump(const std::string &dump_dir, const std::string &file_name) {
     _dump_dir = dump_dir;
-    _manual_enabled = true;
-    openRtpDumpFile("manual_", _save_file_rtp_manual, _save_file_rtp_manual_path);
-    _manual_dump_ticker.resetTime();
-    InfoL << "[RtpProcess] startManualDump: " << _media_info.stream << " -> " << _dump_dir;
+    _custom_file_name = file_name;
+    auto &slot = _manual_slots[file_name];
+    openRtpDumpFile("", slot.file, slot.path);
+    slot.ticker.resetTime();
+    InfoL << "[RtpProcess] startManualDump: " << _media_info.stream << " -> " << _dump_dir
+          << ", file_name=" << (file_name.empty() ? "(auto)" : file_name);
 }
 
-void RtpProcess::stopDump() {
-    // 在关闭文件前发送录像回调
-    if (_save_file_rtp_manual && !_save_file_rtp_manual_path.empty()) {
-        float time_len = _manual_dump_ticker.elapsedTime() / 1000.0f;
-        _save_file_rtp_manual.reset(); // 先关闭文件，确保数据刷盘
-        emitRecordSVAC(_save_file_rtp_manual_path, "manual_", time_len);
+void RtpProcess::stopDump(const std::string &file_name) {
+    if (file_name.empty()) {
+        // 停止所有手动 dump
+        for (auto &pr : _manual_slots) {
+            auto &slot = pr.second;
+            if (slot.file && !slot.path.empty()) {
+                float time_len = slot.ticker.elapsedTime() / 1000.0f;
+                slot.file.reset();
+                emitRecordSVAC(slot.path, "", time_len);
+            }
+        }
+        _manual_slots.clear();
+        _custom_file_name.clear();
+        InfoL << "[RtpProcess] stopDump(all): " << _media_info.stream;
+        return;
     }
-    _manual_enabled = false;
-    _save_file_rtp_manual_path.clear();
-    InfoL << "[RtpProcess] stopDump: " << _media_info.stream;
+
+    auto it = _manual_slots.find(file_name);
+    if (it == _manual_slots.end()) return;
+    auto &slot = it->second;
+    if (slot.file && !slot.path.empty()) {
+        float time_len = slot.ticker.elapsedTime() / 1000.0f;
+        slot.file.reset();
+        emitRecordSVAC(slot.path, "", time_len);
+    }
+    _manual_slots.erase(it);
+    InfoL << "[RtpProcess] stopDump: " << _media_info.stream << ", file_name=" << file_name;
 }
 
-bool RtpProcess::isDumping() const {
-    return _manual_enabled;
+bool RtpProcess::isDumping(const std::string &file_name) const {
+    if (file_name.empty()) {
+        return !_manual_slots.empty();
+    }
+    return _manual_slots.find(file_name) != _manual_slots.end();
+}
+
+std::string RtpProcess::getSlotPath(const std::string &file_name) const {
+    auto it = _manual_slots.find(file_name);
+    if (it != _manual_slots.end()) {
+        return it->second.path;
+    }
+    return "";
 }
 
 void RtpProcess::checkDumpRotate() {
-    if (!_auto_enabled && !_manual_enabled) {
+    if (!_auto_enabled && _manual_slots.empty()) {
         return;
     }
     auto now = std::chrono::system_clock::now();
@@ -511,7 +558,7 @@ void RtpProcess::checkDumpRotate() {
 
     if (current_hour_tm != _last_dump_hour_tm) {
         InfoL << "[RtpProcess] hour change detected, stream=" << _media_info.stream
-              << ", auto=" << _auto_enabled << ", manual=" << _manual_enabled;
+              << ", auto=" << _auto_enabled << ", manual=" << _manual_slots.size();
 
         // 轮转自动 dump 文件
         if (_auto_enabled) {
@@ -525,17 +572,18 @@ void RtpProcess::checkDumpRotate() {
             openRtpDumpFile("", _save_file_rtp_auto, _save_file_rtp_auto_path);
             _auto_dump_ticker.resetTime();
         }
-        // 轮转手动 dump 文件
-        if (_manual_enabled) {
-            // 在关闭旧文件前发送录像回调
-            if (_save_file_rtp_manual && !_save_file_rtp_manual_path.empty()) {
-                float time_len = _manual_dump_ticker.elapsedTime() / 1000.0f;
-                _save_file_rtp_manual.reset(); // 先关闭旧文件，确保数据刷盘
-                emitRecordSVAC(_save_file_rtp_manual_path, "manual_", time_len);
-                _save_file_rtp_manual_path.clear();
+        // 轮转手动 dump 文件（每个 slot 独立轮转）
+        for (auto &pr : _manual_slots) {
+            auto &slot = pr.second;
+            if (slot.file && !slot.path.empty()) {
+                float time_len = slot.ticker.elapsedTime() / 1000.0f;
+                slot.file.reset();
+                emitRecordSVAC(slot.path, "", time_len);
+                slot.path.clear();
             }
-            openRtpDumpFile("manual_", _save_file_rtp_manual, _save_file_rtp_manual_path);
-            _manual_dump_ticker.resetTime();
+            _custom_file_name = pr.first;
+            openRtpDumpFile("", slot.file, slot.path);
+            slot.ticker.resetTime();
         }
         _last_dump_hour_tm = current_hour_tm;
     }

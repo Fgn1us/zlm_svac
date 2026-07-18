@@ -86,20 +86,25 @@ public:
      * @param dump_dir dump 根目录
      */
     // 自动 dump（构造时触发，前缀为空）
-    void startAutoDump(const std::string &dump_dir);
+    void startAutoDump(const std::string &dump_dir, const std::string &file_name = "");
 
-    // 手动 dump（API 触发，前缀 "manual_"）
-    void startManualDump(const std::string &dump_dir);
-
-    /**
-     * 停止手动 dump
-     */
-    void stopDump();
+    // 手动 dump（API 触发，录像文件名由 file_name 指定）
+    void startManualDump(const std::string &dump_dir, const std::string &file_name = "");
 
     /**
-     * 是否正在手动 dump
+     * 停止手动 dump（指定文件名）
      */
-    bool isDumping() const;
+    void stopDump(const std::string &file_name = "");
+
+    /**
+     * 是否正在手动 dump（无参数=任一活跃；带参数=指定文件名）
+     */
+    bool isDumping(const std::string &file_name = "") const;
+
+    /**
+     * 获取指定录像的文件路径（仅手动 dump）
+     */
+    std::string getSlotPath(const std::string &file_name) const;
 
     /**
      * flush输出缓存
@@ -163,11 +168,13 @@ private:
     std::shared_ptr<FILE> _save_file_rtp_auto;
     std::string _save_file_rtp_auto_path;
     toolkit::Ticker _auto_dump_ticker;
-    // 手动 dump
-    bool _manual_enabled = false;
-    std::shared_ptr<FILE> _save_file_rtp_manual;
-    std::string _save_file_rtp_manual_path;
-    toolkit::Ticker _manual_dump_ticker;
+    // 手动 dump（支持多路并发，按 file_name 索引）
+    struct DumpSlot {
+        std::shared_ptr<FILE> file;
+        std::string path;
+        toolkit::Ticker ticker;
+    };
+    std::map<std::string, DumpSlot> _manual_slots;
     ProcessInterface::Ptr _process;
     MultiMediaSourceMuxer::Ptr _muxer;
     toolkit::Timer::Ptr _timer;
@@ -177,6 +184,7 @@ private:
     std::deque<std::function<void()> > _cached_func;
     // dump 控制（共享）
     std::string _dump_dir;
+    std::string _custom_file_name;
     std::time_t _last_dump_hour_tm = 0;
 };
 
