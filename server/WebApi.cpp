@@ -8,6 +8,8 @@
  * may be found in the AUTHORS file in the root of the source tree.
  */
 
+#include <chrono>
+#include <ctime>
 #include <exception>
 #include <sys/stat.h>
 #include <math.h>
@@ -2158,10 +2160,16 @@ void installWebApi() {
         }
 
         process->startManualDump(dump_dir, file_name);
+        auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+        char time_buf[32];
+        std::strftime(time_buf, sizeof(time_buf), "%Y-%m-%d %H:%M:%S", std::localtime(&now));
         InfoL << "[recordSVAC] vhost=" << allArgs["vhost"] << ", app=" << allArgs["app"] << ", stream=" << allArgs["stream"]
               << ", file_name=" << file_name;
         val["code"] = API::Success;
         val["msg"] = "recordSVAC started successfully";
+        val["stream"] = allArgs["stream"];
+        val["file_name"] = file_name;
+        val["start_time"] = time_buf;
     });
 
     api_regist("/index/api/stopRecordSVAC", [](API_ARGS_MAP) {
@@ -2187,6 +2195,9 @@ void installWebApi() {
         std::string file_path = process->getSlotPath(file_name);
         process->stopDump(file_name);
         uint64_t file_size = File::fileSize(file_path);
+        auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+        char time_buf[32];
+        std::strftime(time_buf, sizeof(time_buf), "%Y-%m-%d %H:%M:%S", std::localtime(&now));
 
         InfoL << "[stopRecordSVAC] vhost=" << allArgs["vhost"] << ", app=" << allArgs["app"] << ", stream=" << allArgs["stream"]
               << ", file_name=" << file_name << ", path=" << file_path << ", size=" << file_size;
@@ -2197,6 +2208,7 @@ void installWebApi() {
         val["file_name"] = file_name;
         val["file_path"] = file_path;
         val["file_size"] = (Json::UInt64)file_size;
+        val["end_time"] = time_buf;
     });
 #endif // defined(ENABLE_RTPPROXY) && defined(_WIN32)
 

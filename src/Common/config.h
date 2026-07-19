@@ -537,6 +537,8 @@ namespace RtpProxy {
 // rtp调试数据保存目录,置空则不生成  [AUTO-TRANSLATED:aa004af0]
 // Rtp debug data save directory, empty if not generated
 extern const std::string kDumpDir;
+// 是否启用自动 dump：1=启用，0=禁用（默认 0）
+extern const std::string kAutoDumpEnable;
 // 存储空间根目录，getStorageList 扫描此目录的子目录  [AUTO-TRANSLATED:3c4d5e6f]
 // Storage root directory, getStorageList scans subdirectories of this directory
 extern const std::string kStorageRoot;

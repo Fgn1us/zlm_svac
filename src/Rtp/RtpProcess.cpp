@@ -39,9 +39,10 @@ RtpProcess::RtpProcess(const MediaTuple &tuple) {
     _media_info.schema = "rtp";
     static_cast<MediaTuple &>(_media_info) = tuple;
 
-    // 自动开始 dump（如果配置了 dumpDir）
+    // 自动开始 dump（需配置 dumpDir 且 auto_dump_enable=1）
     GET_CONFIG(string, dump_dir, RtpProxy::kDumpDir);
-    if (!dump_dir.empty()) {
+    GET_CONFIG(int, auto_dump_enable, RtpProxy::kAutoDumpEnable);
+    if (!dump_dir.empty() && auto_dump_enable == 1) {
         startAutoDump(dump_dir);
     }
 }
