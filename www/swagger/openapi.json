@@ -4744,12 +4744,12 @@
                         "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
                     },
                     {
-                        "name": "stream",
+                        "name": "session",
                         "in": "query",
                         "schema": {
                             "type": "string"
                         },
-                        "description": "流的 id 名，用于 session 管理",
+                        "description": "回放会话标识，用于定位回放会话",
                         "example": "test"
                     },
                     {
@@ -4823,12 +4823,12 @@
                         "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
                     },
                     {
-                        "name": "stream",
+                        "name": "session",
                         "in": "query",
                         "schema": {
                             "type": "string"
                         },
-                        "description": "流的 id 名，用于 session 管理",
+                        "description": "回放会话标识，用于定位回放会话",
                         "example": "test"
                     },
                     {
@@ -4909,7 +4909,7 @@
                         "schema": {
                             "type": "string"
                         },
-                        "description": "流的 id 名，用于定位回放会话",
+                        "description": "回放会话标识，用于定位回放会话",
                         "example": "34020000001320000001"
                     }
                 ],
@@ -4943,13 +4943,277 @@
                         "schema": {
                             "type": "string"
                         },
-                        "description": "流的 id 名，用于定位回放会话",
+                        "description": "回放会话标识，用于定位回放会话",
                         "example": "34020000001320000001"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "Successful response. 返回 sent_packets(已发送包数), sent_bytes(已发送字节数)",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/pausePlayBackSVAC": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "暂停/继续 SVAC 录像回放 (pausePlayBackSVAC)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api 操作密钥 (配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "回放会话标识，用于定位回放会话",
+                        "example": "34020000001320000001"
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "控制状态: pause=暂停, resume=继续",
+                        "example": "pause"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response. 返回 status(paused|playing)",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "暂停/继续 SVAC 录像回放 (pausePlayBackSVAC)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api 操作密钥 (配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "回放会话标识，用于定位回放会话",
+                        "example": "34020000001320000001"
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "控制状态: pause=暂停, resume=继续",
+                        "example": "pause"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response. 返回 status(paused|playing)",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/setPlayBackSpeed": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "设置 SVAC 录像回放倍速 (setPlayBackSpeed)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api 操作密钥 (配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "回放会话标识，用于定位回放会话",
+                        "example": "34020000001320000001"
+                    },
+                    {
+                        "name": "speed",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "description": "播放倍速: 0.5 / 1.0 / 1.5 / 2.0",
+                        "example": 1.5
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response. 返回 speed(新倍速), old_speed(旧倍速)",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "设置 SVAC 录像回放倍速 (setPlayBackSpeed)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api 操作密钥 (配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "回放会话标识，用于定位回放会话",
+                        "example": "34020000001320000001"
+                    },
+                    {
+                        "name": "speed",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "description": "播放倍速: 0.5 / 1.0 / 1.5 / 2.0",
+                        "example": 1.5
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response. 返回 speed(新倍速), old_speed(旧倍速)",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/index/api/seekPlayBackSVAC": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "快进/快退 SVAC 录像回放 (seekPlayBackSVAC)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api 操作密钥 (配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "回放会话标识，用于定位回放会话",
+                        "example": "34020000001320000001"
+                    },
+                    {
+                        "name": "offset_sec",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "偏移秒数: 正数=快进, 负数=快退",
+                        "example": 30
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response. 返回 old_offset_ms(原位置), new_offset_ms(新位置), actual_delta_ms(实际偏移)",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "快进/快退 SVAC 录像回放 (seekPlayBackSVAC)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api 操作密钥 (配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "stream",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "回放会话标识，用于定位回放会话",
+                        "example": "34020000001320000001"
+                    },
+                    {
+                        "name": "offset_sec",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "偏移秒数: 正数=快进, 负数=快退",
+                        "example": 30
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response. 返回 old_offset_ms(原位置), new_offset_ms(新位置), actual_delta_ms(实际偏移)",
                         "content": {
                             "application/json": {}
                         }

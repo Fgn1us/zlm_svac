@@ -2471,6 +2471,149 @@ void installWebApi() {
         val["sent_packets"] = (Json::UInt64)player->getSentPackets();
         val["sent_bytes"] = (Json::UInt64)player->getSentBytes();
     });
+
+    api_regist("/index/api/pausePlayBackSVAC", [](API_ARGS_MAP) {
+        CHECK_SECRET();
+        CHECK_ARGS("stream", "status");
+
+        std::string stream = allArgs["stream"];
+        std::string status = allArgs["status"];
+
+        if (status != "pause" && status != "resume") {
+            throw ApiRetException("status must be 'pause' or 'resume'", API::InvalidArgs);
+        }
+
+        RtpDumpPlayer::Ptr player;
+        {
+            std::lock_guard<std::mutex> lck(s_playback_mtx);
+            auto it = s_playback_sessions.find(stream);
+            if (it == s_playback_sessions.end() || !it->second) {
+                auto err_msg = "no active playback for stream: " + stream;
+                throw ApiRetException(err_msg.c_str(), API::NotFound);
+            }
+            player = it->second;
+        }
+
+        if (!player->isPlaying()) {
+            auto err_msg = "playback already finished for stream: " + stream;
+            throw ApiRetException(err_msg.c_str(), API::OtherFailed);
+        }
+
+        if (status == "pause") {
+            if (player->isPaused()) {
+                val["code"] = API::Success;
+                val["msg"] = "already paused";
+                val["status"] = "paused";
+                return;
+            }
+            player->pause();
+            InfoL << "[pausePlayBackSVAC] paused: stream=" << stream;
+            val["msg"] = "playback paused";
+            val["status"] = "paused";
+        } else {
+            if (!player->isPaused()) {
+                val["code"] = API::Success;
+                val["msg"] = "already playing";
+                val["status"] = "playing";
+                return;
+            }
+            player->resume();
+            InfoL << "[pausePlayBackSVAC] resumed: stream=" << stream;
+            val["msg"] = "playback resumed";
+            val["status"] = "playing";
+        }
+
+        val["code"] = API::Success;
+        val["stream"] = stream;
+    });
+
+    api_regist("/index/api/setPlayBackSpeed", [](API_ARGS_MAP) {
+        CHECK_SECRET();
+        CHECK_ARGS("stream", "speed");
+
+        std::string stream = allArgs["stream"];
+        float speed = allArgs["speed"].as<float>();
+
+        if (speed != 0.5f && speed != 1.0f && speed != 1.5f && speed != 2.0f) {
+            throw ApiRetException("speed must be 0.5, 1.0, 1.5 or 2.0", API::InvalidArgs);
+        }
+
+        RtpDumpPlayer::Ptr player;
+        {
+            std::lock_guard<std::mutex> lck(s_playback_mtx);
+            auto it = s_playback_sessions.find(stream);
+            if (it == s_playback_sessions.end() || !it->second) {
+                auto err_msg = "no active playback for stream: " + stream;
+                throw ApiRetException(err_msg.c_str(), API::NotFound);
+            }
+            player = it->second;
+        }
+
+        if (!player->isPlaying()) {
+            auto err_msg = "playback already finished for stream: " + stream;
+            throw ApiRetException(err_msg.c_str(), API::OtherFailed);
+        }
+
+        float old_speed = player->getSpeed();
+        player->setSpeed(speed);
+
+        InfoL << "[setPlayBackSpeed] stream=" << stream
+              << ", speed: " << old_speed << " -> " << speed;
+
+        val["code"] = API::Success;
+        val["msg"] = "speed changed successfully";
+        val["stream"] = stream;
+        val["speed"] = speed;
+        val["old_speed"] = old_speed;
+    });
+
+    api_regist("/index/api/seekPlayBackSVAC", [](API_ARGS_MAP) {
+        CHECK_SECRET();
+        CHECK_ARGS("stream", "offset_sec");
+
+        std::string stream = allArgs["stream"];
+        int64_t offset_sec = allArgs["offset_sec"].as<int64_t>();
+
+        if (offset_sec == 0) {
+            throw ApiRetException("offset_sec must be non-zero (positive=forward, negative=backward)", API::InvalidArgs);
+        }
+
+        RtpDumpPlayer::Ptr player;
+        {
+            std::lock_guard<std::mutex> lck(s_playback_mtx);
+            auto it = s_playback_sessions.find(stream);
+            if (it == s_playback_sessions.end() || !it->second) {
+                auto err_msg = "no active playback for stream: " + stream;
+                throw ApiRetException(err_msg.c_str(), API::NotFound);
+            }
+            player = it->second;
+        }
+
+        if (!player->isPlaying()) {
+            auto err_msg = "playback already finished for stream: " + stream;
+            throw ApiRetException(err_msg.c_str(), API::OtherFailed);
+        }
+
+        uint64_t old_offset = player->getCurrentOffsetMs();
+        player->seek(offset_sec);
+        uint64_t new_offset = player->getCurrentOffsetMs();
+        int64_t actual_delta_ms = (int64_t)new_offset - (int64_t)old_offset;
+
+        InfoL << "[seekPlayBackSVAC] stream=" << stream
+              << ", offset_sec=" << offset_sec
+              << ", old_offset=" << old_offset << "ms"
+              << ", new_offset=" << new_offset << "ms"
+              << ", actual_delta=" << actual_delta_ms << "ms";
+
+        val["code"] = API::Success;
+        val["msg"] = "seek completed";
+        val["stream"] = stream;
+        val["offset_sec"] = (Json::Int64)offset_sec;
+        val["old_offset_ms"] = (Json::UInt64)old_offset;
+        val["new_offset_ms"] = (Json::UInt64)new_offset;
+        val["actual_delta_ms"] = (Json::Int64)actual_delta_ms;
+        val["is_paused"] = player->isPaused();
+    });
 #endif // defined(ENABLE_RTPPROXY)
 
 #ifdef ENABLE_WEBRTC

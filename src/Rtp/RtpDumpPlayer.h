@@ -54,9 +54,46 @@ public:
     void stop();
 
     /**
+     * 暂停回放
+     */
+    void pause();
+
+    /**
+     * 继续回放
+     */
+    void resume();
+
+    /**
+     * 是否已暂停
+     */
+    bool isPaused() const;
+
+    /**
      * 是否正在播放
      */
     bool isPlaying() const;
+
+    /**
+     * 设置播放倍速
+     * @param speed 播放速率，支持 0.5 / 1.0 / 1.5 / 2.0
+     */
+    void setSpeed(float speed);
+
+    /**
+     * 获取当前倍速
+     */
+    float getSpeed() const;
+
+    /**
+     * 快进/快退指定秒数（正数=快进，负数=快退）
+     * @param offset_sec 偏移秒数
+     */
+    void seek(int64_t offset_sec);
+
+    /**
+     * 获取当前播放位置（毫秒）
+     */
+    uint64_t getCurrentOffsetMs() const;
 
     /**
      * 获取已发送包数
@@ -107,6 +144,7 @@ private:
     std::string _identifier;
 
     bool _playing = false;
+    bool _paused = false;
     uint64_t _sent_packets = 0;
     uint64_t _sent_bytes = 0;
     uint64_t _total_packets = 0;
@@ -123,6 +161,18 @@ private:
 
     // 延迟任务，用于取消调度
     toolkit::EventPoller::DelayTask::Ptr _delay_task;
+
+    // 回放参考时钟（绝对计时，避免定时器漂移累积）
+    toolkit::Ticker _start_ticker;
+
+    // 暂停计时：记录暂停期间的总时长，使参考时钟在暂停期间不推进
+    uint64_t _paused_duration_ms = 0;
+    uint64_t _pause_begin_ms = 0;
+
+    // 变速锚点：记录上次变速时的位置和有效耗时，保证中途变速不会跳帧或追赶
+    // Speed change anchor: records position and effective elapsed at last speed change
+    uint64_t _speed_base_offset_ms = 0;
+    uint64_t _speed_base_elapsed_ms = 0;
 };
 
 } // namespace mediakit
