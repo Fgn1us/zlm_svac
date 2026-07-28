@@ -43,10 +43,33 @@ void RtpDumpPlayer::start(const PlayArgs &args, onCompleteCB on_complete, onErro
     // 获取 poller
     _poller = EventPollerPool::Instance().getPoller();
 
-    // 创建 UDP socket
+    // 创建 UDP socket 并提前绑定本地端口（在 DNS 解析之前完成，使 getLocalPort() 立即可用）
     _socket = Socket::createSocket(_poller, false);
 
-    // DNS 解析放在后台线程
+    string ifr_ip = "0.0.0.0";
+    if (_args.src_port) {
+        if (!_socket->bindUdpSock(_args.src_port, ifr_ip, true)) {
+            notifyError(SockException(Err_other, "bind udp sock failed on port: " + to_string(_args.src_port)));
+            return;
+        }
+    } else {
+        auto pr = std::make_pair(_socket, Socket::createSocket(_poller, false));
+        makeSockPair(pr, ifr_ip, true, true);
+    }
+
+    // 加大发送缓冲区
+    SockUtil::setSendBuf(_socket->rawFD(), 4 * 1024 * 1024);
+
+    // 设置错误回调
+    auto ws = weak_ptr<RtpDumpPlayer>(shared_from_this());
+    _socket->setOnErr([ws](const SockException &err) {
+        auto s = ws.lock();
+        if (s) {
+            s->notifyError(err);
+        }
+    });
+
+    // DNS 解析放在后台线程（端口已绑定，不影响 local_port 获取）
     weak_ptr<RtpDumpPlayer> weak_self = shared_from_this();
     WorkThreadPool::Instance().getPoller()->async([args, weak_self]() {
         struct sockaddr_storage addr;
@@ -66,33 +89,8 @@ void RtpDumpPlayer::start(const PlayArgs &args, onCompleteCB on_complete, onErro
         }
 
         strong_self->_poller->async([strong_self, addr]() {
-            string ifr_ip = addr.ss_family == AF_INET ? "0.0.0.0" : "::";
-
-            // 绑定本地端口
-            if (strong_self->_args.src_port) {
-                if (!strong_self->_socket->bindUdpSock(strong_self->_args.src_port, ifr_ip, true)) {
-                    strong_self->notifyError(SockException(Err_other, "bind udp sock failed on port: " + to_string(strong_self->_args.src_port)));
-                    return;
-                }
-            } else {
-                auto pr = std::make_pair(strong_self->_socket, Socket::createSocket(strong_self->_poller, false));
-                makeSockPair(pr, ifr_ip, true, true);
-            }
-
             // 绑定目标地址
             strong_self->_socket->bindPeerAddr((struct sockaddr *)&addr, 0, true);
-
-            // 加大发送缓冲区
-            SockUtil::setSendBuf(strong_self->_socket->rawFD(), 4 * 1024 * 1024);
-
-            // 设置错误回调
-            auto ws = weak_ptr<RtpDumpPlayer>(strong_self);
-            strong_self->_socket->setOnErr([ws](const SockException &err) {
-                auto s = ws.lock();
-                if (s) {
-                    s->notifyError(err);
-                }
-            });
 
             // 解析 dump 文件
             if (!strong_self->parseDumpFile(strong_self->_args.file_path)) {
@@ -105,7 +103,7 @@ void RtpDumpPlayer::start(const PlayArgs &args, onCompleteCB on_complete, onErro
                 return;
             }
 
-            // 开始逐包发送
+            // 开始发送
             strong_self->_playing = true;
             strong_self->_current_index = 0;
             InfoL << "[RtpDumpPlayer] start playback: " << strong_self->_args.file_path
@@ -121,7 +119,6 @@ void RtpDumpPlayer::start(const PlayArgs &args, onCompleteCB on_complete, onErro
 
 void RtpDumpPlayer::stop() {
     _playing = false;
-    _paused = false;
     if (_delay_task) {
         _delay_task->cancel();
         _delay_task = nullptr;
@@ -131,146 +128,6 @@ void RtpDumpPlayer::stop() {
         _socket = nullptr;
     }
     InfoL << "[RtpDumpPlayer] stopped: " << _identifier;
-}
-
-void RtpDumpPlayer::cancelDelayTask() {
-    if (_delay_task) {
-        _delay_task->cancel();
-        _delay_task = nullptr;
-    }
-}
-
-void RtpDumpPlayer::sendNextPacket() {
-    if (!_playing || _paused || _current_index >= _packets.size()) {
-        if (_playing && !_paused && _current_index >= _packets.size()) {
-            onPlayCompleted();
-        }
-        return;
-    }
-
-    auto &pkt = _packets[_current_index];
-
-    // 发送当前包
-    _socket->send(pkt.data, nullptr, 0, true);
-    _sent_packets++;
-    _sent_bytes += pkt.data->size();
-    _current_index++;
-
-    if (_current_index >= _packets.size()) {
-        onPlayCompleted();
-        return;
-    }
-
-    // 计算到下一个包的时间间隔（除以 speed）
-    uint64_t this_offset = pkt.offset_ms;
-    uint64_t next_offset = _packets[_current_index].offset_ms;
-    uint64_t interval_ms;
-    if (next_offset > this_offset) {
-        interval_ms = (uint64_t)((double)(next_offset - this_offset) / _args.speed);
-    } else {
-        interval_ms = 0;
-    }
-
-    if (interval_ms == 0) {
-        sendNextPacket();
-        return;
-    }
-
-    auto weak_self = weak_ptr<RtpDumpPlayer>(shared_from_this());
-    _delay_task = _poller->doDelayTask(interval_ms, [weak_self]() -> uint64_t {
-        auto s = weak_self.lock();
-        if (s) s->sendNextPacket();
-        return 0;
-    });
-}
-
-bool RtpDumpPlayer::setSpeed(float speed) {
-    if (!_playing) return false;
-    if (speed <= 0) return false;
-
-    cancelDelayTask();
-    _args.speed = speed;
-
-    // 用新 speed 重新调度下一个包
-    if (!_paused && _current_index < _packets.size()) {
-        uint64_t this_offset = _current_index > 0 ? _packets[_current_index - 1].offset_ms : 0;
-        uint64_t next_offset = _packets[_current_index].offset_ms;
-        uint64_t interval_ms = next_offset > this_offset
-            ? (uint64_t)((double)(next_offset - this_offset) / _args.speed) : 0;
-
-        if (interval_ms == 0) {
-            sendNextPacket();
-        } else {
-            auto weak_self = weak_ptr<RtpDumpPlayer>(shared_from_this());
-            _delay_task = _poller->doDelayTask(interval_ms, [weak_self]() -> uint64_t {
-                auto s = weak_self.lock();
-                if (s) s->sendNextPacket();
-                return 0;
-            });
-        }
-    }
-
-    InfoL << "[RtpDumpPlayer] speed changed: " << _identifier << " -> " << speed;
-    return true;
-}
-
-bool RtpDumpPlayer::seek(int offset_seconds) {
-    if (!_playing || _packets.empty()) return false;
-
-    cancelDelayTask();
-
-    uint64_t current_ms = _current_index > 0 ? _packets[_current_index - 1].offset_ms : 0;
-    int64_t target_ms = (int64_t)current_ms + (int64_t)offset_seconds * 1000;
-    if (target_ms < 0) target_ms = 0;
-    if (target_ms > (int64_t)_total_duration_ms) target_ms = _total_duration_ms;
-
-    for (size_t i = 0; i < _packets.size(); ++i) {
-        if (_packets[i].offset_ms >= (uint64_t)target_ms) {
-            _current_index = i;
-            break;
-        }
-    }
-
-    InfoL << "[RtpDumpPlayer] seek: " << _identifier
-          << ", offset=" << offset_seconds << "s, target_ms=" << target_ms;
-
-    if (!_paused) {
-        sendNextPacket();
-    }
-    return true;
-}
-
-bool RtpDumpPlayer::pause() {
-    if (!_playing || _paused) return false;
-    cancelDelayTask();
-    _paused = true;
-    InfoL << "[RtpDumpPlayer] paused: " << _identifier;
-    return true;
-}
-
-bool RtpDumpPlayer::resume() {
-    if (!_playing || !_paused) return false;
-    _paused = false;
-    sendNextPacket();
-    InfoL << "[RtpDumpPlayer] resumed: " << _identifier;
-    return true;
-}
-
-float RtpDumpPlayer::getCurrentOffsetSec() const {
-    if (_packets.empty() || _current_index == 0) return 0.0f;
-    size_t idx = _current_index - 1;
-    if (idx >= _packets.size()) idx = _packets.size() - 1;
-    return _packets[idx].offset_ms / 1000.0f;
-}
-
-std::string RtpDumpPlayer::getState() const {
-    if (!_playing) return "stopped";
-    if (_paused) return "paused";
-    return "playing";
-}
-
-float RtpDumpPlayer::getSpeed() const {
-    return _args.speed;
 }
 
 bool RtpDumpPlayer::isPlaying() const {
@@ -378,6 +235,47 @@ bool RtpDumpPlayer::parseDumpFile(const std::string &path) {
           << " (" << (_total_duration_ms / 1000) << "s)";
 
     return true;
+}
+
+void RtpDumpPlayer::sendNextPacket() {
+    if (!_playing || _current_index >= _packets.size()) {
+        onPlayCompleted();
+        return;
+    }
+
+    auto &pkt = _packets[_current_index];
+
+    // 发送当前包
+    _socket->send(pkt.data, nullptr, 0, true);
+    _sent_packets++;
+    _sent_bytes += pkt.data->size();
+    _current_index++;
+
+    if (_current_index >= _packets.size()) {
+        onPlayCompleted();
+        return;
+    }
+
+    // 计算到下一个包的时间间隔
+    uint64_t this_offset = pkt.offset_ms;
+    uint64_t next_offset = _packets[_current_index].offset_ms;
+    uint64_t interval_ms;
+    if (next_offset > this_offset) {
+        interval_ms = (uint64_t)((double)(next_offset - this_offset) / _args.speed);
+    } else {
+        // 时间戳相同或回退，立即发送下一包
+        interval_ms = 0;
+    }
+
+    // 通过 doDelayTask 调度下一次发送
+    auto weak_self = weak_ptr<RtpDumpPlayer>(shared_from_this());
+    _delay_task = _poller->doDelayTask(interval_ms, [weak_self]() -> uint64_t {
+        auto strong_self = weak_self.lock();
+        if (strong_self) {
+            strong_self->sendNextPacket();
+        }
+        return 0; // 不重复
+    });
 }
 
 void RtpDumpPlayer::onPlayCompleted() {

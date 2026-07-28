@@ -39,10 +39,9 @@ RtpProcess::RtpProcess(const MediaTuple &tuple) {
     _media_info.schema = "rtp";
     static_cast<MediaTuple &>(_media_info) = tuple;
 
-    // 自动开始 dump（需配置 dumpDir 且 auto_dump_enable=1）
+    // 自动开始 dump（如果配置了 dumpDir）
     GET_CONFIG(string, dump_dir, RtpProxy::kDumpDir);
-    GET_CONFIG(int, auto_dump_enable, RtpProxy::kAutoDumpEnable);
-    if (!dump_dir.empty() && auto_dump_enable == 1) {
+    if (!dump_dir.empty()) {
         startAutoDump(dump_dir);
     }
 }
@@ -461,10 +460,12 @@ void RtpProcess::emitRecordSVAC(const std::string &file_path, const std::string 
     info.stream = _media_info.stream;
     info.app = _media_info.app;
     info.vhost = _media_info.vhost;
-    // 计算相对路径：去掉 _dump_dir 前缀
+    // 计算相对路径：优先使用 storageRoot，若未配置则回退到 _dump_dir
+    GET_CONFIG(string, storage_root, RtpProxy::kStorageRoot);
+    std::string base_dir = !storage_root.empty() ? storage_root : _dump_dir;
     std::string relative_path = file_path;
-    if (!_dump_dir.empty() && file_path.find(_dump_dir) == 0) {
-        relative_path = file_path.substr(_dump_dir.size());
+    if (!base_dir.empty() && file_path.find(base_dir) == 0) {
+        relative_path = file_path.substr(base_dir.size());
         // 去掉开头的路径分隔符
         if (!relative_path.empty() && (relative_path[0] == '/' || relative_path[0] == '\\')) {
             relative_path = relative_path.substr(1);
@@ -475,7 +476,16 @@ void RtpProcess::emitRecordSVAC(const std::string &file_path, const std::string 
     info.file_size = file_size;
     info.start_time = start_time_minutes;  // 存储"当天第几分钟"
     info.time_len = time_len;
-    info.folder = file_path.substr(0, pos != std::string::npos ? pos : 0);
+    // folder 也转为相对路径
+    std::string folder_abs = file_path.substr(0, pos != std::string::npos ? pos : 0);
+    std::string folder_rel = folder_abs;
+    if (!base_dir.empty() && folder_abs.find(base_dir) == 0) {
+        folder_rel = folder_abs.substr(base_dir.size());
+        if (!folder_rel.empty() && (folder_rel[0] == '/' || folder_rel[0] == '\\')) {
+            folder_rel = folder_rel.substr(1);
+        }
+    }
+    info.folder = folder_rel;
     info.url = "";
 
     NOTICE_EMIT(BroadcastRecordSVACArgs, Broadcast::kBroadcastRecordSVAC, info);

@@ -2276,19 +2276,22 @@ void installWebApi() {
         uint16_t dst_port = allArgs["dst_port"].as<uint16_t>();
         std::string stream = allArgs["stream"];
 
-        // 解析 file_path：相对路径则相对于 dumpDir
+        // 解析 file_path：相对路径则相对于 storageRoot，若未配置则回退到 dumpDir
+        GET_CONFIG(string, storage_root, RtpProxy::kStorageRoot);
         GET_CONFIG(string, dump_dir, RtpProxy::kDumpDir);
+        std::string base_dir = storage_root.empty() ? dump_dir : storage_root;
+
         std::string abs_path;
-        if (dump_dir.empty()) {
-            // dumpDir 未配置，file_path 必须是绝对路径
+        if (base_dir.empty()) {
+            // storageRoot 和 dumpDir 均未配置，file_path 必须是绝对路径
             abs_path = file_path;
             if (!File::fileExist(abs_path)) {
-                auto err_msg = "dump file not found: " + file_path;
+                auto err_msg = "dump file not found: " + file_path + " (no storageRoot or dumpDir configured)";
                 throw ApiRetException(err_msg.c_str(), API::NotFound);
             }
         } else {
-            // 尝试解析为相对于 dumpDir 的路径
-            abs_path = File::absolutePath(file_path, dump_dir);
+            // 解析为相对于基准目录的路径
+            abs_path = File::absolutePath(file_path, base_dir);
             if (!File::fileExist(abs_path)) {
                 auto err_msg = "dump file not found: " + file_path + " (resolved to " + abs_path + ")";
                 throw ApiRetException(err_msg.c_str(), API::NotFound);

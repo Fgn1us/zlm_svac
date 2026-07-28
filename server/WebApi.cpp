@@ -8,8 +8,6 @@
  * may be found in the AUTHORS file in the root of the source tree.
  */
 
-#include <chrono>
-#include <ctime>
 #include <exception>
 #include <sys/stat.h>
 #include <math.h>
@@ -2160,16 +2158,20 @@ void installWebApi() {
         }
 
         process->startManualDump(dump_dir, file_name);
-        auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-        char time_buf[32];
-        std::strftime(time_buf, sizeof(time_buf), "%Y-%m-%d %H:%M:%S", std::localtime(&now));
+        auto now = std::chrono::system_clock::now();
+        auto start_time_t = std::chrono::system_clock::to_time_t(now);
+        std::tm *lt = std::localtime(&start_time_t);
+        char start_time_buf[32];
+        snprintf(start_time_buf, sizeof(start_time_buf), "%04d-%02d-%02d %02d:%02d:%02d",
+                 lt->tm_year + 1900, lt->tm_mon + 1, lt->tm_mday,
+                 lt->tm_hour, lt->tm_min, lt->tm_sec);
         InfoL << "[recordSVAC] vhost=" << allArgs["vhost"] << ", app=" << allArgs["app"] << ", stream=" << allArgs["stream"]
-              << ", file_name=" << file_name;
+              << ", file_name=" << file_name << ", start_time=" << start_time_buf;
         val["code"] = API::Success;
         val["msg"] = "recordSVAC started successfully";
         val["stream"] = allArgs["stream"];
         val["file_name"] = file_name;
-        val["start_time"] = time_buf;
+        val["start_time"] = start_time_buf;
     });
 
     api_regist("/index/api/stopRecordSVAC", [](API_ARGS_MAP) {
@@ -2195,20 +2197,44 @@ void installWebApi() {
         std::string file_path = process->getSlotPath(file_name);
         process->stopDump(file_name);
         uint64_t file_size = File::fileSize(file_path);
-        auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-        char time_buf[32];
-        std::strftime(time_buf, sizeof(time_buf), "%Y-%m-%d %H:%M:%S", std::localtime(&now));
+
+        auto now = std::chrono::system_clock::now();
+        auto end_time_t = std::chrono::system_clock::to_time_t(now);
+        std::tm *lt = std::localtime(&end_time_t);
+        char end_time_buf[32];
+        snprintf(end_time_buf, sizeof(end_time_buf), "%04d-%02d-%02d %02d:%02d:%02d",
+                 lt->tm_year + 1900, lt->tm_mon + 1, lt->tm_mday,
+                 lt->tm_hour, lt->tm_min, lt->tm_sec);
+
+        // 转为相对路径：优先 storageRoot，回退 dumpDir
+        GET_CONFIG(string, storage_root, RtpProxy::kStorageRoot);
+        GET_CONFIG(string, dump_dir, RtpProxy::kDumpDir);
+        std::string base_dir = !storage_root.empty() ? storage_root : dump_dir;
+        std::string relative_path = file_path;
+        if (!base_dir.empty()) {
+            // 统一路径分隔符再比较（\\ → /）
+            for (auto &ch : base_dir) { if (ch == '\\') ch = '/'; }
+            std::string normalized = file_path;
+            for (auto &ch : normalized) { if (ch == '\\') ch = '/'; }
+            if (normalized.find(base_dir) == 0) {
+                relative_path = normalized.substr(base_dir.size());
+                if (!relative_path.empty() && relative_path[0] == '/') {
+                    relative_path = relative_path.substr(1);
+                }
+            }
+        }
 
         InfoL << "[stopRecordSVAC] vhost=" << allArgs["vhost"] << ", app=" << allArgs["app"] << ", stream=" << allArgs["stream"]
-              << ", file_name=" << file_name << ", path=" << file_path << ", size=" << file_size;
+              << ", file_name=" << file_name << ", path=" << file_path << ", size=" << file_size
+              << ", end_time=" << end_time_buf;
 
         val["code"] = API::Success;
         val["msg"] = "stopRecordSVAC called successfully";
         val["stream"] = allArgs["stream"];
         val["file_name"] = file_name;
-        val["file_path"] = file_path;
+        val["file_path"] = relative_path;
         val["file_size"] = (Json::UInt64)file_size;
-        val["end_time"] = time_buf;
+        val["end_time"] = end_time_buf;
     });
 #endif // defined(ENABLE_RTPPROXY) && defined(_WIN32)
 
@@ -2329,19 +2355,22 @@ void installWebApi() {
         uint16_t dst_port = allArgs["dst_port"].as<uint16_t>();
         std::string stream = allArgs["stream"];
 
-        // 解析 file_path：相对路径则相对于 storageRoot
+        // 解析 file_path：相对路径则相对于 storageRoot，若未配置则回退到 dumpDir
         GET_CONFIG(string, storage_root, RtpProxy::kStorageRoot);
+        GET_CONFIG(string, dump_dir, RtpProxy::kDumpDir);
+        std::string base_dir = storage_root.empty() ? dump_dir : storage_root;
+
         std::string abs_path;
-        if (storage_root.empty()) {
-            // storageRoot 未配置，file_path 必须是绝对路径
+        if (base_dir.empty()) {
+            // storageRoot 和 dumpDir 均未配置，file_path 必须是绝对路径
             abs_path = file_path;
             if (!File::fileExist(abs_path)) {
-                auto err_msg = "dump file not found: " + file_path;
+                auto err_msg = "dump file not found: " + file_path + " (no storageRoot or dumpDir configured)";
                 throw ApiRetException(err_msg.c_str(), API::NotFound);
             }
         } else {
-            // 解析为相对于 storageRoot 的路径
-            abs_path = File::absolutePath(file_path, storage_root);
+            // 解析为相对于基准目录的路径
+            abs_path = File::absolutePath(file_path, base_dir);
             if (!File::fileExist(abs_path)) {
                 auto err_msg = "dump file not found: " + file_path + " (resolved to " + abs_path + ")";
                 throw ApiRetException(err_msg.c_str(), API::NotFound);

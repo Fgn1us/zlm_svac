@@ -54,41 +54,6 @@ public:
     void stop();
 
     /**
-     * 动态控制：设置倍速（1.0=原速，2.0=两倍速）
-     */
-    bool setSpeed(float speed);
-
-    /**
-     * 动态控制：快进/快退（正数=前进，负数=后退，单位：秒）
-     */
-    bool seek(int offset_seconds);
-
-    /**
-     * 暂停
-     */
-    bool pause();
-
-    /**
-     * 恢复
-     */
-    bool resume();
-
-    /**
-     * 获取当前播放位置（秒）
-     */
-    float getCurrentOffsetSec() const;
-
-    /**
-     * 获取播放状态："playing" / "paused" / "stopped"
-     */
-    std::string getState() const;
-
-    /**
-     * 获取当前倍速
-     */
-    float getSpeed() const;
-
-    /**
      * 是否正在播放
      */
     bool isPlaying() const;
@@ -131,9 +96,6 @@ private:
     // 发送当前包并调度下一个
     void sendNextPacket();
 
-    // 取消当前定时器
-    void cancelDelayTask();
-
     // 播放完成
     void onPlayCompleted();
 
@@ -145,7 +107,6 @@ private:
     std::string _identifier;
 
     bool _playing = false;
-    bool _paused = false;
     uint64_t _sent_packets = 0;
     uint64_t _sent_bytes = 0;
     uint64_t _total_packets = 0;
