@@ -20,6 +20,7 @@
 #include "Thread/WorkThreadPool.h"
 #include "Network/Socket.h"
 #include <algorithm>
+#include <cmath>
 
 using namespace std;
 using namespace toolkit;
@@ -317,6 +318,7 @@ bool RtpDumpPlayer::parseDumpFile(const std::string &path) {
     if (_total_packets == 0) {
         return false;
     }
+    _first_raw_ts = _packets[0].raw_timestamp;
 
     if (invalid_packets > 0) {
         WarnL << "[RtpDumpPlayer] skipped " << invalid_packets << " invalid packets in " << path;
@@ -394,6 +396,13 @@ void RtpDumpPlayer::sendNextPacket() {
         uint64_t current_offset = _packets[_current_index].offset_ms;
         while (_current_index < _packets.size() && _packets[_current_index].offset_ms == current_offset) {
             auto &pkt = _packets[_current_index];
+            if (_args.speed != 1.0f) {
+                // Rewrite the RTP timestamp for trick play so that timestamp-paced
+                // receivers play at exactly the requested speed.
+                auto *header = (RtpHeader *)pkt.data->data();
+                uint32_t scaled_stamp = _first_raw_ts + (uint32_t)std::llround((double)pkt.offset_ms * kVideoSampleRate / 1000.0 / _args.speed);
+                header->stamp = htonl(scaled_stamp);
+            }
             _socket->send(pkt.data, nullptr, 0, true);
             _sent_packets++;
             _sent_bytes += pkt.data->size();

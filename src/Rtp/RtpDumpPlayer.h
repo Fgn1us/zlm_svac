@@ -173,6 +173,9 @@ private:
     // Speed change anchor: records position and effective elapsed at last speed change
     uint64_t _speed_base_offset_ms = 0;
     uint64_t _speed_base_elapsed_ms = 0;
+
+    // RTP timestamp of the first packet (host order), used to rewrite timestamps for trick play
+    uint32_t _first_raw_ts = 0;
 };
 
 } // namespace mediakit

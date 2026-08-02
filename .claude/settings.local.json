@@ -22,7 +22,8 @@
       "Bash(cmd //c 'call \"C:\\\\Program Files\\\\Microsoft Visual Studio\\\\2022\\\\Community\\\\VC\\\\Auxiliary\\\\Build\\\\vcvars64.bat\" > NUL && cd /d E:\\\\ZLM\\\\zlmediakit-src && cmake --build out/build/x64-Debug --target MediaServer')",
       "Bash(where cl.exe)",
       "Bash(python -c \"import json; json.load\\(open\\('E:/ZLM/zlmediakit-src/release/windows/Debug/www/swagger/openapi.json'\\)\\)\")",
-      "Bash(python *)"
+      "Bash(python *)",
+      "Bash(cmake --build out/build/x64-Debug)"
     ]
   }
 }
