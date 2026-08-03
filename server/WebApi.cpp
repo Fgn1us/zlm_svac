@@ -2409,6 +2409,7 @@ void installWebApi() {
         args.dst_port = dst_port;
         args.src_port = src_port;
         args.speed = speed;
+        auto weak_player = std::weak_ptr<RtpDumpPlayer>(player);
 
         // 存入 map（stream 名作为 key，调用方保证不同用户用不同 stream 名）
         {
@@ -2418,14 +2419,41 @@ void installWebApi() {
 
         player->start(args,
             // on_complete
-            [stream]() {
+            [stream, weak_player]() {
                 InfoL << "[playBackSVAC] playback completed for stream: " << stream;
+                PlaybackInfo info;
+                info.stream = stream;
+                info.result = 0;
+                if (auto p = weak_player.lock()) {
+                    info.file_path = p->getFilePath();
+                    info.dst_url = p->getDstUrl();
+                    info.dst_port = p->getDstPort();
+                    info.speed = p->getSpeed();
+                    info.duration_ms = p->getDurationMs();
+                    info.sent_packets = p->getSentPackets();
+                    info.sent_bytes = p->getSentBytes();
+                }
+                NOTICE_EMIT(BroadcastPlaybackSVACArgs, Broadcast::kBroadcastPlaybackSVAC, info);
                 std::lock_guard<std::mutex> lck(s_playback_mtx);
                 s_playback_sessions.erase(stream);
             },
             // on_error
-            [stream](const SockException &ex) {
+            [stream, weak_player](const SockException &ex) {
                 WarnL << "[playBackSVAC] playback error for stream: " << stream << ", err: " << ex.what();
+                PlaybackInfo info;
+                info.stream = stream;
+                info.result = 1;
+                info.err_msg = ex.what();
+                if (auto p = weak_player.lock()) {
+                    info.file_path = p->getFilePath();
+                    info.dst_url = p->getDstUrl();
+                    info.dst_port = p->getDstPort();
+                    info.speed = p->getSpeed();
+                    info.duration_ms = p->getDurationMs();
+                    info.sent_packets = p->getSentPackets();
+                    info.sent_bytes = p->getSentBytes();
+                }
+                NOTICE_EMIT(BroadcastPlaybackSVACArgs, Broadcast::kBroadcastPlaybackSVAC, info);
                 std::lock_guard<std::mutex> lck(s_playback_mtx);
                 s_playback_sessions.erase(stream);
             }
@@ -2460,6 +2488,19 @@ void installWebApi() {
         }
 
         player->stop();
+
+        // Notify signaling system: playback stopped manually
+        PlaybackInfo info;
+        info.stream = stream;
+        info.file_path = player->getFilePath();
+        info.dst_url = player->getDstUrl();
+        info.dst_port = player->getDstPort();
+        info.speed = player->getSpeed();
+        info.duration_ms = player->getDurationMs();
+        info.sent_packets = player->getSentPackets();
+        info.sent_bytes = player->getSentBytes();
+        info.result = 2;
+        NOTICE_EMIT(BroadcastPlaybackSVACArgs, Broadcast::kBroadcastPlaybackSVAC, info);
 
         InfoL << "[stopPlayBackSVAC] stream=" << stream
               << ", sent_packets=" << player->getSentPackets()

@@ -85,6 +85,21 @@ public:
     float getSpeed() const;
 
     /**
+     * get dump file path
+     */
+    const std::string &getFilePath() const { return _args.file_path; }
+
+    /**
+     * get target url
+     */
+    const std::string &getDstUrl() const { return _args.dst_url; }
+
+    /**
+     * get target port
+     */
+    uint16_t getDstPort() const { return _args.dst_port; }
+
+    /**
      * 快进/快退指定秒数（正数=快进，负数=快退）
      * @param offset_sec 偏移秒数
      */

@@ -42,6 +42,7 @@ const string kOnStreamNotFound = HOOK_FIELD "on_stream_not_found";
 const string kOnRecordMp4 = HOOK_FIELD "on_record_mp4";
 const string kOnRecordTs = HOOK_FIELD "on_record_ts";
 const string kOnRecordSvac = HOOK_FIELD "on_record_svac";
+const string kOnPlaybackSVAC = HOOK_FIELD "on_playback_svac";
 const string kOnShellLogin = HOOK_FIELD "on_shell_login";
 const string kOnStreamNoneReader = HOOK_FIELD "on_stream_none_reader";
 const string kOnHttpAccess = HOOK_FIELD "on_http_access";
@@ -69,6 +70,7 @@ static onceToken token([]() {
     mINI::Instance()[kOnRecordMp4] = "";
     mINI::Instance()[kOnRecordTs] = "";
     mINI::Instance()[kOnRecordSvac] = "";
+    mINI::Instance()[kOnPlaybackSVAC] = "";
     mINI::Instance()[kOnShellLogin] = "";
     mINI::Instance()[kOnStreamNoneReader] = "";
     mINI::Instance()[kOnHttpAccess] = "";
@@ -622,6 +624,30 @@ void installWebHook() {
         body["time_len"] = info.time_len;
         // 执行hook
         do_http_hook(hook_record_svac, body, nullptr);
+    });
+
+    // SVAC playback end notification (completed/error/stopped)
+    // NOTE: not gated by hook.enable, sent whenever URL is configured
+    NoticeCenter::Instance().addListener(&web_hook_tag, Broadcast::kBroadcastPlaybackSVAC, [](BroadcastPlaybackSVACArgs) {
+        GET_CONFIG(string, hook_playback_svac, Hook::kOnPlaybackSVAC);
+        if (hook_playback_svac.empty()) {
+            return;
+        }
+        ArgsType body;
+        body["event"] = "playback_svac";
+        body["stream"] = info.stream;
+        body["file_path"] = info.file_path;
+        body["dst_url"] = info.dst_url;
+        body["dst_port"] = info.dst_port;
+        body["speed"] = info.speed;
+        body["duration_ms"] = (Json::UInt64)info.duration_ms;
+        body["sent_packets"] = (Json::UInt64)info.sent_packets;
+        body["sent_bytes"] = (Json::UInt64)info.sent_bytes;
+        body["result"] = info.result;
+        if (!info.err_msg.empty()) {
+            body["err_msg"] = info.err_msg;
+        }
+        do_http_hook(hook_playback_svac, body, nullptr);
     });
 
     NoticeCenter::Instance().addListener(&web_hook_tag, Broadcast::kBroadcastShellLogin, [](BroadcastShellLoginArgs) {

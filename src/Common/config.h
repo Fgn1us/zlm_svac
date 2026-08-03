@@ -33,6 +33,19 @@ class ProtocolOption;
 // Returns true if the configuration file is loaded successfully, otherwise returns false.
 bool loadIniConfig(const char *ini_path = nullptr);
 
+struct PlaybackInfo {
+    std::string stream;        // playback session id
+    std::string file_path;     // dump file path
+    std::string dst_url;       // target ip
+    uint16_t dst_port = 0;     // target udp port
+    float speed = 1.0f;        // playback speed
+    uint64_t duration_ms = 0;  // dump file duration
+    uint64_t sent_packets = 0; // packets sent
+    uint64_t sent_bytes = 0;   // bytes sent
+    int result = 0;            // 0=completed 1=error 2=stopped
+    std::string err_msg;
+};
+
 // //////////广播名称///////////  [AUTO-TRANSLATED:439b2d74]
 // //////////Broadcast Name///////////
 namespace Broadcast {
@@ -56,6 +69,8 @@ extern const std::string kBroadcastRecordTs;
 extern const std::string kBroadcastRecordSVAC;
 #define BroadcastRecordSVACArgs const RecordInfo &info
 
+extern const std::string kBroadcastPlaybackSVAC;
+#define BroadcastPlaybackSVACArgs const PlaybackInfo &info
 // 收到http api请求广播  [AUTO-TRANSLATED:c72e7c3f]
 // Broadcast for receiving http api request
 extern const std::string kBroadcastHttpRequest;
