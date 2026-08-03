@@ -5220,6 +5220,94 @@
                     }
                 }
             }
+        },
+        "/index/api/downloadRecordSVAC": {
+            "get": {
+                "tags": [
+                    "GET"
+                ],
+                "summary": "下载 SVAC 录像文件 (downloadRecordSVAC)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api 操作密钥 (配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "file_path",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "录像文件路径，相对于 rtp_proxy.storageRoot 的子目录路径（如 disk1/stream_05_07_12.rtp），也支持绝对路径",
+                        "example": "disk1/stream_05_07_12.rtp"
+                    },
+                    {
+                        "name": "save_name",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "附件下载的文件名（可选），缺省取 file_path 的文件名",
+                        "example": "stream_05_07_12.rtp"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response. 返回文件内容，支持 HTTP Range 断点续传(200/206)",
+                        "content": {
+                            "application/octet-stream": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "POST"
+                ],
+                "summary": "下载 SVAC 录像文件 (downloadRecordSVAC)",
+                "parameters": [
+                    {
+                        "name": "secret",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "api 操作密钥 (配置文件配置)",
+                        "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
+                    },
+                    {
+                        "name": "file_path",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "录像文件路径，相对于 rtp_proxy.storageRoot 的子目录路径（如 disk1/stream_05_07_12.rtp），也支持绝对路径",
+                        "example": "disk1/stream_05_07_12.rtp"
+                    },
+                    {
+                        "name": "save_name",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "附件下载的文件名（可选），缺省取 file_path 的文件名",
+                        "example": "stream_05_07_12.rtp"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response. 返回文件内容，支持 HTTP Range 断点续传(200/206)",
+                        "content": {
+                            "application/octet-stream": {}
+                        }
+                    }
+                }
+            }
         }
     }
 }

@@ -2664,7 +2664,7 @@ void installWebApi() {
         CHECK_SECRET();
         CHECK_ARGS("file_path");
 
-        auto file_path = allArgs["file_path"].asString();
+        std::string file_path = allArgs["file_path"];
         if (file_path.find("..") != std::string::npos) {
             throw ApiRetException("invalid file_path: parent directory access is not allowed", API::InvalidArgs);
         }
@@ -2680,7 +2680,7 @@ void installWebApi() {
 
         auto abs_path = File::absolutePath(file_path, base_dir);
         if (!File::fileExist(abs_path)) {
-            throw ApiRetException("file not found: " + file_path, API::NotFound);
+            throw ApiRetException(("file not found: " + file_path).c_str(), API::NotFound);
         }
 
         // 校验解析后的绝对路径必须在基准目录内，防止目录穿越
@@ -2704,7 +2704,7 @@ void installWebApi() {
 
         // 附件下载，save_name 缺省取文件名
         StrCaseMap res_header;
-        auto save_name = allArgs["save_name"].asString();
+        std::string save_name = allArgs["save_name"];
         if (save_name.empty()) {
             auto pos = file_path.rfind('/');
             save_name = (pos == std::string::npos) ? file_path : file_path.substr(pos + 1);
