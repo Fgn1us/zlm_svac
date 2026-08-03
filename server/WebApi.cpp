@@ -2127,7 +2127,7 @@ void installWebApi() {
         // 业务逻辑 ...
     });
 
-#if defined(ENABLE_RTPPROXY) && defined(_WIN32)
+#if defined(ENABLE_RTPPROXY)
     api_regist("/index/api/recordSVAC", [](API_ARGS_MAP) {
         CHECK_SECRET();
         CHECK_ARGS("vhost","app","stream","file_name");
@@ -2236,7 +2236,7 @@ void installWebApi() {
         val["file_size"] = (Json::UInt64)file_size;
         val["end_time"] = end_time_buf;
     });
-#endif // defined(ENABLE_RTPPROXY) && defined(_WIN32)
+#endif // defined(ENABLE_RTPPROXY)
 
 #if defined(ENABLE_RTPPROXY)
     static std::unordered_map<std::string, RtpDumpPlayer::Ptr> s_playback_sessions;
@@ -2654,6 +2654,67 @@ void installWebApi() {
         val["new_offset_ms"] = (Json::UInt64)new_offset;
         val["actual_delta_ms"] = (Json::Int64)actual_delta_ms;
         val["is_paused"] = player->isPaused();
+    });
+
+    // SVAC 录像文件下载：客户端直连流媒体服务器（模式一）
+    // GET http://host/index/api/downloadRecordSVAC?secret=xxx&file_path=xxx.rtp[&save_name=xxx.rtp]
+    // file_path 为相对路径，以 storageRoot 为基准，未配置则回退 dumpDir
+    // 支持 HTTP Range 断点续传（responseFile 自动处理 200/206、Content-Length）
+    api_regist("/index/api/downloadRecordSVAC", [](API_ARGS_MAP_ASYNC) {
+        CHECK_SECRET();
+        CHECK_ARGS("file_path");
+
+        auto file_path = allArgs["file_path"].asString();
+        if (file_path.find("..") != std::string::npos) {
+            throw ApiRetException("invalid file_path: parent directory access is not allowed", API::InvalidArgs);
+        }
+
+        // 基准目录：storageRoot 优先，回退 dumpDir
+        GET_CONFIG(string, storage_root, RtpProxy::kStorageRoot);
+        GET_CONFIG(string, dump_dir, RtpProxy::kDumpDir);
+        std::string base_dir = !storage_root.empty() ? storage_root : dump_dir;
+        if (base_dir.empty()) {
+            throw ApiRetException("storageRoot/dumpDir is not configured", API::OtherFailed);
+        }
+        base_dir = File::absolutePath("", base_dir, true);
+
+        auto abs_path = File::absolutePath(file_path, base_dir);
+        if (!File::fileExist(abs_path)) {
+            throw ApiRetException("file not found: " + file_path, API::NotFound);
+        }
+
+        // 校验解析后的绝对路径必须在基准目录内，防止目录穿越
+        auto norm = [](const std::string &p) {
+            auto s = p;
+            for (auto &c : s) {
+                if (c == '\\') {
+                    c = '/';
+                }
+            }
+            return s;
+        };
+        std::string norm_path = norm(abs_path);
+        std::string norm_root = norm(base_dir);
+        if (norm_root.back() != '/') {
+            norm_root += '/';
+        }
+        if (norm_path.compare(0, norm_root.size(), norm_root) != 0) {
+            throw ApiRetException("file_path is outside storageRoot", API::InvalidArgs);
+        }
+
+        // 附件下载，save_name 缺省取文件名
+        StrCaseMap res_header;
+        auto save_name = allArgs["save_name"].asString();
+        if (save_name.empty()) {
+            auto pos = file_path.rfind('/');
+            save_name = (pos == std::string::npos) ? file_path : file_path.substr(pos + 1);
+        }
+        res_header.emplace("Content-Disposition", "attachment;filename=\"" + save_name + "\"");
+        res_header.emplace("Content-Type", "application/octet-stream");
+
+        InfoL << "[downloadRecordSVAC] file=" << abs_path << ", save_name=" << save_name;
+        // responseFile 自动设置 Content-Length，支持 Range/206 断点续传
+        invoker.responseFile(allArgs.parser.getHeader(), res_header, abs_path);
     });
 #endif // defined(ENABLE_RTPPROXY)
 

@@ -1,0 +1,93 @@
+[33mcommit afabed023913d98f8e2dc3d9d7ebb7078e5a8a92[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: Fgn1us <2844258008@qq.com>
+Date:   Mon Aug 3 19:29:22 2026 +0800
+
+    gpt改回调
+
+[33mcommit 4edfdff349bc659094cc9de14df553d2ef0064c4[m
+Author: Fgn1us <2844258008@qq.com>
+Date:   Mon Aug 3 01:05:57 2026 +0800
+
+    codex 8.3
+
+[33mcommit 833feb3bf4c9d0afc32fd52a8509f304dad3d433[m
+Author: Fgn1us <Fgn1us@users.noreply.github.com>
+Date:   Wed Jul 29 02:08:56 2026 +0800
+
+    回放控制接口，除了倍速都完成
+
+[33mcommit dd8e59321eae5f361c8f2c8a21612eafdf9cc30e[m
+Author: Fgn1us <Fgn1us@users.noreply.github.com>
+Date:   Tue Jul 28 21:52:08 2026 +0800
+
+    7.28
+
+[33mcommit e2ed1126708c74bb0b033adf560172517549b5eb[m
+Author: Fgn1us <2844258008@qq.com>
+Date:   Sun Jul 19 12:21:18 2026 +0800
+
+    录像功能更加完善，返回的json包含录像信息
+
+[33mcommit 1b962e267818618f9868559c7d681e4a03265a30[m
+Author: Fgn1us <2844258008@qq.com>
+Date:   Sun Jul 19 02:06:16 2026 +0800
+
+    录像的API做了修改，新增了录像名称的参数，支持并发录像
+
+[33mcommit 12551b969755b1c4af1981bda4bc97adc04e39b6[m
+Author: Fgn1us <Fgn1us@users.noreply.github.com>
+Date:   Thu Jul 16 21:59:19 2026 +0800
+
+    Socket 336 Eventpoller279警告取消
+
+[33mcommit b79678ead76e0d3b4e74aff694403890365d186c[m
+Author: Fgn1us <2844258008@qq.com>
+Date:   Sun Jul 5 12:57:32 2026 +0800
+
+    添加了存储相关接口，但是录制时切换路径不会立马更改，绝对相对路径的问题
+
+[33mcommit c9f549fdca2cd9487315f43d2bf1b7f34a0a8726[m
+Author: Fgn1us <Fgn1us@users.noreply.github.com>
+Date:   Wed Jun 10 15:43:01 2026 +0800
+
+    新增 on_record_svac WebHook 回调 -- SVAC录像切片完成事件
+    
+    - src/Common/config.h: 新增 kBroadcastRecordSVAC 广播常量及宏
+    - src/Common/config.cpp: 新增广播字符串常量
+    - src/Rtp/RtpProcess.h: 新增 dump 文件路径跟踪成员、emitRecordSVAC() 方法
+    - src/Rtp/RtpProcess.cpp: 自动/手动 dump 关闭时触发 on_record_svac 事件
+    - server/WebHook.cpp: 注册 hook.on_record_svac 配置键、监听器
+    - conf/config.ini: [hook] 段新增 on_record_svac=
+    - file_path 为相对路径(去掉 dump 目录前缀)
+    
+    Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
+
+[33mcommit 4d991b4f36cce53704077331a105eaae72acf2e2[m
+Author: Fgn1us <2844258008@qq.com>
+Date:   Sun May 31 02:38:49 2026 +0800
+
+    2026-05-31 完成项目主要功能A、修复登录BUG、调整样式
+
+[33mcommit 6c29a8be4022fe59a0e1516cd3d2c2be320b9a24[m
+Author: Fgn1us <2844258008@qq.com>
+Date:   Mon May 18 09:48:23 2026 +0800
+
+    工位转移
+
+[33mcommit c494345abdb14305eef37213778c6e41cec9a3fa[m
+Author: Fgn1us <2844258008@qq.com>
+Date:   Thu Apr 30 21:33:29 2026 +0800
+
+    version4.30
+
+[33mcommit e9ff00fe01adc57b4671d8580ea7c025ac19d39a[m
+Author: Fgn1us <2844258008@qq.com>
+Date:   Tue Mar 3 16:19:33 2026 +0800
+
+    gemini edition
+
+[33mcommit c5755d3e2827aa17ab6b9e88acafd76d66695e69[m[33m ([m[1;32mold-init[m[33m)[m
+Author: Fgn1us <2844258008@qq.com>
+Date:   Thu Jan 29 21:15:58 2026 +0800
+
+    初始化提交
