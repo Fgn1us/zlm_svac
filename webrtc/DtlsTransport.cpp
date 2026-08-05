@@ -244,7 +244,7 @@ namespace RTC
         }
 
         // Set certificate fields.
-        certName = X509_get_subject_name(certificate);
+        certName = const_cast<X509_NAME*>(X509_get_subject_name(certificate));
 
         if (!certName)
         {

@@ -147,8 +147,8 @@ private:
     bool alive();
     void onManager();
     void createTimer();
-    void openRtpDumpFile(const std::string &prefix, std::shared_ptr<FILE> &file, std::string &out_path);
-    void emitRecordSVAC(const std::string &file_path, const std::string &file_name_prefix, float time_len);
+    void openRtpDumpFile(const std::string &prefix, const std::string &custom_file_name, std::shared_ptr<FILE> &file, std::string &out_path);
+    void emitRecordSVAC(const std::string &file_path, const std::string &file_name_prefix, float time_len, int end_reason);
     void checkDumpRotate();
 
 private:
@@ -184,7 +184,6 @@ private:
     std::deque<std::function<void()> > _cached_func;
     // dump 控制（共享）
     std::string _dump_dir;
-    std::string _custom_file_name;
     std::time_t _last_dump_hour_tm = 0;
 };
 

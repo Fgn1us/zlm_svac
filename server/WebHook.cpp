@@ -622,6 +622,7 @@ void installWebHook() {
         body["file_size"] = (Json::UInt64)info.file_size;
         body["start_time"] = (Json::UInt64)info.start_time;
         body["time_len"] = info.time_len;
+        body["end_reason"] = info.end_reason;
         // 执行hook
         do_http_hook(hook_record_svac, body, nullptr);
     });

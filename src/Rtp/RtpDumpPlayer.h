@@ -154,6 +154,9 @@ private:
     // 通知错误
     void notifyError(const toolkit::SockException &ex);
 
+    // 停止逻辑（仅在 poller 线程内执行）
+    void stopInPoller();
+
 private:
     PlayArgs _args;
     std::string _identifier;
@@ -179,6 +182,10 @@ private:
 
     // 回放参考时钟（绝对计时，避免定时器漂移累积）
     toolkit::Ticker _start_ticker;
+
+    // 周期性日志：上次打印实际倍速时的参考时钟与内容位置（ms）
+    uint64_t _last_speed_log_elapsed_ms = 0;
+    uint64_t _last_speed_log_pos_ms = 0;
 
     // 暂停计时：记录暂停期间的总时长，使参考时钟在暂停期间不推进
     uint64_t _paused_duration_ms = 0;

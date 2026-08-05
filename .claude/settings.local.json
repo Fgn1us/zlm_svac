@@ -23,7 +23,13 @@
       "Bash(where cl.exe)",
       "Bash(python -c \"import json; json.load\\(open\\('E:/ZLM/zlmediakit-src/release/windows/Debug/www/swagger/openapi.json'\\)\\)\")",
       "Bash(python *)",
-      "Bash(cmake --build out/build/x64-Debug)"
+      "Bash(cmake --build out/build/x64-Debug)",
+      "Bash(cmake --build build --target zlmediakit --config Debug)",
+      "Bash(echo \"=== exit: $? ===\")",
+      "Bash(xargs -I{} ls -l --time-style=+%Y-%m-%d_%H:%M:%S {})",
+      "Bash(sort -k9)",
+      "Bash(cmake --build /d/Mysoftware/zlm_svac-main/build --config Debug --target MediaServer)",
+      "Bash(git *)"
     ]
   }
 }

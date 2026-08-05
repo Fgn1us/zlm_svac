@@ -22,6 +22,12 @@
 #include <algorithm>
 #include <cmath>
 
+#ifdef _WIN32
+#include <windows.h>
+#include <mmsystem.h>
+#pragma comment(lib, "winmm.lib")
+#endif
+
 using namespace std;
 using namespace toolkit;
 
@@ -33,10 +39,21 @@ static constexpr uint32_t kVideoSampleRate = 90000;
 RtpDumpPlayer::RtpDumpPlayer() {}
 
 RtpDumpPlayer::~RtpDumpPlayer() {
-    stop();
+    // 析构时不存在并发，直接清理（不能使用 shared_from_this）
+    stopInPoller();
 }
 
 void RtpDumpPlayer::start(const PlayArgs &args, onCompleteCB on_complete, onErrorCB on_error) {
+#ifdef _WIN32
+    // 提升 Windows 定时器精度到 1ms：
+    // 默认系统定时器分辨率仅 15.6ms，会导致 doDelayTask / 轮询触发系统性偏晚，
+    // 发送节奏落后于目标倍速（2 倍速实测只到约 1.5 倍）。程序生命周期内提升一次。
+    static bool s_high_res_timer = ([]() {
+        timeBeginPeriod(1);
+        return true;
+    })();
+    (void)s_high_res_timer;
+#endif
     _args = args;
     _on_complete = std::move(on_complete);
     _on_error = std::move(on_error);
@@ -108,6 +125,11 @@ void RtpDumpPlayer::start(const PlayArgs &args, onCompleteCB on_complete, onErro
             // 开始发送（启动参考时钟，避免定时器漂移累积）
             strong_self->_playing = true;
             strong_self->_current_index = 0;
+            // 重置变速锚点，保证从头播放时时间戳重写以文件起点为基准
+            strong_self->_speed_base_offset_ms = 0;
+            strong_self->_speed_base_elapsed_ms = 0;
+            strong_self->_last_speed_log_elapsed_ms = 0;
+            strong_self->_last_speed_log_pos_ms = 0;
             strong_self->_start_ticker.resetTime();
             InfoL << "[RtpDumpPlayer] start playback: " << strong_self->_args.file_path
                   << " -> " << strong_self->_args.dst_url << ":" << strong_self->_args.dst_port
@@ -121,6 +143,21 @@ void RtpDumpPlayer::start(const PlayArgs &args, onCompleteCB on_complete, onErro
 }
 
 void RtpDumpPlayer::stop() {
+    if (_poller && !_poller->isCurrentThread()) {
+        // API 线程调用，串行化到 poller 线程执行，避免与发送循环竞争
+        auto weak_self = weak_ptr<RtpDumpPlayer>(shared_from_this());
+        _poller->sync([weak_self]() {
+            auto strong_self = weak_self.lock();
+            if (strong_self) {
+                strong_self->stopInPoller();
+            }
+        });
+        return;
+    }
+    stopInPoller();
+}
+
+void RtpDumpPlayer::stopInPoller() {
     _playing = false;
     _paused = false;
     _paused_duration_ms = 0;
@@ -147,26 +184,41 @@ void RtpDumpPlayer::pause() {
     if (!_playing || _paused) {
         return;
     }
-    _paused = true;
-    _pause_begin_ms = _start_ticker.elapsedTime();
-    if (_delay_task) {
-        _delay_task->cancel();
-        _delay_task = nullptr;
-    }
-    InfoL << "[RtpDumpPlayer] paused: " << _identifier
-          << ", index=" << _current_index << "/" << _total_packets;
+    // 串行化到 poller 线程执行，避免与发送循环竞争共享状态
+    auto weak_self = weak_ptr<RtpDumpPlayer>(shared_from_this());
+    _poller->sync([weak_self]() {
+        auto strong_self = weak_self.lock();
+        if (!strong_self) {
+            return;
+        }
+        strong_self->_paused = true;
+        strong_self->_pause_begin_ms = strong_self->_start_ticker.elapsedTime();
+        if (strong_self->_delay_task) {
+            strong_self->_delay_task->cancel();
+            strong_self->_delay_task = nullptr;
+        }
+        InfoL << "[RtpDumpPlayer] paused: " << strong_self->_identifier
+              << ", index=" << strong_self->_current_index << "/" << strong_self->_total_packets;
+    });
 }
 
 void RtpDumpPlayer::resume() {
     if (!_playing || !_paused) {
         return;
     }
-    _paused = false;
-    // 累加暂停时长，使参考时钟在暂停期间不推进
-    _paused_duration_ms += (_start_ticker.elapsedTime() - _pause_begin_ms);
-    InfoL << "[RtpDumpPlayer] resumed: " << _identifier
-          << ", paused_duration=" << _paused_duration_ms << "ms";
-    sendNextPacket();
+    auto weak_self = weak_ptr<RtpDumpPlayer>(shared_from_this());
+    _poller->sync([weak_self]() {
+        auto strong_self = weak_self.lock();
+        if (!strong_self) {
+            return;
+        }
+        strong_self->_paused = false;
+        // 累加暂停时长，使参考时钟在暂停期间不推进
+        strong_self->_paused_duration_ms += (strong_self->_start_ticker.elapsedTime() - strong_self->_pause_begin_ms);
+        InfoL << "[RtpDumpPlayer] resumed: " << strong_self->_identifier
+              << ", paused_duration=" << strong_self->_paused_duration_ms << "ms";
+        strong_self->sendNextPacket();
+    });
 }
 
 float RtpDumpPlayer::getSpeed() const {
@@ -177,28 +229,36 @@ void RtpDumpPlayer::setSpeed(float speed) {
     if (!_playing || speed <= 0) {
         return;
     }
-    // 取消当前定时器
-    if (_delay_task) {
-        _delay_task->cancel();
-        _delay_task = nullptr;
-    }
+    // 串行化到 poller 线程执行，避免与发送循环竞争共享状态
+    auto weak_self = weak_ptr<RtpDumpPlayer>(shared_from_this());
+    _poller->sync([weak_self, speed]() {
+        auto strong_self = weak_self.lock();
+        if (!strong_self) {
+            return;
+        }
+        // 取消当前定时器
+        if (strong_self->_delay_task) {
+            strong_self->_delay_task->cancel();
+            strong_self->_delay_task = nullptr;
+        }
 
-    // 记录变速锚点：当前未发送位置和当前有效耗时
-    // 当前暂停中的时间尚未累加到 _paused_duration_ms，需要临时扣除
-    uint64_t current_pause = _paused ? (_start_ticker.elapsedTime() - _pause_begin_ms) : 0;
-    _speed_base_elapsed_ms = _start_ticker.elapsedTime() - _paused_duration_ms - current_pause;
-    _speed_base_offset_ms = (_current_index < _packets.size()) ? _packets[_current_index].offset_ms : _total_duration_ms;
-    _args.speed = speed;
+        // 记录变速锚点：当前未发送位置和当前有效耗时
+        // 当前暂停中的时间尚未累加到 _paused_duration_ms，需要临时扣除
+        uint64_t current_pause = strong_self->_paused ? (strong_self->_start_ticker.elapsedTime() - strong_self->_pause_begin_ms) : 0;
+        strong_self->_speed_base_elapsed_ms = strong_self->_start_ticker.elapsedTime() - strong_self->_paused_duration_ms - current_pause;
+        strong_self->_speed_base_offset_ms = (strong_self->_current_index < strong_self->_packets.size()) ? strong_self->_packets[strong_self->_current_index].offset_ms : strong_self->_total_duration_ms;
+        strong_self->_args.speed = speed;
 
-    InfoL << "[RtpDumpPlayer] speed changed: " << _identifier
-          << ", speed=" << speed
-          << ", base_offset=" << _speed_base_offset_ms << "ms"
-          << ", base_elapsed=" << _speed_base_elapsed_ms << "ms";
+        InfoL << "[RtpDumpPlayer] speed changed: " << strong_self->_identifier
+              << ", speed=" << speed
+              << ", base_offset=" << strong_self->_speed_base_offset_ms << "ms"
+              << ", base_elapsed=" << strong_self->_speed_base_elapsed_ms << "ms";
 
-    // 非暂停状态下立即继续发送
-    if (!_paused) {
-        sendNextPacket();
-    }
+        // 非暂停状态下立即继续发送
+        if (!strong_self->_paused) {
+            strong_self->sendNextPacket();
+        }
+    });
 }
 
 uint64_t RtpDumpPlayer::getCurrentOffsetMs() const {
@@ -212,40 +272,49 @@ void RtpDumpPlayer::seek(int64_t offset_sec) {
         return;
     }
 
-    // 计算目标偏移（毫秒）
-    uint64_t current_ms = getCurrentOffsetMs();
-    int64_t target_ms = (int64_t)current_ms + offset_sec * 1000;
-    if (target_ms < 0) target_ms = 0;
-    if ((uint64_t)target_ms > _total_duration_ms) target_ms = (int64_t)_total_duration_ms;
+    // 串行化到 poller 线程执行（同步等待），保证 seek 返回后位置已生效
+    auto weak_self = weak_ptr<RtpDumpPlayer>(shared_from_this());
+    _poller->sync([weak_self, offset_sec]() {
+        auto strong_self = weak_self.lock();
+        if (!strong_self) {
+            return;
+        }
 
-    // 二分查找第一个 offset_ms >= target_ms 的包（帧对齐）
-    auto it = std::lower_bound(_packets.begin(), _packets.end(), (uint64_t)target_ms,
-        [](const ParsedPacket &pkt, uint64_t target) { return pkt.offset_ms < target; });
-    _current_index = std::distance(_packets.begin(), it);
-    if (_current_index >= _packets.size()) {
-        _current_index = _packets.size() - 1;
-    }
+        // 计算目标偏移（毫秒）
+        uint64_t current_ms = strong_self->getCurrentOffsetMs();
+        int64_t target_ms = (int64_t)current_ms + offset_sec * 1000;
+        if (target_ms < 0) target_ms = 0;
+        if ((uint64_t)target_ms > strong_self->_total_duration_ms) target_ms = (int64_t)strong_self->_total_duration_ms;
 
-    // 重设变速锚点为当前位置
-    uint64_t current_pause = _paused ? (_start_ticker.elapsedTime() - _pause_begin_ms) : 0;
-    _speed_base_elapsed_ms = _start_ticker.elapsedTime() - _paused_duration_ms - current_pause;
-    _speed_base_offset_ms = _packets[_current_index].offset_ms;
+        // 二分查找第一个 offset_ms >= target_ms 的包（帧对齐）
+        auto it = std::lower_bound(strong_self->_packets.begin(), strong_self->_packets.end(), (uint64_t)target_ms,
+            [](const ParsedPacket &pkt, uint64_t target) { return pkt.offset_ms < target; });
+        strong_self->_current_index = std::distance(strong_self->_packets.begin(), it);
+        if (strong_self->_current_index >= strong_self->_packets.size()) {
+            strong_self->_current_index = strong_self->_packets.size() - 1;
+        }
 
-    // 取消当前定时器
-    if (_delay_task) {
-        _delay_task->cancel();
-        _delay_task = nullptr;
-    }
+        // 重设变速锚点为当前位置
+        uint64_t current_pause = strong_self->_paused ? (strong_self->_start_ticker.elapsedTime() - strong_self->_pause_begin_ms) : 0;
+        strong_self->_speed_base_elapsed_ms = strong_self->_start_ticker.elapsedTime() - strong_self->_paused_duration_ms - current_pause;
+        strong_self->_speed_base_offset_ms = strong_self->_packets[strong_self->_current_index].offset_ms;
 
-    InfoL << "[RtpDumpPlayer] seek: " << _identifier
-          << ", offset_sec=" << offset_sec
-          << ", new_offset=" << _speed_base_offset_ms << "ms"
-          << ", index=" << _current_index << "/" << _total_packets;
+        // 取消当前定时器
+        if (strong_self->_delay_task) {
+            strong_self->_delay_task->cancel();
+            strong_self->_delay_task = nullptr;
+        }
 
-    // 非暂停状态下立即继续发送
-    if (!_paused) {
-        sendNextPacket();
-    }
+        InfoL << "[RtpDumpPlayer] seek: " << strong_self->_identifier
+              << ", offset_sec=" << offset_sec
+              << ", new_offset=" << strong_self->_speed_base_offset_ms << "ms"
+              << ", index=" << strong_self->_current_index << "/" << strong_self->_total_packets;
+
+        // 非暂停状态下立即继续发送
+        if (!strong_self->_paused) {
+            strong_self->sendNextPacket();
+        }
+    });
 }
 
 uint64_t RtpDumpPlayer::getSentPackets() const {
@@ -366,6 +435,24 @@ void RtpDumpPlayer::sendNextPacket() {
         return;
     }
 
+    // 每 5s 打印一次发送倍速，便于验证发送节奏是否达到目标倍速
+    // avg_speed：从播放开始算的累计平均（变速后永远低于目标，仅作参考）
+    // inst_speed：本日志区间内的瞬时倍速，应逼近 target（变速后每次 5s 墙钟推进 10s 内容 = 2x）
+    uint64_t elapsed_ms = _start_ticker.elapsedTime();
+    if (elapsed_ms - _last_speed_log_elapsed_ms >= 5000) {
+        uint64_t pos_ms = _current_index < _packets.size() ? _packets[_current_index].offset_ms : _total_duration_ms;
+        double avg_speed = elapsed_ms ? (double)pos_ms / (double)elapsed_ms : 0.0;
+        uint64_t d_elapsed = elapsed_ms - _last_speed_log_elapsed_ms;
+        uint64_t d_pos = pos_ms - _last_speed_log_pos_ms;
+        double inst_speed = d_elapsed ? (double)d_pos / (double)d_elapsed : 0.0;
+        _last_speed_log_elapsed_ms = elapsed_ms;
+        _last_speed_log_pos_ms = pos_ms;
+        InfoL << "[RtpDumpPlayer] avg_speed=" << avg_speed
+              << "x, inst_speed=" << inst_speed
+              << "x (target=" << _args.speed << "x), pos=" << (pos_ms / 1000.0)
+              << "s, elapsed=" << elapsed_ms << "ms";
+    }
+
     // 发送所有已到时间的包，用循环防止追帧时递归过深
     for (;;) {
         uint64_t offset = _packets[_current_index].offset_ms;
@@ -396,13 +483,15 @@ void RtpDumpPlayer::sendNextPacket() {
         uint64_t current_offset = _packets[_current_index].offset_ms;
         while (_current_index < _packets.size() && _packets[_current_index].offset_ms == current_offset) {
             auto &pkt = _packets[_current_index];
-            if (_args.speed != 1.0f) {
-                // Rewrite the RTP timestamp for trick play so that timestamp-paced
-                // receivers play at exactly the requested speed.
-                auto *header = (RtpHeader *)pkt.data->data();
-                uint32_t scaled_stamp = _first_raw_ts + (uint32_t)std::llround((double)pkt.offset_ms * kVideoSampleRate / 1000.0 / _args.speed);
-                header->stamp = htonl(scaled_stamp);
-            }
+            // 基于变速锚点重写 RTP 时间戳：
+            // - 变速瞬间时间戳保持连续，避免接收端因时间戳回退而丢帧/卡顿
+            // - 变速后时间戳推进与发送墙钟完全匹配，按时间戳驱动的接收端即为目标倍速
+            // (从头播放时锚点为 0，等价于原始时间戳；变速到 1.0 倍速时也能保持连续)
+            auto *header = (RtpHeader *)pkt.data->data();
+            double wall_sec = (double)_speed_base_elapsed_ms / 1000.0
+                            + (double)(pkt.offset_ms - _speed_base_offset_ms) / 1000.0 / _args.speed;
+            uint32_t scaled_stamp = _first_raw_ts + (uint32_t)std::llround(wall_sec * kVideoSampleRate);
+            header->stamp = htonl(scaled_stamp);
             _socket->send(pkt.data, nullptr, 0, true);
             _sent_packets++;
             _sent_bytes += pkt.data->size();

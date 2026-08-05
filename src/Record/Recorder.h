@@ -36,6 +36,12 @@ struct MediaTuple {
 
 class RecordInfo: public MediaTuple {
 public:
+    // 录像结束原因
+    typedef enum {
+        stop_manual = 0,    // 手动取消录制
+        stop_abnormal = 1,  // 异常结束（推流中断/断开等）
+        stop_normal = 2,    // 正常切片完成（自动录制整点轮转）
+    } StopReason;
     time_t start_time;  // GMT 标准时间，单位秒
     float time_len;     // 录像长度，单位秒
     uint64_t file_size;    // 文件大小，单位 BYTE
@@ -43,6 +49,7 @@ public:
     std::string file_name;   // 文件名称
     std::string folder;      // 文件夹路径
     std::string url;         // 播放路径
+    int end_reason = stop_manual;  // 录像结束原因，见 StopReason
 };
 
 class Recorder{
