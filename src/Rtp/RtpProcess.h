@@ -81,13 +81,6 @@ public:
      */
     void setOnlyTrack(OnlyTrack only_track);
 
-    /**
-     * 开始 dump RTP 数据到文件（按小时自动切片）
-     * @param dump_dir dump 根目录
-     */
-    // 自动 dump（构造时触发，前缀为空）
-    void startAutoDump(const std::string &dump_dir, const std::string &file_name = "");
-
     // 手动 dump（API 触发，录像文件名由 file_name 指定）
     void startManualDump(const std::string &dump_dir, const std::string &file_name = "");
 
@@ -149,7 +142,6 @@ private:
     void createTimer();
     void openRtpDumpFile(const std::string &prefix, const std::string &custom_file_name, std::shared_ptr<FILE> &file, std::string &out_path);
     void emitRecordSVAC(const std::string &file_path, const std::string &file_name_prefix, float time_len, int end_reason);
-    void checkDumpRotate();
 
 private:
     bool _pause_timeout = false;
@@ -163,11 +155,6 @@ private:
     MediaInfo _media_info;
     toolkit::Ticker _last_frame_time;
     onDetachCB _on_detach;
-    // 自动 dump
-    bool _auto_enabled = false;
-    std::shared_ptr<FILE> _save_file_rtp_auto;
-    std::string _save_file_rtp_auto_path;
-    toolkit::Ticker _auto_dump_ticker;
     // 手动 dump（支持多路并发，按 file_name 索引）
     struct DumpSlot {
         std::shared_ptr<FILE> file;

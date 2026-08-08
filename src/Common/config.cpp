@@ -358,7 +358,6 @@ static onceToken token([]() {
 // //////////Rtp Proxy Related Configuration///////////
 namespace RtpProxy {
 #define RTP_PROXY_FIELD "rtp_proxy."
-const string kAutoDumpEnable = RTP_PROXY_FIELD "auto_dump_enable";
 const string kDumpDir = RTP_PROXY_FIELD "dumpDir";
 const string kStorageRoot = RTP_PROXY_FIELD "storageRoot";
 const string kTimeoutSec = RTP_PROXY_FIELD "timeoutSec";
@@ -374,7 +373,6 @@ const std::string kMergeFrame = RTP_PROXY_FIELD "merge_frame";
 const std::string kVerifyCertFilePath = RTP_PROXY_FIELD "cert_file_path";
 
 static onceToken token([]() {
-    mINI::Instance()[kAutoDumpEnable] = false;
     mINI::Instance()[kDumpDir] = "";
     mINI::Instance()[kStorageRoot] = "";
     mINI::Instance()[kTimeoutSec] = 15;

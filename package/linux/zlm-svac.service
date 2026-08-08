@@ -1,0 +1,15 @@
+[Unit]
+Description=ZLMediaKit SVAC Media Server
+After=network.target
+
+[Service]
+Type=simple
+# WorkingDirectory 保证配置内相对路径(./www 等)指向 /opt/zlm_svac/bin/www
+WorkingDirectory=/opt/zlm_svac/bin
+ExecStart=/opt/zlm_svac/bin/MediaServer -c ../conf/config.ini -s default.pem -l 0
+Restart=on-failure
+RestartSec=3
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target

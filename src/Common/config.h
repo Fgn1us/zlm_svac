@@ -549,9 +549,6 @@ extern const std::string kFastRegister;
 // //////////Rtp代理相关配置///////////  [AUTO-TRANSLATED:7b285587]
 // //////////Rtp proxy related configuration///////////
 namespace RtpProxy {
-// 是否自动保存rtp调试数据（配合dumpDir使用），默认关闭  [AUTO-TRANSLATED:7b285587]
-// Whether to auto-save rtp dump data (used with dumpDir), disabled by default
-extern const std::string kAutoDumpEnable;
 // rtp调试数据保存目录,置空则不生成  [AUTO-TRANSLATED:aa004af0]
 // Rtp debug data save directory, empty if not generated
 extern const std::string kDumpDir;

@@ -38,13 +38,6 @@ RtpProcess::Ptr RtpProcess::createProcess(const MediaTuple &tuple) {
 RtpProcess::RtpProcess(const MediaTuple &tuple) {
     _media_info.schema = "rtp";
     static_cast<MediaTuple &>(_media_info) = tuple;
-
-    // 自动开始 dump（需要同时配置 dumpDir 且开启 auto_dump_enable）
-    GET_CONFIG(string, dump_dir, RtpProxy::kDumpDir);
-    GET_CONFIG(bool, auto_dump_enable, RtpProxy::kAutoDumpEnable);
-    if (auto_dump_enable && !dump_dir.empty()) {
-        startAutoDump(dump_dir);
-    }
 }
 
 void RtpProcess::flush() {
@@ -72,13 +65,6 @@ RtpProcess::~RtpProcess() {
 
     // 推流结束，关闭所有 dump 文件并发送异常结束回调
     try {
-        // 自动 dump
-        if (_save_file_rtp_auto && !_save_file_rtp_auto_path.empty()) {
-            float time_len = _auto_dump_ticker.elapsedTime() / 1000.0f;
-            _save_file_rtp_auto.reset();
-            emitRecordSVAC(_save_file_rtp_auto_path, "", time_len, RecordInfo::stop_abnormal);
-            _save_file_rtp_auto_path.clear();
-        }
         // 手动 dump
         for (auto &pr : _manual_slots) {
             auto &slot = pr.second;
@@ -99,7 +85,6 @@ void RtpProcess::onManager() {
     if (!alive()) {
         onDetach(SockException(Err_timeout, "RtpProcess timeout"));
     }
-    checkDumpRotate();
 }
 
 void RtpProcess::createTimer() {
@@ -138,12 +123,6 @@ bool RtpProcess::inputRtp(bool is_udp, const Socket::Ptr &sock, const char *data
     }
 
     _total_bytes += len;
-    if (_auto_enabled && _save_file_rtp_auto) {
-        uint16_t size = (uint16_t)len;
-        size = htons(size);
-        fwrite((uint8_t *) &size, 2, 1, _save_file_rtp_auto.get());
-        fwrite((uint8_t *) data, len, 1, _save_file_rtp_auto.get());
-    }
     for (auto &pr : _manual_slots) {
         auto &slot = pr.second;
         if (slot.file) {
@@ -522,14 +501,6 @@ void RtpProcess::emitRecordSVAC(const std::string &file_path, const std::string 
           << ", time_len=" << time_len;
 }
 
-void RtpProcess::startAutoDump(const std::string &dump_dir, const std::string &file_name) {
-    _dump_dir = dump_dir;
-    _auto_enabled = true;
-    openRtpDumpFile("", file_name, _save_file_rtp_auto, _save_file_rtp_auto_path);
-    _auto_dump_ticker.resetTime();
-    InfoL << "[RtpProcess] startAutoDump: " << _media_info.stream << " -> " << _dump_dir;
-}
-
 void RtpProcess::startManualDump(const std::string &dump_dir, const std::string &file_name) {
     _dump_dir = dump_dir;
     auto &slot = _manual_slots[file_name];
@@ -580,35 +551,6 @@ std::string RtpProcess::getSlotPath(const std::string &file_name) const {
         return it->second.path;
     }
     return "";
-}
-
-void RtpProcess::checkDumpRotate() {
-    if (!_auto_enabled) {
-        // 手动 dump 不随整点分片，仅由 stopDump / 推流结束停止
-        return;
-    }
-    auto now = std::chrono::system_clock::now();
-    auto time_t_now = std::chrono::system_clock::to_time_t(now);
-    auto current_hour_tm = time_t_now - (time_t_now % 3600);
-
-    if (current_hour_tm != _last_dump_hour_tm) {
-        InfoL << "[RtpProcess] hour change detected, stream=" << _media_info.stream
-              << ", auto=" << _auto_enabled << ", manual=" << _manual_slots.size();
-
-        // 轮转自动 dump 文件（手动 dump 不随整点分片，仅由 stopDump / 推流结束停止）
-        if (_auto_enabled) {
-            // 在关闭旧文件前发送录像回调
-            if (_save_file_rtp_auto && !_save_file_rtp_auto_path.empty()) {
-                float time_len = _auto_dump_ticker.elapsedTime() / 1000.0f;
-                _save_file_rtp_auto.reset(); // 先关闭旧文件，确保数据刷盘
-                emitRecordSVAC(_save_file_rtp_auto_path, "", time_len, RecordInfo::stop_normal);
-                _save_file_rtp_auto_path.clear();
-            }
-            openRtpDumpFile("", "", _save_file_rtp_auto, _save_file_rtp_auto_path);
-            _auto_dump_ticker.resetTime();
-        }
-        _last_dump_hour_tm = current_hour_tm;
-    }
 }
 
 }//namespace mediakit

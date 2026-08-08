@@ -1,0 +1,33 @@
+# git 元数据
+.git
+.gitmodules_github
+
+# 构建产物与本地缓存
+build/
+release/
+out/
+X64/
+x64/
+cmake-build-*/
+
+# 本地数据 / 日志 / 抓包
+dump/
+.vs/
+.idea/
+*.pcapng
+*.pcap
+
+# 编译中间产物(排除以减小 build context)
+*.o
+*.obj
+*.a
+*.lib
+*.ilk
+*.pdb
+*.exp
+*.so
+*.dll
+*.dylib
+
+# 系统文件
+.DS_Store
