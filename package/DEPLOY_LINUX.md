@@ -31,14 +31,7 @@ git submodule update --init --recursive
 `media-server`、`jsoncpp` 已直接入库，无需额外拉取。
 
 ### 方式 B：整目录拷贝（内网隔离环境）
-
-先在开发机（Windows git bash 或 Linux）上打出**干净源码包**，再拷到目标机：
-```bash
-chmod +x package/linux/*.sh
-./package/linux/pack_source.sh -v 1.0.0   # 自动排除 build/release/out/dump/抓包/日志 等杂文件
-# 生成 zlm_svac_src_1.0.0.tar.gz（约 15MB，而非整个目录 19GB+）
-```
-然后 SCP / U 盘拷贝该 tar 到目标机解压即可。**源码包已内含子模块源码**，解压后无需再 `git submodule update`；确认 `3rdpart/ZLToolKit/src/` 下有 Network、Poller 等源码即可。
+把整个项目目录（含 `3rdpart/ZLToolKit`）用 SCP / U 盘拷到目标机。**务必确认 `3rdpart/ZLToolKit/src/` 目录下有 Network、Poller 等源码**。
 
 > `3rdpart/ZXSvacDec/` 目录是 **Windows 版 DLL**，Linux 上无用，可删以减小体积（不影响编译）。
 

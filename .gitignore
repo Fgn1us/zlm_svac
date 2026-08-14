@@ -26,29 +26,38 @@
 #*.exe
 *.out
 *.app
-/X64/
 
-
-*.DS_Store
-
-/cmake-build-debug/
-/cmake-build-release/
-/linux/
+# IDE / 编辑器
 /.vs/
 /.vscode/
 /.idea/
 /c_wrapper/.idea/
+/Android/.idea/
+/3rdpart/media-server/.idea/
+/3rdpart/ZLToolKit/cmake-build-mq/
+
+# 系统文件
+*.DS_Store
+
+# 构建产物
+/build/
 /release/
 /out/
-/Android/.idea/
-/Android/app/src/main/cpp/libs_export/
-/3rdpart/media-server/.idea/
-/3rdpart/media-server/.idea/
-/build/
-/3rdpart/media-server/.idea/
+/X64/
+/linux/
 /ios/
-/cmake-build-*
-/3rdpart/ZLToolKit/cmake-build-mq/
-"dump/" 
-"dump/" 
-dump/ 
+/cmake-build-debug/
+/cmake-build-release/
+/cmake-build-*/
+/Android/app/src/main/cpp/libs_export/
+
+# 运行时数据 / 录像 / 抓包 / 日志
+dump/
+*.pcapng
+*.pcap
+*.log
+ffmpeg/
+
+# 打包产物
+*.tar.gz
+*.zip

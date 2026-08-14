@@ -188,7 +188,10 @@ endif()
 
 # 去除 win32 的适配代码
 if(NOT WIN32)
-  list(REMOVE_ITEM ToolKit_SRC_LIST ${ToolKit_ROOT}/win32/getopt.c)
+  # 移除 ZLToolKit 的 Windows 平台源码(src/win32), 否则 Linux 编译会因缺少 windows.h 失败
+  # 注: 上游原代码此处路径少了 src/ 一级, 导致 win32/wepoll.c 在 Linux 上被错误编译
+  file(GLOB ToolKit_WIN32_SRC_LIST ${ToolKit_ROOT}/src/win32/*.c ${ToolKit_ROOT}/src/win32/*.cpp)
+  list(REMOVE_ITEM ToolKit_SRC_LIST ${ToolKit_WIN32_SRC_LIST})
 else()
   # 防止 Windows.h 包含 Winsock.h
   list(APPEND COMPILE_DEFINITIONS
