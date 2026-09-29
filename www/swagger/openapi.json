@@ -3082,7 +3082,7 @@
                 "tags": [
                     "GET"
                 ],
-                "summary": "\u521b\u5efa\u591a\u8def\u590d\u7528RTP\u670d\u52a1\u5668(openRtpServerMultiplex)",
+                "summary": "\u521b\u5efaRTP\u670d\u52a1\u5668(openRtpServer)",
                 "parameters": [
                     {
                         "name": "secret",
@@ -3099,7 +3099,7 @@
                         "schema": {
                             "type": "integer"
                         },
-                        "description": "\u7ed1\u5b9a\u7684\u7aef\u53e3\uff0c0\u65f6\u4e3a\u968f\u673a\u7aef\u53e3",
+                        "description": "绑定的端口，0时为随机端口；当同时指定 tcp_ip 时，该参数表示对端(设备)端口",
                         "example": "0"
                     },
                     {
@@ -3108,7 +3108,7 @@
                         "schema": {
                             "type": "integer"
                         },
-                        "description": "tcp\u6a21\u5f0f\uff0c0\u65f6\u4e3a\u4e0d\u542f\u7528tcp\u76d1\u542c\uff0c1\u65f6\u4e3a\u542f\u7528tcp\u76d1\u542c",
+                        "description": "tcp\u6a21\u5f0f\uff0c0\u65f6\u4e3a\u4e0d\u542f\u7528tcp\u76d1\u542c\uff0c1\u65f6\u4e3a\u542f\u7528tcp\u76d1\u542c\uff0c2\u65f6\u4e3atcp\u4e3b\u52a8\u8fde\u63a5\u6a21\u5f0f",
                         "example": "1"
                     },
                     {
@@ -3119,6 +3119,15 @@
                         },
                         "description": "\u8be5\u7aef\u53e3\u7ed1\u5b9a\u7684\u6d41id\n",
                         "example": "test"
+                    },
+                    {
+                        "name": "tcp_ip",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "TCP主动模式(tcp_mode=2)下要连接的对端IP。指定后 port 表示对端端口(不是本端端口)，接口会立即发起反连，无需再调用connectRtpServer。非必选参数，仅 tcp_mode=2 时有效",
+                        "example": "192.168.1.100"
                     }
                 ],
                 "responses": {
@@ -3134,7 +3143,7 @@
                 "tags": [
                     "POST"
                 ],
-                "summary": "\u521b\u5efa\u591a\u8def\u590d\u7528RTP\u670d\u52a1\u5668(openRtpServerMultiplex)",
+                "summary": "\u521b\u5efaRTP\u670d\u52a1\u5668(openRtpServer)",
                 "parameters": [
                     {
                         "name": "secret",
@@ -3151,7 +3160,7 @@
                         "schema": {
                             "type": "integer"
                         },
-                        "description": "\u7ed1\u5b9a\u7684\u7aef\u53e3\uff0c0\u65f6\u4e3a\u968f\u673a\u7aef\u53e3",
+                        "description": "绑定的端口，0时为随机端口；当同时指定 tcp_ip 时，该参数表示对端(设备)端口",
                         "example": "0"
                     },
                     {
@@ -3160,7 +3169,7 @@
                         "schema": {
                             "type": "integer"
                         },
-                        "description": "tcp\u6a21\u5f0f\uff0c0\u65f6\u4e3a\u4e0d\u542f\u7528tcp\u76d1\u542c\uff0c1\u65f6\u4e3a\u542f\u7528tcp\u76d1\u542c",
+                        "description": "tcp\u6a21\u5f0f\uff0c0\u65f6\u4e3a\u4e0d\u542f\u7528tcp\u76d1\u542c\uff0c1\u65f6\u4e3a\u542f\u7528tcp\u76d1\u542c\uff0c2\u65f6\u4e3atcp\u4e3b\u52a8\u8fde\u63a5\u6a21\u5f0f",
                         "example": "1"
                     },
                     {
@@ -3171,6 +3180,15 @@
                         },
                         "description": "\u8be5\u7aef\u53e3\u7ed1\u5b9a\u7684\u6d41id\n",
                         "example": "test"
+                    },
+                    {
+                        "name": "tcp_ip",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "TCP主动模式(tcp_mode=2)下要连接的对端IP。指定后 port 表示对端端口(不是本端端口)，接口会立即发起反连，无需再调用connectRtpServer。非必选参数，仅 tcp_mode=2 时有效",
+                        "example": "192.168.1.100"
                     }
                 ],
                 "responses": {
@@ -4744,12 +4762,12 @@
                         "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
                     },
                     {
-                        "name": "session",
+                        "name": "stream",
                         "in": "query",
                         "schema": {
                             "type": "string"
                         },
-                        "description": "回放会话标识，用于定位回放会话",
+                        "description": "回放会话标识（流名），用于定位回放会话；同一 stream 不可重复回放",
                         "example": "test"
                     },
                     {
@@ -4796,11 +4814,20 @@
                         },
                         "description": "本地 UDP 绑定端口，0=随机 (默认: 0)",
                         "example": 0
+                    },
+                    {
+                        "name": "start_offset_sec",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "description": "起播偏移量（秒）：从录像文件的第 N 秒开始回放，0 或缺省=从文件开头开始。超出文件时长时会启动失败，并通过 on_playback_svac 事件上报错误；实际生效值按帧对齐（25fps 即 40ms 一格），在 on_playback_svac 的 start_offset_ms 字段回传",
+                        "example": 30
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successful response. 返回 local_port(本地发送端口)。同一 stream 名不可重复回放，不同 stream 名可并发播放同一文件",
+                        "description": "Successful response. 返回 local_port(本地发送端口) 与 start_offset_sec(请求的起播偏移)。同一 stream 名不可重复回放，不同 stream 名可并发播放同一文件。实际生效的起播偏移(按帧对齐)见 on_playback_svac 事件的 start_offset_ms",
                         "content": {
                             "application/json": {}
                         }
@@ -4823,12 +4850,12 @@
                         "example": "FTRaFEWs08KeTxKEEO25ePDKuV3CjOqp"
                     },
                     {
-                        "name": "session",
+                        "name": "stream",
                         "in": "query",
                         "schema": {
                             "type": "string"
                         },
-                        "description": "回放会话标识，用于定位回放会话",
+                        "description": "回放会话标识（流名），用于定位回放会话；同一 stream 不可重复回放",
                         "example": "test"
                     },
                     {
@@ -4875,11 +4902,20 @@
                         },
                         "description": "本地 UDP 绑定端口，0=随机 (默认: 0)",
                         "example": 0
+                    },
+                    {
+                        "name": "start_offset_sec",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "description": "起播偏移量（秒）：从录像文件的第 N 秒开始回放，0 或缺省=从文件开头开始。超出文件时长时会启动失败，并通过 on_playback_svac 事件上报错误；实际生效值按帧对齐（25fps 即 40ms 一格），在 on_playback_svac 的 start_offset_ms 字段回传",
+                        "example": 30
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successful response. 返回 local_port(本地端口), total_packets(总包数), duration_ms(总时长毫秒)",
+                        "description": "Successful response. 返回 code, local_port(本地发送端口), start_offset_sec(请求的起播偏移)。实际生效的起播偏移(按帧对齐)见 on_playback_svac 事件的 start_offset_ms",
                         "content": {
                             "application/json": {}
                         }

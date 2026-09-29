@@ -1732,7 +1732,7 @@
 						{
 							"key": "port",
 							"value": "0",
-							"description": "绑定的端口，0时为随机端口"
+							"description": "绑定的端口，0时为随机端口；当同时指定 tcp_ip 时，该参数表示对端(设备)端口"
 						},
 						{
 							"key": "tcp_mode",
@@ -1777,6 +1777,11 @@
 							"value": "::",
 							"description": "指定创建RTP的本地ip，ipv4可填”0.0.0.0“，ipv6可填”::“，一般保持默认",
 							"disabled": true
+						},
+						{
+							"key": "tcp_ip",
+							"value": "192.168.1.100",
+							"description": "TCP主动模式(tcp_mode=2)下要连接的对端IP。指定后 port 表示对端端口(不是本端端口)，接口会立即发起反连，无需再调用connectRtpServer。非必选参数，仅 tcp_mode=2 时有效"
 						}
 					]
 				}

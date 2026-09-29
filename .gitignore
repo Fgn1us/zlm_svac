@@ -61,3 +61,13 @@ ffmpeg/
 # 打包产物
 *.tar.gz
 *.zip
+
+# 本地工作数据 / 演示工程 / 敏感文件，不入库
+.workbuddy/
+demoqmlv2.0版0924/
+*.swp
+.qmake.stash
+*.pro.user
+exported_ukey_cert.cer
+license.dat
+client_logs/

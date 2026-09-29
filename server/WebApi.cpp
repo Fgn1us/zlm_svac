@@ -1395,7 +1395,7 @@ void installWebApi() {
         fillSockInfo(val, process.get());
     });
 
-    api_regist("/index/api/openRtpServer",[](API_ARGS_MAP){
+    api_regist("/index/api/openRtpServer",[](API_ARGS_MAP_ASYNC){
         CHECK_SECRET();
         CHECK_ARGS("port", "stream_id");
         std::string vhost = DEFAULT_VHOST;
@@ -1424,19 +1424,68 @@ void installWebApi() {
         if (!allArgs["local_ip"].empty()) {
             local_ip = allArgs["local_ip"];
         }
-        auto port = openRtpServer(allArgs["port"], tuple, tcp_mode, local_ip, allArgs["re_use_port"].as<bool>(),
+
+        // 指定tcp_ip后,tcp主动模式一步到位:port表示"对端端口",建好对象立刻连过去,无需再调用connectRtpServer  [AUTO-TRANSLATED:svac_tcp_ip]
+        // When tcp_ip is specified, tcp active mode is done in one step: port means the peer port, and the connection is established immediately
+        std::string tcp_ip = allArgs["tcp_ip"];
+        uint16_t dst_port = (uint16_t)allArgs["port"];
+        if (!tcp_ip.empty()) {
+            if (tcp_mode != (int)RtpServer::ACTIVE) {
+                throw InvalidArgsException("tcp_ip is only valid when tcp_mode=2 (tcp active mode)");
+            }
+            if (dst_port == 0) {
+                throw InvalidArgsException("port must be the non-zero peer port when tcp_ip is specified");
+            }
+        }
+        // 此时port已被征用为对端端口,本地源端口可由local_port指定,缺省0表示交给[rtp_proxy] port_range端口池自动分配  [AUTO-TRANSLATED:svac_tcp_ip]
+        // port is now the peer port, the local source port can be set by local_port (0 means auto from [rtp_proxy] port_range)
+        uint16_t local_port = tcp_ip.empty() ? dst_port : (uint16_t)allArgs["local_port"];
+
+        auto port = openRtpServer(local_port, tuple, tcp_mode, local_ip, allArgs["re_use_port"].as<bool>(),
                                   allArgs["ssrc"].as<uint32_t>(), only_track);
         if (port == 0) {
             throw InvalidArgsException("This stream already exists");
         }
-        // 回复json  [AUTO-TRANSLATED:0c443c6a]
-        // Reply json
-        val["port"] = port;
+
+        if (tcp_ip.empty()) {
+            // 回复json  [AUTO-TRANSLATED:0c443c6a]
+            // Reply json
+            val["port"] = port;
+            invoker(200, headerOut, val.toStyledString());
+            return;
+        }
+
+        // 指定tcp_ip时:port为对端端口,local_port为本端源端口(便于放行防火墙与排查)  [AUTO-TRANSLATED:svac_tcp_ip]
+        // With tcp_ip: port is the peer port and local_port is the local source port
+        val["port"] = dst_port;
+        val["local_port"] = port;
+        auto server = s_rtp_server.find(tuple.shortUrl());
+        if (!server) {
+            responseApi(API::OtherFailed, "can not find the stream", invoker);
+            return;
+        }
+        server->connectToServer(tcp_ip, dst_port, [val, headerOut, invoker, tuple, tcp_ip, dst_port](const SockException &ex) mutable {
+            if (ex) {
+                // 连不上就回收对象,避免残留一个占着stream_id的空推流器(否则重试会报 This stream already exists)  [AUTO-TRANSLATED:svac_tcp_ip]
+                // Release the object on failure, otherwise the stream_id stays occupied and a retry reports "This stream already exists"
+                s_rtp_server.erase(tuple.shortUrl());
+                val["code"] = API::OtherFailed;
+                // 带上目标地址,避免只看到 "Unknown system error -10061" 这种不直观的底层报错  [AUTO-TRANSLATED:svac_tcp_ip]
+                // Include the target address so the caller does not only see a bare low-level error such as "Unknown system error -10061"
+                val["msg"] = "connect to " + tcp_ip + ":" + std::to_string(dst_port) + " failed: " + ex.what();
+            }
+            invoker(200, headerOut, val.toStyledString());
+        });
     });
 
     api_regist("/index/api/openRtpServerMultiplex", [](API_ARGS_MAP) {
         CHECK_SECRET();
         CHECK_ARGS("port", "stream_id");
+        if (!allArgs["tcp_ip"].empty()) {
+            // 多路复用分支不支持tcp_ip,请改用openRtpServer  [AUTO-TRANSLATED:svac_tcp_ip]
+            // tcp_ip is not supported by multiplex, please use openRtpServer instead
+            throw InvalidArgsException("tcp_ip is not supported by openRtpServerMultiplex, please use openRtpServer");
+        }
         std::string vhost = DEFAULT_VHOST;
         if (!allArgs["vhost"].empty()) {
             vhost = allArgs["vhost"];
@@ -2385,9 +2434,14 @@ void installWebApi() {
         // 可选参数
         float speed = allArgs["speed"].empty() ? 1.0f : allArgs["speed"].as<float>();
         uint16_t src_port = allArgs["src_port"].empty() ? 0 : allArgs["src_port"].as<uint16_t>();
+        // 起播偏移量（秒）：从录像文件的第 N 秒开始回放，0 或缺省 = 从文件开头开始
+        float start_offset_sec = allArgs["start_offset_sec"].empty() ? 0.0f : allArgs["start_offset_sec"].as<float>();
 
         if (speed <= 0) {
             throw ApiRetException("speed must be positive", API::InvalidArgs);
+        }
+        if (start_offset_sec < 0) {
+            throw ApiRetException("start_offset_sec must not be negative", API::InvalidArgs);
         }
 
         // 同 stream 名不可重复回放，不同 stream 名可并发同一文件
@@ -2409,6 +2463,8 @@ void installWebApi() {
         args.dst_port = dst_port;
         args.src_port = src_port;
         args.speed = speed;
+        // 秒 → 毫秒，四舍五入；实际生效值会按帧对齐，通过 on_playback_svac 事件回传
+        args.start_offset_ms = (uint64_t)(start_offset_sec * 1000.0f + 0.5f);
         auto weak_player = std::weak_ptr<RtpDumpPlayer>(player);
 
         // 存入 map（stream 名作为 key，调用方保证不同用户用不同 stream 名）
@@ -2430,6 +2486,7 @@ void installWebApi() {
                     info.dst_port = p->getDstPort();
                     info.speed = p->getSpeed();
                     info.duration_ms = p->getDurationMs();
+                    info.start_offset_ms = p->getStartOffsetMs();
                     info.sent_packets = p->getSentPackets();
                     info.sent_bytes = p->getSentBytes();
                 }
@@ -2450,6 +2507,7 @@ void installWebApi() {
                     info.dst_port = p->getDstPort();
                     info.speed = p->getSpeed();
                     info.duration_ms = p->getDurationMs();
+                    info.start_offset_ms = p->getStartOffsetMs();
                     info.sent_packets = p->getSentPackets();
                     info.sent_bytes = p->getSentBytes();
                 }
@@ -2463,10 +2521,13 @@ void installWebApi() {
               << ", file=" << abs_path
               << " -> " << dst_url << ":" << dst_port
               << ", speed=" << speed
+              << ", start_offset_sec=" << start_offset_sec
               << ", local_port=" << player->getLocalPort();
 
         val["code"] = API::Success;
         val["local_port"] = player->getLocalPort();
+        // 请求的起播偏移（秒）；实际生效值按帧对齐，通过 on_playback_svac 事件回传
+        val["start_offset_sec"] = start_offset_sec;
     });
 
     api_regist("/index/api/stopPlayBackSVAC", [](API_ARGS_MAP) {
@@ -2497,6 +2558,7 @@ void installWebApi() {
         info.dst_port = player->getDstPort();
         info.speed = player->getSpeed();
         info.duration_ms = player->getDurationMs();
+        info.start_offset_ms = player->getStartOffsetMs();
         info.sent_packets = player->getSentPackets();
         info.sent_bytes = player->getSentBytes();
         info.result = 2;
