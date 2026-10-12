@@ -640,8 +640,10 @@ void installWebHook() {
         body["file_path"] = info.file_path;
         body["dst_url"] = info.dst_url;
         body["dst_port"] = info.dst_port;
+        body["enable_tcp"] = info.enable_tcp;
         body["speed"] = info.speed;
         body["duration_ms"] = (Json::UInt64)info.duration_ms;
+        body["start_offset_ms"] = (Json::UInt64)info.start_offset_ms;
         body["sent_packets"] = (Json::UInt64)info.sent_packets;
         body["sent_bytes"] = (Json::UInt64)info.sent_bytes;
         body["result"] = info.result;

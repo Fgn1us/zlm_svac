@@ -10,7 +10,7 @@
 |---|---|
 | SVAC 流接入（GB28181 拉流 / RTP 推流） | ✅ 支持 |
 | SVAC 流**透传**转发（RTSP/RTMP/HLS 等） | ✅ 支持 |
-| SVAC 流 **dump 录制** 与 **GB35114 回放**（`playback_svac`） | ✅ 支持（路径见 `[rtp_proxy] dumpDir`） |
+| SVAC 流 **dump 录制** 与 **GB35114 回放**（`playback_svac`） | ✅ 支持（路径见 `[rtp_proxy] storageRoot`） |
 | SVAC **解码**（画面预览） | ❌ 未接入（SDK 为 Windows DLL，未参与构建） |
 | GB35114 **验签** | ❌ stub（`verifyVideoFrame()` 直接返回 true） |
 
@@ -114,8 +114,7 @@ systemctl stop|start zlm-svac    # 停止/启动
 需要关注的项：
 ```ini
 [rtp_proxy]
-dumpDir=/opt/zlm_svac/dump/disk1     # SVAC dump/录制根目录（部署时可改）
-storageRoot=/opt/zlm_svac/dump
+storageRoot=/opt/zlm_svac/dump/disk1 # SVAC 录像存储根目录：录制落盘、getStorageList 扫描、下载/回放相对路径基准（部署时可改）
 ps_pt=96                             # SVAC PS 负载类型
 h264_pt=98
 h265_pt=99
@@ -177,7 +176,7 @@ docker run -d --name zlm-svac -p 554:554 -p 1935:1935 -p 80:80 \
 → 在能联网的机器上 checkout 好子模块后整目录拷贝；脚本对 submodule 失败仅为警告，只要 `3rdpart/ZLToolKit` 有源码即可继续。
 
 **Q3: 启动后 dump/录制不落盘**
-→ 检查 `conf/config.ini` 的 `dumpDir` 是否存在且可写（默认 `/opt/zlm_svac/dump/disk1`）；`File::create_file` 不会自动创建父目录，路径无效时功能静默失效（仅日志 Warn）。
+→ 检查 `conf/config.ini` 的 `storageRoot` 是否存在且可写（默认 `/opt/zlm_svac/dump/disk1`）；`File::create_file` 不会自动创建父目录，路径无效时功能静默失效（仅日志 Warn）。
 
 **Q4: 启动报 `secret` 为默认值 / 空**
 → `main.cpp` 会拒绝用默认 secret 启动，在 `[api] secret` 配置一个随机串。

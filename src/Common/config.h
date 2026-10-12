@@ -37,9 +37,11 @@ struct PlaybackInfo {
     std::string stream;        // playback session id
     std::string file_path;     // dump file path
     std::string dst_url;       // target ip
-    uint16_t dst_port = 0;     // target udp port
+    uint16_t dst_port = 0;     // target port
+    bool enable_tcp = false;   // transport: false = udp, true = tcp
     float speed = 1.0f;        // playback speed
     uint64_t duration_ms = 0;  // dump file duration
+    uint64_t start_offset_ms = 0; // actual start offset in dump file (frame aligned)
     uint64_t sent_packets = 0; // packets sent
     uint64_t sent_bytes = 0;   // bytes sent
     int result = 0;            // 0=completed 1=error 2=stopped
@@ -549,11 +551,8 @@ extern const std::string kFastRegister;
 // //////////Rtp代理相关配置///////////  [AUTO-TRANSLATED:7b285587]
 // //////////Rtp proxy related configuration///////////
 namespace RtpProxy {
-// rtp调试数据保存目录,置空则不生成  [AUTO-TRANSLATED:aa004af0]
-// Rtp debug data save directory, empty if not generated
-extern const std::string kDumpDir;
-// 存储空间根目录，getStorageList 扫描此目录的子目录  [AUTO-TRANSLATED:3c4d5e6f]
-// Storage root directory, getStorageList scans subdirectories of this directory
+// SVAC录像/存储根目录：recordSVAC落盘目录、getStorageList扫描目录、playBack/download相对路径基准，置空则SVAC录像不可用
+// SVAC storage root: dump target of recordSVAC, scanned by getStorageList, base dir of relative file_path; empty disables SVAC record
 extern const std::string kStorageRoot;
 // rtp接收超时时间  [AUTO-TRANSLATED:9e918489]
 // Rtp receive timeout

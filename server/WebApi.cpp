@@ -2181,10 +2181,11 @@ void installWebApi() {
         CHECK_SECRET();
         CHECK_ARGS("vhost","app","stream","file_name");
 
-        GET_CONFIG(string, dump_dir, RtpProxy::kDumpDir);
-        if (dump_dir.empty()) {
-            throw ApiRetException("dumpDir is not configured, please set rtp_proxy.dumpDir in config", API::OtherFailed);
+        GET_CONFIG(string, storage_root, RtpProxy::kStorageRoot);
+        if (storage_root.empty()) {
+            throw ApiRetException("storageRoot is not configured, please set rtp_proxy.storageRoot in config", API::OtherFailed);
         }
+        std::string dump_dir = resolvePath(storage_root, exeDir());
 
         std::string file_name = allArgs["file_name"];
 
@@ -2255,10 +2256,9 @@ void installWebApi() {
                  lt->tm_year + 1900, lt->tm_mon + 1, lt->tm_mday,
                  lt->tm_hour, lt->tm_min, lt->tm_sec);
 
-        // 转为相对路径：优先 storageRoot，回退 dumpDir
+        // 转为相对路径：以 storageRoot 为基准
         GET_CONFIG(string, storage_root, RtpProxy::kStorageRoot);
-        GET_CONFIG(string, dump_dir, RtpProxy::kDumpDir);
-        std::string base_dir = !storage_root.empty() ? storage_root : dump_dir;
+        std::string base_dir = storage_root.empty() ? storage_root : resolvePath(storage_root, exeDir());
         std::string relative_path = file_path;
         if (!base_dir.empty()) {
             // 统一路径分隔符再比较（\\ → /）
@@ -2295,7 +2295,6 @@ void installWebApi() {
         CHECK_SECRET();
 
         GET_CONFIG(string, storage_root, RtpProxy::kStorageRoot);
-        GET_CONFIG(string, dump_dir, RtpProxy::kDumpDir);
 
         if (storage_root.empty()) {
             throw ApiRetException("storageRoot is not configured, please set rtp_proxy.storageRoot in config", API::OtherFailed);
@@ -2334,8 +2333,6 @@ void installWebApi() {
                 item["total_mb"] = 0;
                 item["free_mb"] = 0;
             }
-            // 与 dumpDir 比对（路径标准化后比较）
-            item["is_current"] = (!dump_dir.empty() && norm_path == norm(dump_dir));
 
             data.append(item);
             return true;
@@ -2351,51 +2348,27 @@ void installWebApi() {
 
         std::string path = allArgs["path"];
 
-        GET_CONFIG(string, storage_root, RtpProxy::kStorageRoot);
-        if (storage_root.empty()) {
-            throw ApiRetException("storageRoot is not configured, please set rtp_proxy.storageRoot in config", API::OtherFailed);
-        }
-        // 展开 storageRoot 为绝对路径
-        std::string abs_root = resolvePath(storage_root, exeDir());
-
-        // 相对路径 → 相对于 abs_root 解析为绝对路径
-        std::string abs_path = resolvePath(path, abs_root);
+        // 相对路径展开为绝对路径（以可执行程序目录为基准）
+        std::string abs_path = resolvePath(path, exeDir());
         if (!File::is_dir(abs_path)) {
             auto err_msg = "path is not a valid directory: " + path + " (resolved to " + abs_path + ")";
             throw ApiRetException(err_msg.c_str(), API::NotFound);
         }
 
-        // 校验解析后的路径必须在 storageRoot 目录下
-        auto norm = [](const std::string &p) {
-            auto s = p;
-            for (auto &c : s) if (c == '\\') c = '/';
-            return s;
-        };
-        std::string norm_path = norm(abs_path);
-        std::string norm_root = norm(abs_root);
-        if (norm_root.back() != '/') {
-            norm_root += '/';
-        }
-        if (norm_path.compare(0, norm_root.size(), norm_root) != 0
-            || norm_path.size() <= norm_root.size()) {
-            auto err_msg = "path must be a subdirectory under storageRoot: " + storage_root;
-            throw ApiRetException(err_msg.c_str(), API::InvalidArgs);
-        }
-
-        // 修改 dumpDir 配置并持久化到 config 文件（存绝对路径）
+        // 修改 storageRoot 配置并持久化到 config 文件（存绝对路径）
         auto &ini = mINI::Instance();
-        ini[RtpProxy::kDumpDir] = abs_path;
+        ini[RtpProxy::kStorageRoot] = abs_path;
         NOTICE_EMIT(BroadcastReloadConfigArgs, Broadcast::kBroadcastReloadConfig);
         ini.dumpFile(g_ini_file);
 
-        InfoL << "[setStoragePath] dumpDir changed to: " << abs_path;
+        InfoL << "[setStoragePath] storageRoot changed to: " << abs_path;
 
         val["code"] = API::Success;
         val["msg"] = "storage path updated successfully";
         val["path"] = abs_path;
     });
 
-    api_regist("/index/api/playBackSVAC", [](API_ARGS_MAP) {
+    api_regist("/index/api/playBackSVAC", [](API_ARGS_MAP_ASYNC) {
         CHECK_SECRET();
         CHECK_ARGS("file_path", "dst_url", "dst_port", "stream");
 
@@ -2404,17 +2377,16 @@ void installWebApi() {
         uint16_t dst_port = allArgs["dst_port"].as<uint16_t>();
         std::string stream = allArgs["stream"];
 
-        // 解析 file_path：相对路径则相对于 storageRoot，若未配置则回退到 dumpDir
+        // 解析 file_path：相对路径以 storageRoot 为基准
         GET_CONFIG(string, storage_root, RtpProxy::kStorageRoot);
-        GET_CONFIG(string, dump_dir, RtpProxy::kDumpDir);
-        std::string base_dir = storage_root.empty() ? dump_dir : storage_root;
+        std::string base_dir = storage_root.empty() ? storage_root : resolvePath(storage_root, exeDir());
 
         std::string abs_path;
         if (base_dir.empty()) {
-            // storageRoot 和 dumpDir 均未配置，file_path 必须是绝对路径
+            // storageRoot 未配置，file_path 必须是绝对路径
             abs_path = file_path;
             if (!File::fileExist(abs_path)) {
-                auto err_msg = "dump file not found: " + file_path + " (no storageRoot or dumpDir configured)";
+                auto err_msg = "dump file not found: " + file_path + " (no storageRoot configured)";
                 throw ApiRetException(err_msg.c_str(), API::NotFound);
             }
         } else {
@@ -2436,6 +2408,9 @@ void installWebApi() {
         uint16_t src_port = allArgs["src_port"].empty() ? 0 : allArgs["src_port"].as<uint16_t>();
         // 起播偏移量（秒）：从录像文件的第 N 秒开始回放，0 或缺省 = 从文件开头开始
         float start_offset_sec = allArgs["start_offset_sec"].empty() ? 0.0f : allArgs["start_offset_sec"].as<float>();
+        // 传输协议：缺省/0 = UDP，1 = TCP 推流（本端作为客户端主动连接 dst_url:dst_port，
+        // 每个 RTP 包前带 2 字节大端长度前缀，即 GB/T 28181 的 TCP 分帧，对端需以 tcp_mode=1 收流）
+        bool enable_tcp = allArgs["enable_tcp"].as<bool>();
 
         if (speed <= 0) {
             throw ApiRetException("speed must be positive", API::InvalidArgs);
@@ -2463,6 +2438,7 @@ void installWebApi() {
         args.dst_port = dst_port;
         args.src_port = src_port;
         args.speed = speed;
+        args.enable_tcp = enable_tcp;
         // 秒 → 毫秒，四舍五入；实际生效值会按帧对齐，通过 on_playback_svac 事件回传
         args.start_offset_ms = (uint64_t)(start_offset_sec * 1000.0f + 0.5f);
         auto weak_player = std::weak_ptr<RtpDumpPlayer>(player);
@@ -2473,61 +2449,91 @@ void installWebApi() {
             s_playback_sessions[stream] = player;
         }
 
-        player->start(args,
-            // on_complete
-            [stream, weak_player]() {
-                InfoL << "[playBackSVAC] playback completed for stream: " << stream;
-                PlaybackInfo info;
-                info.stream = stream;
-                info.result = 0;
-                if (auto p = weak_player.lock()) {
-                    info.file_path = p->getFilePath();
-                    info.dst_url = p->getDstUrl();
-                    info.dst_port = p->getDstPort();
-                    info.speed = p->getSpeed();
-                    info.duration_ms = p->getDurationMs();
-                    info.start_offset_ms = p->getStartOffsetMs();
-                    info.sent_packets = p->getSentPackets();
-                    info.sent_bytes = p->getSentBytes();
-                }
-                NOTICE_EMIT(BroadcastPlaybackSVACArgs, Broadcast::kBroadcastPlaybackSVAC, info);
-                std::lock_guard<std::mutex> lck(s_playback_mtx);
-                s_playback_sessions.erase(stream);
-            },
-            // on_error
-            [stream, weak_player](const SockException &ex) {
-                WarnL << "[playBackSVAC] playback error for stream: " << stream << ", err: " << ex.what();
-                PlaybackInfo info;
-                info.stream = stream;
-                info.result = 1;
-                info.err_msg = ex.what();
-                if (auto p = weak_player.lock()) {
-                    info.file_path = p->getFilePath();
-                    info.dst_url = p->getDstUrl();
-                    info.dst_port = p->getDstPort();
-                    info.speed = p->getSpeed();
-                    info.duration_ms = p->getDurationMs();
-                    info.start_offset_ms = p->getStartOffsetMs();
-                    info.sent_packets = p->getSentPackets();
-                    info.sent_bytes = p->getSentBytes();
-                }
-                NOTICE_EMIT(BroadcastPlaybackSVACArgs, Broadcast::kBroadcastPlaybackSVAC, info);
-                std::lock_guard<std::mutex> lck(s_playback_mtx);
-                s_playback_sessions.erase(stream);
+        // UDP 与 TCP 共用：靠这两个回调回收会话并上报 on_playback_svac
+        auto on_complete = [stream, weak_player]() {
+            InfoL << "[playBackSVAC] playback completed for stream: " << stream;
+            PlaybackInfo info;
+            info.stream = stream;
+            info.result = 0;
+            if (auto p = weak_player.lock()) {
+                info.file_path = p->getFilePath();
+                info.dst_url = p->getDstUrl();
+                info.dst_port = p->getDstPort();
+                info.enable_tcp = p->isTcp();
+                info.speed = p->getSpeed();
+                info.duration_ms = p->getDurationMs();
+                info.start_offset_ms = p->getStartOffsetMs();
+                info.sent_packets = p->getSentPackets();
+                info.sent_bytes = p->getSentBytes();
             }
-        );
+            NOTICE_EMIT(BroadcastPlaybackSVACArgs, Broadcast::kBroadcastPlaybackSVAC, info);
+            std::lock_guard<std::mutex> lck(s_playback_mtx);
+            s_playback_sessions.erase(stream);
+        };
+
+        auto on_error = [stream, weak_player](const SockException &ex) {
+            WarnL << "[playBackSVAC] playback error for stream: " << stream << ", err: " << ex.what();
+            PlaybackInfo info;
+            info.stream = stream;
+            info.result = 1;
+            info.err_msg = ex.what();
+            if (auto p = weak_player.lock()) {
+                info.file_path = p->getFilePath();
+                info.dst_url = p->getDstUrl();
+                info.dst_port = p->getDstPort();
+                info.enable_tcp = p->isTcp();
+                info.speed = p->getSpeed();
+                info.duration_ms = p->getDurationMs();
+                info.start_offset_ms = p->getStartOffsetMs();
+                info.sent_packets = p->getSentPackets();
+                info.sent_bytes = p->getSentBytes();
+            }
+            NOTICE_EMIT(BroadcastPlaybackSVACArgs, Broadcast::kBroadcastPlaybackSVAC, info);
+            std::lock_guard<std::mutex> lck(s_playback_mtx);
+            s_playback_sessions.erase(stream);
+        };
+
+        auto fill_succ = [start_offset_sec, player](Json::Value &val) {
+            val["code"] = API::Success;
+            val["local_port"] = player->getLocalPort();
+            // 请求的起播偏移（秒）；实际生效值按帧对齐，通过 on_playback_svac 事件回传
+            val["start_offset_sec"] = start_offset_sec;
+        };
+
+        if (enable_tcp) {
+            // TCP 等连接结果再回复，避免"接口返回成功、实际连不上"
+            player->start(args, on_complete, on_error,
+                [val, headerOut, invoker, fill_succ, player, stream, dst_url, dst_port, abs_path, speed, start_offset_sec](const SockException &ex) mutable {
+                    if (ex) {
+                        WarnL << "[playBackSVAC] tcp connect failed: stream=" << stream << ", err: " << ex.what();
+                        val["code"] = API::OtherFailed;
+                        // 带上目标地址，便于区分端口未开/对端未监听
+                        val["msg"] = "connect to " + dst_url + ":" + std::to_string(dst_port) + " failed: " + ex.what();
+                    } else {
+                        InfoL << "[playBackSVAC] tcp started: stream=" << stream
+                              << ", file=" << abs_path
+                              << " -> " << dst_url << ":" << dst_port << " (tcp)"
+                              << ", speed=" << speed
+                              << ", start_offset_sec=" << start_offset_sec
+                              << ", local_port=" << player->getLocalPort();
+                        fill_succ(val);
+                    }
+                    invoker(200, headerOut, val.toStyledString());
+                });
+            return;
+        }
+
+        player->start(args, on_complete, on_error);
 
         InfoL << "[playBackSVAC] started: stream=" << stream
               << ", file=" << abs_path
-              << " -> " << dst_url << ":" << dst_port
+              << " -> " << dst_url << ":" << dst_port << " (udp)"
               << ", speed=" << speed
               << ", start_offset_sec=" << start_offset_sec
               << ", local_port=" << player->getLocalPort();
 
-        val["code"] = API::Success;
-        val["local_port"] = player->getLocalPort();
-        // 请求的起播偏移（秒）；实际生效值按帧对齐，通过 on_playback_svac 事件回传
-        val["start_offset_sec"] = start_offset_sec;
+        fill_succ(val);
+        invoker(200, headerOut, val.toStyledString());
     });
 
     api_regist("/index/api/stopPlayBackSVAC", [](API_ARGS_MAP) {
@@ -2556,6 +2562,7 @@ void installWebApi() {
         info.file_path = player->getFilePath();
         info.dst_url = player->getDstUrl();
         info.dst_port = player->getDstPort();
+        info.enable_tcp = player->isTcp();
         info.speed = player->getSpeed();
         info.duration_ms = player->getDurationMs();
         info.start_offset_ms = player->getStartOffsetMs();
@@ -2720,7 +2727,7 @@ void installWebApi() {
 
     // SVAC 录像文件下载：客户端直连流媒体服务器（模式一）
     // GET http://host/index/api/downloadRecordSVAC?secret=xxx&file_path=xxx.rtp[&save_name=xxx.rtp]
-    // file_path 为相对路径，以 storageRoot 为基准，未配置则回退 dumpDir
+    // file_path 为相对路径，以 storageRoot 为基准
     // 支持 HTTP Range 断点续传（responseFile 自动处理 200/206、Content-Length）
     api_regist("/index/api/downloadRecordSVAC", [](API_ARGS_MAP_ASYNC) {
         CHECK_SECRET();
@@ -2731,14 +2738,13 @@ void installWebApi() {
             throw ApiRetException("invalid file_path: parent directory access is not allowed", API::InvalidArgs);
         }
 
-        // 基准目录：storageRoot 优先，回退 dumpDir
+        // 基准目录：storageRoot
         GET_CONFIG(string, storage_root, RtpProxy::kStorageRoot);
-        GET_CONFIG(string, dump_dir, RtpProxy::kDumpDir);
-        std::string base_dir = !storage_root.empty() ? storage_root : dump_dir;
+        std::string base_dir = storage_root;
         if (base_dir.empty()) {
-            throw ApiRetException("storageRoot/dumpDir is not configured", API::OtherFailed);
+            throw ApiRetException("storageRoot is not configured", API::OtherFailed);
         }
-        base_dir = File::absolutePath("", base_dir, true);
+        base_dir = File::absolutePath("", resolvePath(base_dir, exeDir()), true);
 
         auto abs_path = File::absolutePath(file_path, base_dir);
         if (!File::fileExist(abs_path)) {

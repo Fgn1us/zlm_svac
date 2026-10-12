@@ -17,24 +17,30 @@
 #include <vector>
 #include <memory>
 #include <functional>
+#include <atomic>
 #include "Network/Socket.h"
 
 namespace mediakit {
 
-// RTP dump 回放器，读取 .rtp dump 文件并逐包发送到远端 UDP 地址
+// RTP dump 回放器，读取 .rtp dump 文件并逐包发送到远端 (UDP 或 TCP)
 // 按 RTP 原始时间戳间隔控速发送，模拟实时回放
+// TCP 模式(enable_tcp)作为客户端主动连接 dst_url:dst_port，每个 RTP 包前保留
+// dump 文件里的 2 字节大端长度前缀，即 GB/T 28181 的 TCP 分帧格式(接收端 RtpSplitter 依赖该前缀分包)
 class RtpDumpPlayer : public std::enable_shared_from_this<RtpDumpPlayer> {
 public:
     using Ptr = std::shared_ptr<RtpDumpPlayer>;
     using onCompleteCB = std::function<void()>;
     using onErrorCB = std::function<void(const toolkit::SockException &ex)>;
+    using onConnectCB = std::function<void(const toolkit::SockException &ex)>;
 
     struct PlayArgs {
         std::string file_path;      // dump 文件绝对路径
         std::string dst_url;        // 目标 IP 地址
-        uint16_t dst_port = 0;      // 目标 UDP 端口
-        uint16_t src_port = 0;      // 本地 UDP 绑定端口 (0 = 随机)
+        uint16_t dst_port = 0;      // 目标端口 (UDP 或 TCP)
+        uint16_t src_port = 0;      // 本地绑定端口 (0 = 随机)
         float speed = 1.0f;         // 播放速率，1.0 = 原始速度
+        uint64_t start_offset_ms = 0; // 起播偏移量(毫秒)，0 = 从文件开头开始
+        bool enable_tcp = false;    // false = UDP 发送，true = TCP 推流(主动连接)
     };
 
     RtpDumpPlayer();
@@ -45,8 +51,9 @@ public:
      * @param args 回放参数
      * @param on_complete 播放完成回调
      * @param on_error 播放出错回调
+     * @param on_connect 传输通道建立结果回调，仅 TCP 模式触发(UDP 无连接语义)
      */
-    void start(const PlayArgs &args, onCompleteCB on_complete, onErrorCB on_error);
+    void start(const PlayArgs &args, onCompleteCB on_complete, onErrorCB on_error, onConnectCB on_connect = nullptr);
 
     /**
      * 停止回放
@@ -100,6 +107,11 @@ public:
     uint16_t getDstPort() const { return _args.dst_port; }
 
     /**
+     * 是否使用 TCP 推流
+     */
+    bool isTcp() const { return _args.enable_tcp; }
+
+    /**
      * 快进/快退指定秒数（正数=快进，负数=快退）
      * @param offset_sec 偏移秒数
      */
@@ -109,6 +121,11 @@ public:
      * 获取当前播放位置（毫秒）
      */
     uint64_t getCurrentOffsetMs() const;
+
+    /**
+     * 获取实际生效的起始偏移（毫秒，按帧对齐后的值）
+     */
+    uint64_t getStartOffsetMs() const { return _start_offset_ms; }
 
     /**
      * 获取已发送包数
@@ -139,11 +156,17 @@ private:
     struct ParsedPacket {
         uint32_t raw_timestamp;          // RTP 时间戳（主机序）
         uint64_t offset_ms;              // 相对起始包的累计毫秒偏移
-        toolkit::Buffer::Ptr data;       // RTP 原始数据（无 2 字节长度前缀）
+        toolkit::Buffer::Ptr data;       // 待发送数据：UDP 为裸 RTP，TCP 为 2 字节长度前缀 + RTP
     };
 
     // 解析 dump 文件，提取所有 RTP 包及时间戳
     bool parseDumpFile(const std::string &path);
+
+    // 传输通道就绪：解析文件并启动发送循环
+    void prepareAndStart();
+
+    // 定位到指定毫秒位置（二分查找，天然对齐到帧首个包），并取消已调度任务
+    void locateToMs(uint64_t target_ms);
 
     // 发送当前包并调度下一个
     void sendNextPacket();
@@ -176,6 +199,11 @@ private:
 
     onCompleteCB _on_complete;
     onErrorCB _on_error;
+    onConnectCB _on_connect;
+
+    // 传输通道已关闭/已上报连接结果，避免重复回调或连接失败后继续发送
+    std::atomic<bool> _shutdown { false };
+    std::atomic<bool> _connect_notified { false };
 
     // 延迟任务，用于取消调度
     toolkit::EventPoller::DelayTask::Ptr _delay_task;
@@ -198,6 +226,9 @@ private:
 
     // RTP timestamp of the first packet (host order), used to rewrite timestamps for trick play
     uint32_t _first_raw_ts = 0;
+
+    // 实际生效的起播偏移（毫秒，按帧对齐后）
+    uint64_t _start_offset_ms = 0;
 };
 
 } // namespace mediakit

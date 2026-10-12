@@ -140,19 +140,8 @@ bool GB28181Process::inputRtp(bool, const char *data, size_t data_len) {
             // ts或ps负载  [AUTO-TRANSLATED:3ca31480]
             // ts or ps payload
             _rtp_decoder[pt] = std::make_shared<CommonRtpDecoder>(CodecInvalid, 32 * 1024);
-            // 设置
-            // 
-            // 目录  [AUTO-TRANSLATED:23c88ace]
-            // Set dump directory
-            GET_CONFIG(string, dump_dir, RtpProxy::kDumpDir);
-            if (!dump_dir.empty()) {
-                auto save_path = File::absolutePath(_media_info.stream + ".mpeg", dump_dir);
-                _save_file_ps.reset(File::create_file(save_path.data(), "wb"), [](FILE *fp) {
-                    if (fp) {
-                        fclose(fp);
-                    }
-                });
-            }
+            // 调试dump已随 rtp_proxy.dumpDir 配置移除，_save_file_ps 保持为空即可  [AUTO-TRANSLATED:23c88ace]
+            // Debug dump removed along with rtp_proxy.dumpDir; _save_file_ps stays null
         } while (false);
 
         // 设置frame回调  [AUTO-TRANSLATED:dec7590f]

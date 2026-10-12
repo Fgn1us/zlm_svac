@@ -139,10 +139,9 @@ bool RtpProcess::inputRtp(bool is_udp, const Socket::Ptr &sock, const char *data
 
     onRtp(ntohs(header->seq), ntohl(header->stamp), 0/*不发送sr,所以可以设置为0*/ , 90000/*ps/ts流时间戳按照90K采样率*/, len);
 
-    GET_CONFIG(string, dump_dir, RtpProxy::kDumpDir);
-    if (_muxer && !_muxer->isEnabled() && !dts_out && dump_dir.empty()) {
-        // 无人访问、且不取时间戳、不导出调试文件时，我们可以直接丢弃数据  [AUTO-TRANSLATED:2fc75705]
-        // When there is no access, and no timestamp is taken, and no debug file is exported, we can directly discard the data.
+    if (_muxer && !_muxer->isEnabled() && !dts_out && !isDumping()) {
+        // 成立条件：无人访问、不取时间戳、且无进行中的SVAC录像(dump)时，直接丢弃数据  [AUTO-TRANSLATED:2fc75705]
+        // When there is no access, and no timestamp is taken, and no SVAC dump in progress, we can directly discard the data.
         _last_frame_time.resetTime();
         return false;
     }
@@ -464,12 +463,10 @@ void RtpProcess::emitRecordSVAC(const std::string &file_path, const std::string 
     info.stream = _media_info.stream;
     info.app = _media_info.app;
     info.vhost = _media_info.vhost;
-    // 计算相对路径：优先使用 storageRoot，若未配置则回退到 _dump_dir
-    GET_CONFIG(string, storage_root, RtpProxy::kStorageRoot);
-    std::string base_dir = !storage_root.empty() ? storage_root : _dump_dir;
+    // 计算相对路径：以录像写入根目录（storageRoot）为基准剥离前缀
     std::string relative_path = file_path;
-    if (!base_dir.empty() && file_path.find(base_dir) == 0) {
-        relative_path = file_path.substr(base_dir.size());
+    if (!_dump_dir.empty() && file_path.find(_dump_dir) == 0) {
+        relative_path = file_path.substr(_dump_dir.size());
         // 去掉开头的路径分隔符
         if (!relative_path.empty() && (relative_path[0] == '/' || relative_path[0] == '\\')) {
             relative_path = relative_path.substr(1);
@@ -483,8 +480,8 @@ void RtpProcess::emitRecordSVAC(const std::string &file_path, const std::string 
     // folder 也转为相对路径
     std::string folder_abs = file_path.substr(0, pos != std::string::npos ? pos : 0);
     std::string folder_rel = folder_abs;
-    if (!base_dir.empty() && folder_abs.find(base_dir) == 0) {
-        folder_rel = folder_abs.substr(base_dir.size());
+    if (!_dump_dir.empty() && folder_abs.find(_dump_dir) == 0) {
+        folder_rel = folder_abs.substr(_dump_dir.size());
         if (!folder_rel.empty() && (folder_rel[0] == '/' || folder_rel[0] == '\\')) {
             folder_rel = folder_rel.substr(1);
         }

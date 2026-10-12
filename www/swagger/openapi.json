@@ -4625,7 +4625,7 @@
                     "GET"
                 ],
                 "summary": "获取存储空间列表 (getStorageList)",
-                "description": "扫描 rtp_proxy.storageRoot 目录下的子目录，返回每个子目录的磁盘总空间(MB)、剩余空间(MB)及 is_current(是否与 dumpDir 一致，即当前录像写入的磁盘)",
+                "description": "扫描 rtp_proxy.storageRoot 目录下的子目录，返回每个子目录的磁盘总空间(MB)、剩余空间(MB)，作为 setStoragePath 可切换的候选目录",
                 "parameters": [
                     {
                         "name": "secret",
@@ -4639,7 +4639,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successful response. 返回 data 数组，每项含 path(路径), total_mb(总空间MB), free_mb(剩余空间MB), is_current(是否当前存储)",
+                        "description": "Successful response. 返回 data 数组，每项含 path(路径), total_mb(总空间MB), free_mb(剩余空间MB)",
                         "content": {
                             "application/json": {}
                         }
@@ -4651,7 +4651,7 @@
                     "POST"
                 ],
                 "summary": "获取存储空间列表 (getStorageList)",
-                "description": "扫描 rtp_proxy.storageRoot 目录下的子目录，返回每个子目录的磁盘总空间(MB)、剩余空间(MB)及 is_current(是否与 dumpDir 一致，即当前录像写入的磁盘)",
+                "description": "扫描 rtp_proxy.storageRoot 目录下的子目录，返回每个子目录的磁盘总空间(MB)、剩余空间(MB)，作为 setStoragePath 可切换的候选目录",
                 "parameters": [
                     {
                         "name": "secret",
@@ -4665,7 +4665,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successful response. 返回 data 数组，每项含 path(路径), total_mb(总空间MB), free_mb(剩余空间MB), is_current(是否当前存储)",
+                        "description": "Successful response. 返回 data 数组，每项含 path(路径), total_mb(总空间MB), free_mb(剩余空间MB)",
                         "content": {
                             "application/json": {}
                         }
@@ -4679,7 +4679,7 @@
                     "GET"
                 ],
                 "summary": "设置当前存储路径 (setStoragePath)",
-                "description": "将指定路径设为 rtp_proxy.dumpDir（当前录像存储目录），路径必须在 storageRoot 下。修改后立即持久化到 config.ini，新开始的录像生效，当前正在录制的流不受影响",
+                "description": "将指定路径设为 rtp_proxy.storageRoot（录像存储根目录：录像落盘、getStorageList 扫描与下载/回放相对路径的基准）。修改后立即持久化到 config.ini，新开始的录像生效，当前正在录制的流不受影响",
                 "parameters": [
                     {
                         "name": "secret",
@@ -4696,7 +4696,7 @@
                         "schema": {
                             "type": "string"
                         },
-                        "description": "要设为当前存储的路径，相对于 rtp_proxy.storageRoot 的子目录名（如 disk1），也支持绝对路径",
+                        "description": "要设为 storageRoot 的路径，绝对路径，或相对于程序运行目录的相对路径",
                         "example": "/mnt/disk1"
                     }
                 ],
@@ -4714,7 +4714,7 @@
                     "POST"
                 ],
                 "summary": "设置当前存储路径 (setStoragePath)",
-                "description": "将指定路径设为 rtp_proxy.dumpDir（当前录像存储目录），路径必须在 storageRoot 下。修改后立即持久化到 config.ini，新开始的录像生效，当前正在录制的流不受影响",
+                "description": "将指定路径设为 rtp_proxy.storageRoot（录像存储根目录：录像落盘、getStorageList 扫描与下载/回放相对路径的基准）。修改后立即持久化到 config.ini，新开始的录像生效，当前正在录制的流不受影响",
                 "parameters": [
                     {
                         "name": "secret",
@@ -4731,7 +4731,7 @@
                         "schema": {
                             "type": "string"
                         },
-                        "description": "要设为当前存储的路径，相对于 rtp_proxy.storageRoot 的子目录名（如 disk1），也支持绝对路径",
+                        "description": "要设为 storageRoot 的路径，绝对路径，或相对于程序运行目录的相对路径",
                         "example": "/mnt/disk1"
                     }
                 ],
@@ -4751,6 +4751,7 @@
                     "GET"
                 ],
                 "summary": "SVAC 录像回放 (playBackSVAC)",
+                "description": "以 .rtp dump 录像文件为源发起回放会话，`stream` 是会话唯一标识：同一 `stream` 不可重复发起，不同 `stream` 可并发放同一文件。\n\n传输协议由 `enable_tcp` 决定：\n- 缺省/0 = UDP，逐包发送到 `dst_url:dst_port`，`src_port` 为本地绑定发送端口\n- 1 = TCP 推流，本端作为客户端主动连接 `dst_url:dst_port`，`src_port` 为本端源端口(0=随机)；线上格式沿用 GB/T 28181 的 TCP 分帧（2 字节大端长度 + RTP，与 dump 文件本身一致），对端用 `openRtpServer(tcp_mode=1)` 即可收流\n- TCP 模式接口会等待建连结果再回复：连不上返回 `code≠0` 且 `msg` 带上目标地址，不会先返回成功\n\n暂停/继续、变速、快进快退分别用 `pausePlayBackSVAC`、`setPlayBackSpeed`、`seekPlayBackSVAC`；会话结束（完成/出错/手动停止）统一通过 `on_playback_svac` 上报。",
                 "parameters": [
                     {
                         "name": "secret",
@@ -4776,7 +4777,7 @@
                         "schema": {
                             "type": "string"
                         },
-                        "description": "dump 文件路径，相对于 rtp_proxy.storageRoot 的子目录路径（如 disk1/stream_05_07_12.rtp），或绝对路径",
+                        "description": "dump 文件路径，相对于 rtp_proxy.storageRoot 的路径（如 stream_05_07_12.rtp），或绝对路径",
                         "example": "2026/05/test_05_30_14.rtp"
                     },
                     {
@@ -4794,7 +4795,7 @@
                         "schema": {
                             "type": "integer"
                         },
-                        "description": "回放目标 UDP 端口 (1-65535)",
+                        "description": "回放目标端口：enable_tcp=0 时为目标 UDP 端口，=1 时为 TCP 监听端口（本端主动连过去） (1-65535)",
                         "example": 6000
                     },
                     {
@@ -4812,7 +4813,7 @@
                         "schema": {
                             "type": "integer"
                         },
-                        "description": "本地 UDP 绑定端口，0=随机 (默认: 0)",
+                        "description": "本端端口：UDP 为本地绑定发送端口，TCP 为本端源端口(便于对端放行防火墙)，0=随机 (默认: 0)",
                         "example": 0
                     },
                     {
@@ -4823,11 +4824,20 @@
                         },
                         "description": "起播偏移量（秒）：从录像文件的第 N 秒开始回放，0 或缺省=从文件开头开始。超出文件时长时会启动失败，并通过 on_playback_svac 事件上报错误；实际生效值按帧对齐（25fps 即 40ms 一格），在 on_playback_svac 的 start_offset_ms 字段回传",
                         "example": 30
+                    },
+                    {
+                        "name": "enable_tcp",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "传输协议：0 或缺省=UDP（原行为），1=TCP 推流。TCP 模式下本端作为客户端主动连接 dst_url:dst_port，每个 RTP 包前保留 2 字节大端长度前缀（GB/T 28181 的 TCP 分帧，与 dump 文件格式一致），对端 ZLM 需用 openRtpServer 的 tcp_mode=1(被动) 监听同端口收流。接口会等待 TCP 建连结果再回复：连不上时返回 code≠0 且 msg 带上目标地址，不会先返回成功",
+                        "example": 0
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successful response. 返回 local_port(本地发送端口) 与 start_offset_sec(请求的起播偏移)。同一 stream 名不可重复回放，不同 stream 名可并发播放同一文件。实际生效的起播偏移(按帧对齐)见 on_playback_svac 事件的 start_offset_ms",
+                        "description": "Successful response. 返回 local_port(本地发送端口，TCP 模式为建连后的本端源端口) 与 start_offset_sec(请求的起播偏移)。同一 stream 名不可重复回放，不同 stream 名可并发播放同一文件。实际生效的起播偏移(按帧对齐)见 on_playback_svac 事件的 start_offset_ms；enable_tcp=1 时接口等待 TCP 建连结果，建连失败返回 code≠0",
                         "content": {
                             "application/json": {}
                         }
@@ -4839,6 +4849,7 @@
                     "POST"
                 ],
                 "summary": "SVAC 录像回放 (playBackSVAC)",
+                "description": "以 .rtp dump 录像文件为源发起回放会话，`stream` 是会话唯一标识：同一 `stream` 不可重复发起，不同 `stream` 可并发放同一文件。\n\n传输协议由 `enable_tcp` 决定：\n- 缺省/0 = UDP，逐包发送到 `dst_url:dst_port`，`src_port` 为本地绑定发送端口\n- 1 = TCP 推流，本端作为客户端主动连接 `dst_url:dst_port`，`src_port` 为本端源端口(0=随机)；线上格式沿用 GB/T 28181 的 TCP 分帧（2 字节大端长度 + RTP，与 dump 文件本身一致），对端用 `openRtpServer(tcp_mode=1)` 即可收流\n- TCP 模式接口会等待建连结果再回复：连不上返回 `code≠0` 且 `msg` 带上目标地址，不会先返回成功\n\n暂停/继续、变速、快进快退分别用 `pausePlayBackSVAC`、`setPlayBackSpeed`、`seekPlayBackSVAC`；会话结束（完成/出错/手动停止）统一通过 `on_playback_svac` 上报。",
                 "parameters": [
                     {
                         "name": "secret",
@@ -4864,7 +4875,7 @@
                         "schema": {
                             "type": "string"
                         },
-                        "description": "dump 文件路径，相对于 rtp_proxy.storageRoot 的子目录路径（如 disk1/stream_05_07_12.rtp），或绝对路径",
+                        "description": "dump 文件路径，相对于 rtp_proxy.storageRoot 的路径（如 stream_05_07_12.rtp），或绝对路径",
                         "example": "2026/05/test_05_30_14.rtp"
                     },
                     {
@@ -4882,7 +4893,7 @@
                         "schema": {
                             "type": "integer"
                         },
-                        "description": "回放目标 UDP 端口 (1-65535)",
+                        "description": "回放目标端口：enable_tcp=0 时为目标 UDP 端口，=1 时为 TCP 监听端口（本端主动连过去） (1-65535)",
                         "example": 6000
                     },
                     {
@@ -4900,7 +4911,7 @@
                         "schema": {
                             "type": "integer"
                         },
-                        "description": "本地 UDP 绑定端口，0=随机 (默认: 0)",
+                        "description": "本端端口：UDP 为本地绑定发送端口，TCP 为本端源端口(便于对端放行防火墙)，0=随机 (默认: 0)",
                         "example": 0
                     },
                     {
@@ -4911,11 +4922,20 @@
                         },
                         "description": "起播偏移量（秒）：从录像文件的第 N 秒开始回放，0 或缺省=从文件开头开始。超出文件时长时会启动失败，并通过 on_playback_svac 事件上报错误；实际生效值按帧对齐（25fps 即 40ms 一格），在 on_playback_svac 的 start_offset_ms 字段回传",
                         "example": 30
+                    },
+                    {
+                        "name": "enable_tcp",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "传输协议：0 或缺省=UDP（原行为），1=TCP 推流。TCP 模式下本端作为客户端主动连接 dst_url:dst_port，每个 RTP 包前保留 2 字节大端长度前缀（GB/T 28181 的 TCP 分帧，与 dump 文件格式一致），对端 ZLM 需用 openRtpServer 的 tcp_mode=1(被动) 监听同端口收流。接口会等待 TCP 建连结果再回复：连不上时返回 code≠0 且 msg 带上目标地址，不会先返回成功",
+                        "example": 0
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successful response. 返回 code, local_port(本地发送端口), start_offset_sec(请求的起播偏移)。实际生效的起播偏移(按帧对齐)见 on_playback_svac 事件的 start_offset_ms",
+                        "description": "Successful response. 返回 code, local_port(本地发送端口，TCP 模式为建连后的本端源端口), start_offset_sec(请求的起播偏移)。实际生效的起播偏移(按帧对齐)见 on_playback_svac 事件的 start_offset_ms；enable_tcp=1 时接口等待 TCP 建连结果，建连失败返回 code≠0",
                         "content": {
                             "application/json": {}
                         }
@@ -5279,7 +5299,7 @@
                         "schema": {
                             "type": "string"
                         },
-                        "description": "录像文件路径，相对于 rtp_proxy.storageRoot 的子目录路径（如 disk1/stream_05_07_12.rtp），也支持绝对路径",
+                        "description": "录像文件路径，相对于 rtp_proxy.storageRoot 的路径（如 stream_05_07_12.rtp），也支持绝对路径",
                         "example": "disk1/stream_05_07_12.rtp"
                     },
                     {
@@ -5322,7 +5342,7 @@
                         "schema": {
                             "type": "string"
                         },
-                        "description": "录像文件路径，相对于 rtp_proxy.storageRoot 的子目录路径（如 disk1/stream_05_07_12.rtp），也支持绝对路径",
+                        "description": "录像文件路径，相对于 rtp_proxy.storageRoot 的路径（如 stream_05_07_12.rtp），也支持绝对路径",
                         "example": "disk1/stream_05_07_12.rtp"
                     },
                     {

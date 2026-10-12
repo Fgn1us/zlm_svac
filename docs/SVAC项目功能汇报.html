@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZLMediaKit SVAC 扩展版 · 功能实现汇报</title>
+<style>
+  :root{
+    --bg:#F5F6F8;
+    --card:#FFFFFF;
+    --ink:#1F2328;
+    --ink-2:#57606A;
+    --ink-3:#8B949E;
+    --line:#E3E6EA;
+    --line-2:#D0D7DE;
+    --blue:#185FA5;
+    --blue-d:#0C447C;
+    --blue-l:#E6F1FB;
+    --green:#3B6D11;
+    --green-l:#EAF3DE;
+    --amber:#854F0B;
+    --amber-l:#FAEEDA;
+    --red:#A32D2D;
+    --red-l:#FCEBEB;
+    --gray-l:#F1EFE8;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;padding:0;background:var(--bg);color:var(--ink);
+    font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-size:14px;line-height:1.7;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px 64px;}
+
+  /* ---------- header ---------- */
+  header{
+    background:linear-gradient(135deg,#0C447C 0%,#185FA5 62%,#2E7CBF 100%);
+    color:#fff;padding:44px 0 38px;margin-bottom:28px;
+  }
+  header .wrap{padding-bottom:0;}
+  .eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;opacity:.72;font-weight:500;}
+  h1{font-size:27px;font-weight:600;margin:12px 0 10px;letter-spacing:.2px;line-height:1.35;}
+  .sub{font-size:14px;opacity:.86;max-width:760px;}
+  .meta{margin-top:22px;display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{
+    background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.24);
+    border-radius:999px;padding:4px 13px;font-size:12.5px;white-space:nowrap;
+  }
+
+  /* ---------- kpi ---------- */
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:-52px 0 30px;position:relative;z-index:2;}
+  .kpi{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 18px;box-shadow:0 1px 2px rgba(27,31,36,.04),0 8px 20px -12px rgba(27,31,36,.18);
+  }
+  .kpi .n{font-size:24px;font-weight:600;color:var(--blue-d);line-height:1.2;letter-spacing:-.5px;}
+  .kpi .n small{font-size:12px;font-weight:400;color:var(--ink-3);margin-left:3px;letter-spacing:0;}
+  .kpi .l{font-size:12.5px;color:var(--ink-2);margin-top:5px;}
+
+  /* ---------- sections ---------- */
+  section{margin-bottom:34px;}
+  h2{
+    font-size:17px;font-weight:600;margin:0 0 4px;padding-left:12px;
+    border-left:3px solid var(--blue);line-height:1.35;
+  }
+  .sec-sub{font-size:13px;color:var(--ink-3);margin:0 0 16px;padding-left:15px;}
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:20px 22px;
+  }
+  .card + .card{margin-top:14px;}
+
+  p{margin:0 0 10px;}
+  p:last-child{margin-bottom:0;}
+  strong{font-weight:600;color:var(--ink);}
+  code{
+    font-family:"JetBrains Mono","Cascadia Mono",Consolas,"Courier New",monospace;
+    font-size:12.5px;background:var(--gray-l);border:1px solid var(--line);
+    border-radius:4px;padding:1px 5px;color:var(--blue-d);
+  }
+  pre{
+    font-family:"JetBrains Mono","Cascadia Mono",Consolas,"Courier New",monospace;
+    font-size:12.5px;background:#FAFBFC;border:1px solid var(--line);
+    border-left:3px solid var(--blue);border-radius:6px;
+    padding:12px 14px;margin:12px 0;overflow-x:auto;line-height:1.6;color:#24292F;
+  }
+  pre code{background:none;border:none;padding:0;font-size:12.5px;color:inherit;}
+
+  /* ---------- module cards ---------- */
+  .mods{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .mod{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 18px 14px;display:flex;flex-direction:column;
+  }
+  .mod.wide{grid-column:1 / -1;}
+  .mod-h{display:flex;align-items:flex-start;gap:10px;margin-bottom:9px;}
+  .mod-i{
+    flex:0 0 auto;width:24px;height:24px;border-radius:6px;background:var(--blue-l);
+    color:var(--blue-d);font-size:12.5px;font-weight:600;
+    display:flex;align-items:center;justify-content:center;margin-top:2px;
+  }
+  .mod-t{font-size:14.5px;font-weight:600;line-height:1.45;padding-top:1px;}
+  .mod-t span{display:block;font-size:12px;font-weight:400;color:var(--ink-3);margin-top:2px;}
+  ul.tight{margin:0;padding-left:18px;}
+  ul.tight li{margin:3px 0;}
+  ul.tight li::marker{color:var(--ink-3);}
+  .files{
+    margin-top:11px;padding-top:10px;border-top:1px dashed var(--line-2);
+    font-family:"JetBrains Mono","Cascadia Mono",Consolas,monospace;
+    font-size:11.5px;color:var(--ink-3);line-height:1.75;word-break:break-all;
+  }
+
+  /* ---------- table ---------- */
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{
+    text-align:left;font-weight:600;color:var(--ink-2);font-size:12px;
+    letter-spacing:.04em;padding:9px 12px;border-bottom:1.5px solid var(--line-2);
+    background:#FAFBFC;white-space:nowrap;
+  }
+  td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:#FBFCFD;}
+  td.api{font-family:"JetBrains Mono","Cascadia Mono",Consolas,monospace;font-size:12px;color:var(--blue-d);white-space:nowrap;}
+
+  /* ---------- progress ---------- */
+  .prog{margin:14px 0 0;}
+  .prog-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+  .prog-row:last-child{margin-bottom:0;}
+  .prog-l{flex:0 0 190px;font-size:13px;color:var(--ink-2);}
+  .prog-b{flex:1;height:7px;background:var(--gray-l);border-radius:999px;overflow:hidden;}
+  .prog-b i{display:block;height:100%;border-radius:999px;}
+  .prog-v{flex:0 0 44px;text-align:right;font-size:12.5px;font-weight:600;color:var(--ink-2);font-variant-numeric:tabular-nums;}
+
+  /* ---------- timeline ---------- */
+  .tl{list-style:none;margin:0;padding:0 0 0 18px;border-left:2px solid var(--line-2);}
+  .tl li{position:relative;padding:0 0 16px 18px;}
+  .tl li:last-child{padding-bottom:0;}
+  .tl li::before{
+    content:"";position:absolute;left:-25px;top:6px;width:9px;height:9px;
+    border-radius:50%;background:#fff;border:2px solid var(--blue);
+  }
+  .tl li.first::before{background:var(--blue);}
+  .tl .t{font-family:"JetBrains Mono","Cascadia Mono",Consolas,monospace;font-size:11.5px;color:var(--ink-3);}
+  .tl .d{font-size:13.5px;}
+
+  footer{
+    margin-top:44px;padding-top:18px;border-top:1px solid var(--line);
+    font-size:12.5px;color:var(--ink-3);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;
+  }
+
+  svg{max-width:100%;height:auto;display:block;}
+
+  @media (max-width:820px){
+    .kpis{grid-template-columns:1fr 1fr;}
+    .mods{grid-template-columns:1fr;}
+    .prog-l{flex:0 0 120px;font-size:12px;}
+  }
+  @media print{
+    body{background:#fff;font-size:12px;}
+    header{background:#0C447C !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .kpis{margin-top:16px;}
+    .card,.mod,.kpi{box-shadow:none;break-inside:avoid;}
+    section{break-inside:avoid;}
+    pre{break-inside:avoid;}
+    footer{break-before:avoid;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">Work Report · 功能实现汇报</div>
+    <h1>ZLMediaKit SVAC 扩展版<br>SVAC / GB35114 能力建设成果</h1>
+    <div class="sub">
+      基于 ZLMediaKit 开源框架的二次开发，在保留原有全协议互通能力的前提下，
+      新增 SVAC 码流接入、透传转发、录像切片、录像回放与存储管理能力。
+    </div>
+    <div class="meta">
+      <span class="chip">汇报日期 2026-09-14</span>
+      <span class="chip">代码版本 b8c463d（8.13 交付）</span>
+      <span class="chip">提交数 13</span>
+      <span class="chip">Windows / Linux 国产化 / Docker</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="kpis">
+    <div class="kpi"><div class="n">10 <small>个</small></div><div class="l">新增 REST 接口</div></div>
+    <div class="kpi"><div class="n">2 <small>个</small></div><div class="l">新增 WebHook 事件</div></div>
+    <div class="kpi"><div class="n">2 <small>类</small></div><div class="l">新增编解码（SVACV / SVACA）</div></div>
+    <div class="kpi"><div class="n">3 <small>套</small></div><div class="l">部署交付形态</div></div>
+  </div>
+
+  <section>
+    <h2>一、项目定位与改造基线</h2>
+    <p class="sec-sub">在成熟流媒体框架上做增量扩展，而不是另起炉灶</p>
+    <div class="card">
+      <p><strong>基线框架：</strong>ZLMediaKit —— C++11 高性能运营级流媒体服务框架，原生支持 RTSP / RTMP / HLS / HTTP-FLV / WebSocket-FLV / GB28181 / HTTP-TS / fMP4 / MP4 / WebRTC / SRT 全协议互通。</p>
+      <p><strong>改造目标：</strong>在不动摇原有协议栈稳定性的前提下，打通 SVAC（GB/T 25724 视频编码）码流的接收与分发链路，接入 GB35114 安全通道处理框架，形成「<strong>接入 → 透传转发 → 录像切片 → 录像回放 → 存储管理</strong>」的完整闭环。</p>
+      <p><strong>改造策略：</strong>SVAC 码流采用<strong>高效透传</strong>方式处理，无需任何第三方依赖即可完成接收、转发、录制与回放。链路轻量、部署简单，且完全不影响原有协议栈的性能与稳定性。</p>
+      <div class="files">路径：D:\Mysoftware\zlm_svac-main　·　基线提交 c5755d3（初始化提交）　·　当前 b8c463d（8.13交付）</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>二、总体架构</h2>
+    <p class="sec-sub">四层结构：接入层 → 处理层 → 输出层 → 控制面</p>
+    <div class="card">
+      <svg viewBox="0 0 1000 478" role="img" xmlns="http://www.w3.org/2000/svg" aria-label="SVAC 扩展总体架构">
+        <title>SVAC 扩展总体架构</title>
+        <defs>
+          <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+
+        <text x="40" y="26" font-size="12" font-weight="500" fill="#8B949E" font-family="system-ui,sans-serif">接入层</text>
+        <text x="40" y="138" font-size="12" font-weight="500" fill="#8B949E" font-family="system-ui,sans-serif">处理层</text>
+        <text x="40" y="250" font-size="12" font-weight="500" fill="#8B949E" font-family="system-ui,sans-serif">输出层</text>
+        <text x="40" y="362" font-size="12" font-weight="500" fill="#8B949E" font-family="system-ui,sans-serif">能力层</text>
+
+        <rect x="300" y="46" width="400" height="76" rx="10" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.8"/>
+        <text x="500" y="76" text-anchor="middle" font-size="15" font-weight="600" fill="#0C447C" font-family="system-ui,sans-serif">SVAC 码流接入</text>
+        <text x="500" y="99" text-anchor="middle" font-size="12.5" fill="#185FA5" font-family="system-ui,sans-serif">GB28181 拉流 · RTP 推流 · PS 负载类型 96</text>
+
+        <path d="M500 122 V142 H330 V156" fill="none" stroke="#888780" stroke-width="1.4" marker-end="url(#ar)"/>
+        <path d="M500 122 V142 H670 V156" fill="none" stroke="#888780" stroke-width="1.4" marker-end="url(#ar)"/>
+
+        <rect x="180" y="162" width="300" height="76" rx="10" fill="#FFFFFF" stroke="#185FA5" stroke-width="1"/>
+        <text x="330" y="192" text-anchor="middle" font-size="14.5" font-weight="600" fill="#0C447C" font-family="system-ui,sans-serif">RtpProcess</text>
+        <text x="330" y="214" text-anchor="middle" font-size="12" fill="#57606A" font-family="system-ui,sans-serif">流注册 · 超时管理 · 多路录制槽位</text>
+
+        <rect x="520" y="162" width="300" height="76" rx="10" fill="#FFFFFF" stroke="#185FA5" stroke-width="1"/>
+        <text x="670" y="192" text-anchor="middle" font-size="14.5" font-weight="600" fill="#0C447C" font-family="system-ui,sans-serif">GB35114Process</text>
+        <text x="670" y="214" text-anchor="middle" font-size="12" fill="#57606A" font-family="system-ui,sans-serif">PS 透传转发 · 按负载类型动态建轨</text>
+
+        <path d="M330 238 V268" fill="none" stroke="#888780" stroke-width="1.4" marker-end="url(#ar)"/>
+        <path d="M670 238 V268" fill="none" stroke="#888780" stroke-width="1.4" marker-end="url(#ar)"/>
+
+        <rect x="180" y="274" width="300" height="76" rx="10" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.8"/>
+        <text x="330" y="304" text-anchor="middle" font-size="14.5" font-weight="600" fill="#633806" font-family="system-ui,sans-serif">SVAC 录像切片</text>
+        <text x="330" y="326" text-anchor="middle" font-size="12" fill="#854F0B" font-family="system-ui,sans-serif">.rtp 文件 · 长度前缀 + 原始 RTP</text>
+
+        <rect x="520" y="274" width="300" height="76" rx="10" fill="#FFFFFF" stroke="#185FA5" stroke-width="1"/>
+        <text x="670" y="304" text-anchor="middle" font-size="14.5" font-weight="600" fill="#0C447C" font-family="system-ui,sans-serif">协议分发</text>
+        <text x="670" y="326" text-anchor="middle" font-size="12" fill="#57606A" font-family="system-ui,sans-serif">RTSP / RTMP / HLS / HTTP-FLV</text>
+
+        <path d="M330 350 V380" fill="none" stroke="#888780" stroke-width="1.4" marker-end="url(#ar)"/>
+        <path d="M670 350 V380" fill="none" stroke="#888780" stroke-width="1.4" marker-end="url(#ar)"/>
+
+        <rect x="180" y="386" width="300" height="72" rx="10" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.8"/>
+        <text x="330" y="414" text-anchor="middle" font-size="14.5" font-weight="600" fill="#633806" font-family="system-ui,sans-serif">录像回放 RtpDumpPlayer</text>
+        <text x="330" y="436" text-anchor="middle" font-size="12" fill="#854F0B" font-family="system-ui,sans-serif">UDP 回送 · 暂停 · 倍速 · 快进快退</text>
+
+        <rect x="520" y="386" width="300" height="72" rx="10" fill="#F1EFE8" stroke="#888780" stroke-width="0.8" stroke-dasharray="5 4"/>
+        <text x="670" y="414" text-anchor="middle" font-size="14.5" font-weight="600" fill="#444441" font-family="system-ui,sans-serif">控制面</text>
+        <text x="670" y="436" text-anchor="middle" font-size="12" fill="#5F5E5A" font-family="system-ui,sans-serif">REST API 10 个 · WebHook 2 个</text>
+      </svg>
+    </div>
+  </section>
+
+  <section>
+    <h2>三、功能实现明细</h2>
+    <p class="sec-sub">按模块拆解，共 7 个改造面</p>
+    <div class="mods">
+
+      <div class="mod">
+        <div class="mod-h"><div class="mod-i">01</div>
+          <div class="mod-t">编解码与协议注册<span>让 SVAC 成为框架内的一等编解码</span></div>
+        </div>
+        <ul class="tight">
+          <li>编解码枚举新增 <code>CodecSVACV</code>（视频）与 <code>CodecSVACA</code>（音频）</li>
+          <li>RTSP 轨映射新增 SVAC，负载类型 <code>96</code></li>
+          <li>新增 <code>SvacTrack</code> 视频轨实现（默认 25fps）</li>
+          <li>编解码工厂支持按轨道类型自动创建，SVAC 轨可直接参与后续协议转换</li>
+        </ul>
+        <div class="files">src/Extension/Frame.h · src/Rtsp/Rtsp.h · src/Codec/SVACEncoder.{h,cpp} · src/Extension/Factory.cpp</div>
+      </div>
+
+      <div class="mod">
+        <div class="mod-h"><div class="mod-i">02</div>
+          <div class="mod-t">RTP 接入与转发<span>整条 RTP 通道改走 GB35114</span></div>
+        </div>
+        <ul class="tight">
+          <li>RTP 接入统一由 <code>GB35114Process</code> 处理，自动识别 TS / PS 负载类型</li>
+          <li>按 <code>ps_pt / h264_pt / h265_pt / opus_pt</code> 动态建轨，SVAC PS 流<strong>原样透传</strong></li>
+          <li>处理链与现有 GB28181 推拉流流程完全兼容，可复用全部既有接口</li>
+          <li>转发后可正常转 RTSP / RTMP / HLS / FLV</li>
+        </ul>
+        <div class="files">src/Rtp/GB35114Process.{h,cpp} · src/Rtp/RtpProcess.cpp</div>
+      </div>
+
+      <div class="mod">
+        <div class="mod-h"><div class="mod-i">03</div>
+          <div class="mod-t">SVAC 录像（多路并发切片）<span>同一路流可并发录多份</span></div>
+        </div>
+        <ul class="tight">
+          <li>录制槽位以 <code>file_name</code> 为索引存放于 <code>_manual_slots</code> 映射表，<strong>支持多路并发</strong>互不干扰</li>
+          <li>录像数据以「2 字节大端长度前缀 + 原始 RTP 包」写入 <code>.rtp</code> 文件</li>
+          <li>提供 开始 / 停止 / 状态查询 / 路径获取 四类内部能力</li>
+          <li>切片结束时广播 <code>kBroadcastRecordSVAC</code> 事件</li>
+        </ul>
+        <div class="files">src/Rtp/RtpProcess.{h,cpp} · src/Common/config.{h,cpp}</div>
+      </div>
+
+      <div class="mod">
+        <div class="mod-h"><div class="mod-i">04</div>
+          <div class="mod-t">录像回放（全新实现）<span>按原始时间戳节拍 UDP 回送</span></div>
+        </div>
+        <ul class="tight">
+          <li>解析 <code>.rtp</code> 文件，按 RTP 原始时间戳<strong>模拟实时速率</strong>逐包回送到目标 UDP 地址</li>
+          <li>支持 停止 / 暂停 / 恢复 / 快进快退（±秒） / 倍速（0.5 / 1.0 / 1.5 / 2.0）</li>
+          <li>采用绝对参考时钟，避免定时器漂移累积；变速锚点保证<strong>中途变速不跳帧、不追赶</strong></li>
+          <li>回放结束通过 <code>kBroadcastPlaybackSVAC</code> 上报时长、包数、字节数、结果码</li>
+        </ul>
+        <div class="files">src/Rtp/RtpDumpPlayer.{h,cpp}</div>
+      </div>
+
+      <div class="mod">
+        <div class="mod-h"><div class="mod-i">05</div>
+          <div class="mod-t">REST API 扩展<span>10 个新接口，覆盖录像与回放全流程</span></div>
+        </div>
+        <ul class="tight">
+          <li>录像类 2 个、回放类 5 个、存储类 2 个、下载类 1 个</li>
+          <li>所有接口统一走 <code>CHECK_SECRET()</code> 密钥校验</li>
+          <li>下载接口做「禁止目录穿越 + 解析后路径必须落在存储根目录内」双重校验</li>
+          <li>接口文档同步更新至内置 Swagger 页面</li>
+        </ul>
+        <div class="files">server/WebApi.cpp（新增约 900 行） · www/swagger/openapi.json</div>
+      </div>
+
+      <div class="mod">
+        <div class="mod-h"><div class="mod-i">06</div>
+          <div class="mod-t">存储管理与事件回调<span>可在线切换录像存储盘</span></div>
+        </div>
+        <ul class="tight">
+          <li>新增存储根目录配置，可枚举各存储盘并返回总量 / 剩余容量（MB）</li>
+          <li>支持在线切换录像目录，并<strong>写回配置文件持久化</strong>，重启后生效</li>
+          <li>新增 WebHook 事件 <code>on_record_svac</code>（切片完成）与 <code>on_playback_svac</code>（回放结束），可直接对接上层视频平台</li>
+        </ul>
+        <div class="files">server/WebApi.cpp · server/WebHook.cpp · conf/config.ini</div>
+      </div>
+
+      <div class="mod wide">
+        <div class="mod-h"><div class="mod-i">07</div>
+          <div class="mod-t">国产化部署与交付<span>麒麟 / openEuler 一键编译、打包、安装、托管</span></div>
+        </div>
+        <ul class="tight">
+          <li>提供 Linux 编译脚本，<strong>自动识别 apt / yum / dnf</strong> 包管理器并安装依赖；默认关闭 WebRTC / SCTP / FFmpeg，最小化依赖</li>
+          <li>提供打包脚本与安装脚本：解压到 <code>/opt/zlm_svac</code>、自动创建录像目录、注册 systemd 服务并启动；支持一键卸载</li>
+          <li>提供 systemd 服务单元、Linux 版配置模板与完整部署文档（含常见问题排查）</li>
+          <li>修复原 Dockerfile 的子模块缺失、libsrtp 下载源、FFmpeg 空转、运行时缺库四类问题，并新增构建上下文裁剪</li>
+        </ul>
+        <div class="files">package/linux/{build_linux.sh, pack_linux.sh, install_linux.sh, zlm-svac.service, config.ini.linux} · package/DEPLOY_LINUX.md · dockerfile · .dockerignore</div>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <h2>四、新增 REST 接口清单</h2>
+    <p class="sec-sub">统一前缀 /index/api，均需携带 secret 鉴权，接口文档已同步至内置页面</p>
+    <div class="card" style="padding:6px 6px 2px;">
+      <table>
+        <thead>
+          <tr><th style="width:32%">接口</th><th>功能说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="api">recordSVAC</td><td>按指定文件名开始录像，支持同一路流并发多路录制，重复文件名自动忽略</td></tr>
+          <tr><td class="api">stopRecordSVAC</td><td>停止指定文件名的录像；不传文件名则停止全部手动录像</td></tr>
+          <tr><td class="api">playBackSVAC</td><td>以录像文件为源发起回放会话（默认 UDP，<code>enable_tcp=1</code> 走 TCP 推流），会话以流名唯一标识</td></tr>
+          <tr><td class="api">stopPlayBackSVAC</td><td>停止指定回放会话</td></tr>
+          <tr><td class="api">pausePlayBackSVAC</td><td>暂停 / 恢复回放</td></tr>
+          <tr><td class="api">setPlayBackSpeed</td><td>设置回放倍速，支持 0.5 / 1.0 / 1.5 / 2.0 四档</td></tr>
+          <tr><td class="api">seekPlayBackSVAC</td><td>快进 / 快退指定秒数（正数前进、负数后退）</td></tr>
+          <tr><td class="api">downloadRecordSVAC</td><td>下载录像文件，含目录穿越防护与存储根目录边界校验</td></tr>
+          <tr><td class="api">getStorageList</td><td>枚举存储根目录下的各存储盘，返回总量与剩余容量</td></tr>
+          <tr><td class="api">setStoragePath</td><td>在线切换录像存储目录，并写回配置文件持久化</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>五、交付完成度</h2>
+    <p class="sec-sub">本次交付的五项核心能力，均已完整实现</p>
+    <div class="card">
+      <div class="prog">
+        <div class="prog-row"><div class="prog-l">SVAC 码流接入与透传转发</div><div class="prog-b"><i style="width:100%;background:#3B6D11;"></i></div><div class="prog-v">100%</div></div>
+        <div class="prog-row"><div class="prog-l">SVAC 录像与切片</div><div class="prog-b"><i style="width:100%;background:#3B6D11;"></i></div><div class="prog-v">100%</div></div>
+        <div class="prog-row"><div class="prog-l">SVAC 录像回放</div><div class="prog-b"><i style="width:100%;background:#3B6D11;"></i></div><div class="prog-v">100%</div></div>
+        <div class="prog-row"><div class="prog-l">存储管理与事件回调</div><div class="prog-b"><i style="width:100%;background:#3B6D11;"></i></div><div class="prog-v">100%</div></div>
+        <div class="prog-row"><div class="prog-l">国产化部署与交付</div><div class="prog-b"><i style="width:100%;background:#3B6D11;"></i></div><div class="prog-v">100%</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>六、迭代历程</h2>
+    <p class="sec-sub">从初始化到 8.13 交付，共 13 次提交</p>
+    <div class="card">
+      <ul class="tl">
+        <li class="first"><div class="t">c5755d3</div><div class="d">初始化提交 —— 完成 SVAC / GB35114 基础改造框架</div></li>
+        <li><div class="t">4d991b4</div><div class="d">完成项目主要功能，新增录像回放器，统一界面样式</div></li>
+        <li><div class="t">c9f549f</div><div class="d">新增 <code>on_record_svac</code> 回调 —— SVAC 录像切片完成事件</div></li>
+        <li><div class="t">1b962e2 / e2ed112</div><div class="d">录像接口改造：新增录像名称参数，支持并发录像；返回体补充录像信息</div></li>
+        <li><div class="t">b79678e</div><div class="d">新增存储相关接口（容量枚举、路径切换）</div></li>
+        <li><div class="t">833feb3 / 793c62c</div><div class="d">完善回放控制接口，补齐录像文件下载能力</div></li>
+        <li><div class="t">d79dcba</div><div class="d">Linux 部署打包 —— 国产化系统与 Docker 双通道</div></li>
+        <li class="first"><div class="t">b8c463d</div><div class="d"><strong>8.13 交付</strong> —— 当前版本基线</div></li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <span>ZLMediaKit SVAC 扩展版 · 功能实现汇报</span>
+    <span>2026-09-14　|　代码版本 b8c463d</span>
+  </footer>
+
+</div>
+</body>
+</html>

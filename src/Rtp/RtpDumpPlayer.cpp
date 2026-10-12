@@ -43,7 +43,7 @@ RtpDumpPlayer::~RtpDumpPlayer() {
     stopInPoller();
 }
 
-void RtpDumpPlayer::start(const PlayArgs &args, onCompleteCB on_complete, onErrorCB on_error) {
+void RtpDumpPlayer::start(const PlayArgs &args, onCompleteCB on_complete, onErrorCB on_error, onConnectCB on_connect) {
 #ifdef _WIN32
     // 提升 Windows 定时器精度到 1ms：
     // 默认系统定时器分辨率仅 15.6ms，会导致 doDelayTask / 轮询触发系统性偏晚，
@@ -57,13 +57,57 @@ void RtpDumpPlayer::start(const PlayArgs &args, onCompleteCB on_complete, onErro
     _args = args;
     _on_complete = std::move(on_complete);
     _on_error = std::move(on_error);
+    _on_connect = std::move(on_connect);
     _identifier = args.file_path;
 
     // 获取 poller
     _poller = EventPollerPool::Instance().getPoller();
 
-    // 创建 UDP socket 并提前绑定本地端口（在 DNS 解析之前完成，使 getLocalPort() 立即可用）
+    // 创建 socket（UDP 先绑定本地端口使 getLocalPort() 立即可用；TCP 在连接建立后才有本端端口）
     _socket = Socket::createSocket(_poller, false);
+
+    // 设置错误回调
+    auto ws = weak_ptr<RtpDumpPlayer>(shared_from_this());
+    _socket->setOnErr([ws](const SockException &err) {
+        auto s = ws.lock();
+        if (s) {
+            s->notifyError(err);
+        }
+    });
+
+    if (_args.enable_tcp) {
+        // TCP 推流：作为客户端主动连接 dst_url:dst_port，src_port 为本端源端口(0=随机)
+        _socket->connect(_args.dst_url, _args.dst_port, [ws](const SockException &ex) {
+            auto strong_self = ws.lock();
+            if (!strong_self) {
+                return;
+            }
+            // 连接超时定时器与可写事件可能都触发，只上报一次结果
+            if (strong_self->_connect_notified.exchange(true)) {
+                return;
+            }
+            // 先回复接口层，保证 HTTP 请求一定得到响应，再看会话是否还有效
+            if (strong_self->_on_connect) {
+                strong_self->_on_connect(ex);
+            }
+            if (strong_self->_shutdown) {
+                // 连接建立期间会话已结束
+                return;
+            }
+            if (ex) {
+                // 带上目标地址，避免只剩 "Unknown system error -10061" 这类不直观的底层报错
+                strong_self->notifyError(SockException(ex.getErrCode(), "connect to " + strong_self->_args.dst_url + ":"
+                    + to_string(strong_self->_args.dst_port) + " failed: " + ex.what()));
+                return;
+            }
+            // 加大发送缓冲区，减少倍速回放时应用层的待发积压
+            SockUtil::setSendBuf(strong_self->_socket->rawFD(), 4 * 1024 * 1024);
+            InfoL << "[RtpDumpPlayer] tcp connected: " << strong_self->_args.dst_url << ":" << strong_self->_args.dst_port
+                  << ", local_port=" << strong_self->_socket->get_local_port();
+            strong_self->prepareAndStart();
+        }, 5.0F, "0.0.0.0", _args.src_port);
+        return;
+    }
 
     string ifr_ip = "0.0.0.0";
     if (_args.src_port) {
@@ -78,15 +122,6 @@ void RtpDumpPlayer::start(const PlayArgs &args, onCompleteCB on_complete, onErro
 
     // 加大发送缓冲区
     SockUtil::setSendBuf(_socket->rawFD(), 4 * 1024 * 1024);
-
-    // 设置错误回调
-    auto ws = weak_ptr<RtpDumpPlayer>(shared_from_this());
-    _socket->setOnErr([ws](const SockException &err) {
-        auto s = ws.lock();
-        if (s) {
-            s->notifyError(err);
-        }
-    });
 
     // DNS 解析放在后台线程（端口已绑定，不影响 local_port 获取）
     weak_ptr<RtpDumpPlayer> weak_self = shared_from_this();
@@ -110,36 +145,72 @@ void RtpDumpPlayer::start(const PlayArgs &args, onCompleteCB on_complete, onErro
         strong_self->_poller->async([strong_self, addr]() {
             // 绑定目标地址
             strong_self->_socket->bindPeerAddr((struct sockaddr *)&addr, 0, true);
-
-            // 解析 dump 文件
-            if (!strong_self->parseDumpFile(strong_self->_args.file_path)) {
-                // parseDumpFile 内部已调用 notifyError
-                return;
-            }
-
-            if (strong_self->_packets.empty()) {
-                strong_self->notifyError(SockException(Err_other, "dump file is empty or contains no valid RTP packets"));
-                return;
-            }
-
-            // 开始发送（启动参考时钟，避免定时器漂移累积）
-            strong_self->_playing = true;
-            strong_self->_current_index = 0;
-            // 重置变速锚点，保证从头播放时时间戳重写以文件起点为基准
-            strong_self->_speed_base_offset_ms = 0;
-            strong_self->_speed_base_elapsed_ms = 0;
-            strong_self->_last_speed_log_elapsed_ms = 0;
-            strong_self->_last_speed_log_pos_ms = 0;
-            strong_self->_start_ticker.resetTime();
-            InfoL << "[RtpDumpPlayer] start playback: " << strong_self->_args.file_path
-                  << " -> " << strong_self->_args.dst_url << ":" << strong_self->_args.dst_port
-                  << ", packets=" << strong_self->_total_packets
-                  << ", duration_ms=" << strong_self->_total_duration_ms
-                  << ", local_port=" << strong_self->_socket->get_local_port();
-
-            strong_self->sendNextPacket();
+            strong_self->prepareAndStart();
         });
     });
+}
+
+void RtpDumpPlayer::prepareAndStart() {
+    if (_shutdown) {
+        return;
+    }
+
+    // 解析 dump 文件
+    if (!parseDumpFile(_args.file_path)) {
+        // parseDumpFile 内部已调用 notifyError
+        return;
+    }
+
+    if (_packets.empty()) {
+        notifyError(SockException(Err_other, "dump file is empty or contains no valid RTP packets"));
+        return;
+    }
+
+    // 起播偏移量校验：超出文件时长直接报错，
+    // 避免出现"接口返回成功、却没有任何数据发出"的困惑
+    if (_args.start_offset_ms > _total_duration_ms) {
+        auto err_msg = "start offset " + to_string(_args.start_offset_ms / 1000)
+                     + "s exceeds recording duration " + to_string(_total_duration_ms / 1000) + "s";
+        notifyError(SockException(Err_other, err_msg));
+        return;
+    }
+
+    // 开始发送（启动参考时钟，避免定时器漂移累积）
+    _playing = true;
+    _current_index = 0;
+    _paused = false;
+    _paused_duration_ms = 0;
+    // 重置变速锚点，保证从头播放时时间戳重写以文件起点为基准
+    _speed_base_offset_ms = 0;
+    _speed_base_elapsed_ms = 0;
+    _last_speed_log_elapsed_ms = 0;
+    _last_speed_log_pos_ms = 0;
+    _start_ticker.resetTime();
+
+    // 起播偏移量：定位到指定位置（按帧对齐到帧首个 RTP 包）
+    if (_args.start_offset_ms) {
+        locateToMs(_args.start_offset_ms);
+    }
+
+    // 把时间戳基准改到定位点：
+    // - 1.0 倍速下输出的 RTP 时间戳与原录像完全一致（保留绝对位置信息）
+    // - 不同起播偏移的会话之间不会出现时间戳回退（同 SSRC 下回退会被接收端判为乱序）
+    // - 与 PS 内层 PTS 保持同一时间轴
+    _start_offset_ms = _packets[_current_index].offset_ms;
+    _first_raw_ts = _packets[_current_index].raw_timestamp;
+    _speed_base_offset_ms = _start_offset_ms;
+    _speed_base_elapsed_ms = 0;
+    _last_speed_log_pos_ms = _start_offset_ms;
+
+    InfoL << "[RtpDumpPlayer] start playback: " << _args.file_path
+          << " -> " << _args.dst_url << ":" << _args.dst_port << (_args.enable_tcp ? " (tcp)" : " (udp)")
+          << ", packets=" << _total_packets
+          << ", duration_ms=" << _total_duration_ms
+          << ", start_offset_ms=" << _start_offset_ms
+          << ", first_ts=" << _first_raw_ts
+          << ", local_port=" << _socket->get_local_port();
+
+    sendNextPacket();
 }
 
 void RtpDumpPlayer::stop() {
@@ -158,6 +229,7 @@ void RtpDumpPlayer::stop() {
 }
 
 void RtpDumpPlayer::stopInPoller() {
+    _shutdown = true;
     _playing = false;
     _paused = false;
     _paused_duration_ms = 0;
@@ -267,6 +339,30 @@ uint64_t RtpDumpPlayer::getCurrentOffsetMs() const {
     return _packets[_current_index].offset_ms;
 }
 
+void RtpDumpPlayer::locateToMs(uint64_t target_ms) {
+    if (_packets.empty()) {
+        return;
+    }
+    if (target_ms > _total_duration_ms) {
+        target_ms = _total_duration_ms;
+    }
+
+    // 二分查找第一个 offset_ms >= target_ms 的包
+    // 同一帧内所有包的 offset_ms 相同且连续存放，因此该查找天然对齐到帧首个包
+    auto it = std::lower_bound(_packets.begin(), _packets.end(), target_ms,
+        [](const ParsedPacket &pkt, uint64_t target) { return pkt.offset_ms < target; });
+    _current_index = (size_t)std::distance(_packets.begin(), it);
+    if (_current_index >= _packets.size()) {
+        _current_index = _packets.size() - 1;
+    }
+
+    // 取消当前定时器，避免定位后旧任务再次触发发送
+    if (_delay_task) {
+        _delay_task->cancel();
+        _delay_task = nullptr;
+    }
+}
+
 void RtpDumpPlayer::seek(int64_t offset_sec) {
     if (!_playing || _packets.empty()) {
         return;
@@ -286,24 +382,12 @@ void RtpDumpPlayer::seek(int64_t offset_sec) {
         if (target_ms < 0) target_ms = 0;
         if ((uint64_t)target_ms > strong_self->_total_duration_ms) target_ms = (int64_t)strong_self->_total_duration_ms;
 
-        // 二分查找第一个 offset_ms >= target_ms 的包（帧对齐）
-        auto it = std::lower_bound(strong_self->_packets.begin(), strong_self->_packets.end(), (uint64_t)target_ms,
-            [](const ParsedPacket &pkt, uint64_t target) { return pkt.offset_ms < target; });
-        strong_self->_current_index = std::distance(strong_self->_packets.begin(), it);
-        if (strong_self->_current_index >= strong_self->_packets.size()) {
-            strong_self->_current_index = strong_self->_packets.size() - 1;
-        }
+        strong_self->locateToMs((uint64_t)target_ms);
 
         // 重设变速锚点为当前位置
         uint64_t current_pause = strong_self->_paused ? (strong_self->_start_ticker.elapsedTime() - strong_self->_pause_begin_ms) : 0;
         strong_self->_speed_base_elapsed_ms = strong_self->_start_ticker.elapsedTime() - strong_self->_paused_duration_ms - current_pause;
         strong_self->_speed_base_offset_ms = strong_self->_packets[strong_self->_current_index].offset_ms;
-
-        // 取消当前定时器
-        if (strong_self->_delay_task) {
-            strong_self->_delay_task->cancel();
-            strong_self->_delay_task = nullptr;
-        }
 
         InfoL << "[RtpDumpPlayer] seek: " << strong_self->_identifier
               << ", offset_sec=" << offset_sec
@@ -351,6 +435,8 @@ bool RtpDumpPlayer::parseDumpFile(const std::string &path) {
 
     // 第一遍：解析所有 RTP 包
     while (ptr + 2 <= end) {
+        // 帧起始，TCP 推流时连同 2 字节长度前缀一起发送
+        const char *frame = ptr;
         // 读取 2 字节大端长度
         uint16_t len = ntohs(*(uint16_t *)ptr);
         ptr += 2;
@@ -374,9 +460,13 @@ bool RtpDumpPlayer::parseDumpFile(const std::string &path) {
         const RtpHeader *header = (const RtpHeader *)ptr;
         uint32_t stamp = ntohl(header->stamp);
 
-        // 拷贝 RTP 数据
+        // 拷贝 RTP 数据：TCP 保留 2 字节大端长度前缀(GB/T 28181 的 TCP 分帧)，UDP 只要裸 RTP
         auto buf = BufferRaw::create();
-        buf->assign(ptr, len);
+        if (_args.enable_tcp) {
+            buf->assign(frame, (size_t)len + 2);
+        } else {
+            buf->assign(ptr, len);
+        }
 
         _packets.push_back({stamp, 0, std::move(buf)});
         ptr += len;
@@ -487,7 +577,7 @@ void RtpDumpPlayer::sendNextPacket() {
             // - 变速瞬间时间戳保持连续，避免接收端因时间戳回退而丢帧/卡顿
             // - 变速后时间戳推进与发送墙钟完全匹配，按时间戳驱动的接收端即为目标倍速
             // (从头播放时锚点为 0，等价于原始时间戳；变速到 1.0 倍速时也能保持连续)
-            auto *header = (RtpHeader *)pkt.data->data();
+            auto *header = (RtpHeader *)(pkt.data->data() + (_args.enable_tcp ? 2 : 0));
             double wall_sec = (double)_speed_base_elapsed_ms / 1000.0
                             + (double)(pkt.offset_ms - _speed_base_offset_ms) / 1000.0 / _args.speed;
             uint32_t scaled_stamp = _first_raw_ts + (uint32_t)std::llround(wall_sec * kVideoSampleRate);
@@ -533,6 +623,7 @@ void RtpDumpPlayer::onPlayCompleted() {
 }
 
 void RtpDumpPlayer::notifyError(const toolkit::SockException &ex) {
+    _shutdown = true;
     _playing = false;
     if (_delay_task) {
         _delay_task->cancel();

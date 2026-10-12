@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SVAC 扩展版 · 功能实现汇报</title>
+<style>
+  :root{
+    --ink:#1F2328; --ink-2:#57606A; --ink-3:#8B949E;
+    --line:#E3E6EA; --line-2:#D0D7DE;
+    --blue:#185FA5; --blue-d:#0C447C; --blue-l:#E6F1FB;
+    --green:#3B6D11; --green-l:#EAF3DE;
+    --amber:#854F0B; --amber-l:#FAEEDA; --amber-l2:#FDF6E9;
+    --gray-l:#F1EFE8; --bg:#EDEFF2;
+    --r:12px;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;margin:0;padding:0;overflow:hidden;background:var(--bg);}
+  body{
+    font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",system-ui,-apple-system,"Segoe UI",sans-serif;
+    color:var(--ink);font-size:16px;line-height:1.75;-webkit-font-smoothing:antialiased;
+  }
+
+  #stage{
+    position:absolute;left:50%;top:50%;width:1280px;height:720px;
+    transform:translate(-50%,-50%) scale(1);transform-origin:center center;background:#fff;border-radius:6px;
+    box-shadow:0 24px 70px -30px rgba(15,25,40,.45),0 2px 6px rgba(15,25,40,.08);
+    overflow:hidden;
+  }
+  .slide{
+    position:absolute;inset:0;padding:58px 76px 66px;
+    display:flex;flex-direction:column;
+    opacity:0;visibility:hidden;pointer-events:none;background:#fff;
+  }
+  .slide.active{opacity:1;visibility:visible;pointer-events:auto;}
+
+  .slide > *{opacity:0;transform:translateY(14px);}
+  .slide.active > *{animation:rise .5s cubic-bezier(.22,.61,.36,1) forwards;}
+  .slide.active > *:nth-child(1){animation-delay:.04s}
+  .slide.active > *:nth-child(2){animation-delay:.12s}
+  .slide.active > *:nth-child(3){animation-delay:.20s}
+  .slide.active > *:nth-child(4){animation-delay:.28s}
+  @keyframes rise{to{opacity:1;transform:translateY(0);}}
+
+  /* ===== typography ===== */
+  .stitle{font-size:30px;font-weight:600;letter-spacing:.2px;line-height:1.35;margin:0;flex:0 0 auto;}
+  .stitle .bar{display:inline-block;width:5px;height:26px;background:var(--blue);border-radius:2px;vertical-align:-4px;margin-right:14px;}
+  .stab{font-size:14.5px;color:var(--ink-3);margin:8px 0 0;padding-left:19px;flex:0 0 auto;}
+  .sbody{flex:1;min-height:0;margin-top:26px;display:flex;flex-direction:column;}
+
+  .card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:22px 24px;}
+  .card.blue{background:var(--blue-l);border-color:#B5D4F4;}
+  .card.amber{background:var(--amber-l2);border-color:#FAC775;}
+
+  /* ===== cover ===== */
+  .cover{background:linear-gradient(135deg,#082F58 0%,#0C447C 45%,#1E6AAE 100%);color:#fff;justify-content:center;}
+  .cover > *{opacity:0;}
+  .cover .eyebrow{font-size:13px;letter-spacing:.2em;opacity:.72;font-weight:500;}
+  .cover h1{font-size:52px;font-weight:600;margin:18px 0 16px;line-height:1.26;letter-spacing:.5px;}
+  .cover .lead{font-size:17px;opacity:.88;max-width:900px;line-height:1.9;}
+  .cover .rule{width:70px;height:3px;background:rgba(255,255,255,.5);border-radius:2px;margin:30px 0 26px;}
+  .cover .meta{display:flex;flex-wrap:wrap;gap:10px;}
+  .cover .chip{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.24);border-radius:999px;padding:6px 17px;font-size:13.5px;}
+
+  /* ===== flow ===== */
+  .flow{display:flex;align-items:center;gap:0;margin-top:auto;}
+  .flow .step{
+    flex:1;border:1px solid #B5D4F4;background:var(--blue-l);color:var(--blue-d);
+    border-radius:9px;padding:15px 8px;text-align:center;font-size:15px;font-weight:500;line-height:1.4;
+  }
+  .flow .arw{flex:0 0 auto;padding:0 10px;color:#9AA4AF;font-size:17px;}
+
+  /* ===== feature grid ===== */
+  .feats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;flex:1;min-height:0;}
+  .fcard{
+    border:1px solid var(--line);border-radius:var(--r);padding:22px 20px;
+    background:linear-gradient(180deg,#FBFCFD,#fff);display:flex;flex-direction:column;
+  }
+  .fi{width:31px;height:31px;border-radius:9px;background:var(--blue-l);color:var(--blue-d);
+    font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;margin-bottom:15px;}
+  .ft{font-size:17px;font-weight:600;margin-bottom:9px;line-height:1.4;}
+  .fd{font-size:13.5px;color:var(--ink-2);line-height:1.78;}
+
+  /* ===== highlight ===== */
+  .hl{display:grid;grid-template-columns:1fr 1fr;gap:16px;flex:1;min-height:0;}
+  .hcard{border:1px solid var(--line);border-radius:var(--r);padding:24px 26px;display:flex;gap:16px;background:#fff;}
+  .hnum{flex:0 0 auto;font-size:26px;font-weight:600;color:#C3CCD6;line-height:1;letter-spacing:-1px;font-variant-numeric:tabular-nums;}
+  .ht{font-size:18px;font-weight:600;margin-bottom:9px;}
+  .hd{font-size:14px;color:var(--ink-2);line-height:1.85;}
+
+  /* ===== value ===== */
+  .vals{display:flex;flex-direction:column;gap:14px;flex:1;justify-content:center;}
+  .vrow{display:flex;gap:18px;align-items:flex-start;border-left:3px solid var(--blue);padding:4px 0 4px 22px;}
+  .vt{flex:0 0 210px;font-size:18px;font-weight:600;line-height:1.6;}
+  .vd{flex:1;font-size:14.5px;color:var(--ink-2);line-height:1.85;}
+
+  /* ===== summary ===== */
+  .sum{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;flex:0 0 auto;}
+  .scard{border:1px solid var(--line);border-radius:var(--r);padding:24px 22px;background:linear-gradient(180deg,#FBFCFD,#fff);}
+  .scard .sn{font-size:15px;font-weight:600;color:var(--blue-d);margin-bottom:10px;}
+  .scard .sd{font-size:14px;color:var(--ink-2);line-height:1.85;}
+
+  svg{max-width:100%;height:auto;display:block;}
+
+  /* ===== UI ===== */
+  .ui{position:fixed;z-index:50;}
+  #bar{left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.55);}
+  #bar i{display:block;height:100%;background:var(--blue);width:0;transition:width .28s ease;}
+  #pager{right:18px;bottom:16px;display:flex;align-items:center;gap:8px;
+    background:rgba(28,36,48,.82);border-radius:999px;padding:6px 8px;backdrop-filter:blur(8px);}
+  #pager button{
+    width:30px;height:30px;border:none;border-radius:50%;background:rgba(255,255,255,.13);color:#fff;
+    font-size:15px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  }
+  #pager button:hover{background:rgba(255,255,255,.28);}
+  #count{color:#fff;font-size:12.5px;padding:0 4px;font-variant-numeric:tabular-nums;letter-spacing:.5px;}
+  #menuBtn{left:18px;bottom:16px;background:rgba(28,36,48,.82);color:#fff;border:none;border-radius:999px;
+    padding:8px 17px;font-size:12.5px;cursor:pointer;backdrop-filter:blur(8px);font-family:inherit;}
+  #menuBtn:hover{background:rgba(28,36,48,.95);}
+  #tip{left:50%;bottom:16px;transform:translateX(-50%);color:#6B7480;font-size:12px;pointer-events:none;
+    font-family:system-ui,sans-serif;}
+  #menu{
+    position:fixed;z-index:60;inset:0;background:rgba(16,22,30,.62);backdrop-filter:blur(3px);
+    display:none;align-items:center;justify-content:center;
+  }
+  #menu.on{display:flex;}
+  #menuBox{background:#fff;border-radius:14px;padding:26px 30px;width:560px;max-height:76vh;overflow:auto;
+    box-shadow:0 30px 80px -20px rgba(0,0,0,.5);}
+  #menuBox h3{margin:0 0 16px;font-size:15px;font-weight:600;}
+  #menuBox ol{margin:0;padding:0;list-style:none;}
+  #menuBox li{margin:0 0 4px;}
+  #menuBox a{display:block;padding:9px 13px;border-radius:7px;color:var(--ink-2);text-decoration:none;
+    font-size:13.5px;cursor:pointer;line-height:1.45;}
+  #menuBox a:hover{background:var(--blue-l);color:var(--blue-d);}
+  #menuBox a b{color:var(--ink-3);font-weight:500;font-size:11.5px;margin-right:10px;
+    font-family:"JetBrains Mono",Consolas,monospace;}
+  #menuBox a.cur{background:var(--blue);color:#fff;}
+  #menuBox a.cur b{color:rgba(255,255,255,.75);}
+  #menuBox .hint{margin:16px 0 0;font-size:11.5px;color:var(--ink-3);}
+
+  @media (prefers-reduced-motion:reduce){
+    .slide.active > *{animation-duration:.01ms!important;}
+  }
+
+  @media print{
+    @page{size:1280px 720px;margin:0;}
+    html,body{overflow:visible!important;background:#fff;height:auto;}
+    #stage{position:static;transform:none!important;width:1280px;height:auto;box-shadow:none;border-radius:0;}
+    .slide{position:relative;inset:auto;opacity:1!important;visibility:visible!important;pointer-events:auto;
+      width:1280px;height:720px;page-break-after:always;break-after:page;}
+    .slide:last-child{page-break-after:auto;break-after:auto;}
+    .slide > *{opacity:1!important;transform:none!important;animation:none!important;}
+    .ui{display:none!important;}
+    .cover{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  }
+</style>
+</head>
+<body>
+
+<div id="stage">
+
+  <!-- 1 封面 -->
+  <section class="slide cover active">
+    <div class="eyebrow">功能实现汇报</div>
+    <h1>SVAC 视频能力建设<br>功能实现汇报</h1>
+    <div class="rule"></div>
+    <div class="lead">
+      在成熟的开源媒体服务框架上完成功能扩展，新增国产 SVAC 视频摄像机的接入、画面转发、
+      录像保存、录像回放与存储管理能力，形成完整闭环，可直接部署使用。
+    </div>
+    <div class="meta" style="margin-top:40px;">
+      <span class="chip">汇报日期　2026-09-14</span>
+      <span class="chip">版本　8.13 交付</span>
+      <span class="chip">支持国产操作系统</span>
+    </div>
+  </section>
+
+  <!-- 2 概述 -->
+  <section class="slide">
+    <h2 class="stitle"><span class="bar"></span>这次做了什么</h2>
+    <p class="stab">一句话概括：让国产视频摄像机能够接入平台，并且看得见、存得下、调得出</p>
+    <div class="sbody" style="gap:20px;">
+      <div class="card blue" style="padding:26px 30px;">
+        <div style="font-size:17.5px;line-height:2;color:#14456F;">
+          过去平台只能接入国外编码标准的摄像机。本次开发补齐了
+          <strong>国产 SVAC 视频标准</strong>的完整支持链路——
+          从摄像机画面进来，到分发到各个客户端，再到录像存档、随时回放调阅，
+          全流程打通，<strong>不依赖任何额外软硬件</strong>。
+        </div>
+      </div>
+      <div>
+        <div style="font-size:13.5px;color:var(--ink-3);margin-bottom:13px;letter-spacing:.05em;">已建成的完整业务闭环</div>
+        <div class="flow">
+          <div class="step">摄像机接入</div>
+          <div class="arw">→</div>
+          <div class="step">画面转发</div>
+          <div class="arw">→</div>
+          <div class="step">录像保存</div>
+          <div class="arw">→</div>
+          <div class="step">录像回放</div>
+          <div class="arw">→</div>
+          <div class="step">存储管理</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 功能一览 -->
+  <section class="slide">
+    <h2 class="stitle"><span class="bar"></span>实现了哪些功能</h2>
+    <p class="stab">共 8 项功能，覆盖从画面接入到录像调阅的完整流程</p>
+    <div class="sbody">
+      <div class="feats">
+        <div class="fcard">
+          <div class="fi">1</div>
+          <div class="ft">摄像机接入</div>
+          <div class="fd">国产 SVAC 格式的网络摄像机可直接接入平台，无需额外中间设备</div>
+        </div>
+        <div class="fcard">
+          <div class="fi">2</div>
+          <div class="ft">画面实时转发</div>
+          <div class="fd">一路画面可同时分发给多个客户端和上级平台，互不影响</div>
+        </div>
+        <div class="fcard">
+          <div class="fi">3</div>
+          <div class="ft">录像保存</div>
+          <div class="fd">随时开始、随时停止；同一路画面可同时录制多份，各存各的</div>
+        </div>
+        <div class="fcard">
+          <div class="fi">4</div>
+          <div class="ft">录像回放</div>
+          <div class="fd">像看视频一样回放，支持暂停、快进快退、0.5～2 倍速播放</div>
+        </div>
+        <div class="fcard">
+          <div class="fi">5</div>
+          <div class="ft">录像下载</div>
+          <div class="fd">一键下载录像文件，可直接用于存档、上报或事后取证</div>
+        </div>
+        <div class="fcard">
+          <div class="fi">6</div>
+          <div class="ft">存储管理</div>
+          <div class="fd">随时查看各硬盘的容量与剩余空间，录像保存位置可在线切换</div>
+        </div>
+        <div class="fcard">
+          <div class="fi">7</div>
+          <div class="ft">自动通知</div>
+          <div class="fd">录像保存完成、回放结束时自动上报上级平台，无需人工查询</div>
+        </div>
+        <div class="fcard">
+          <div class="fi">8</div>
+          <div class="ft">国产系统适配</div>
+          <div class="fd">支持麒麟等国产操作系统，一条命令安装、开机自动运行</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 功能亮点 -->
+  <section class="slide">
+    <h2 class="stitle"><span class="bar"></span>功能亮点</h2>
+    <p class="stab">相比常规方案，这四点做得更实用</p>
+    <div class="sbody">
+      <div class="hl">
+        <div class="hcard">
+          <div class="hnum">01</div>
+          <div>
+            <div class="ht">同一路画面，可同时录多份</div>
+            <div class="hd">比如一边录长期归档的大文件，一边录重点时段的片段，两路互不干扰，不需要重复接入摄像机。</div>
+          </div>
+        </div>
+        <div class="hcard">
+          <div class="hnum">02</div>
+          <div>
+            <div class="ht">回放控制像看视频一样自然</div>
+            <div class="hd">支持暂停、继续、快进快退、0.5 至 2 倍速。中途切换速度也不会卡顿跳帧，画面连续流畅。</div>
+          </div>
+        </div>
+        <div class="hcard">
+          <div class="hnum">03</div>
+          <div>
+            <div class="ht">存储管理不用停机</div>
+            <div class="hd">各硬盘剩余容量一目了然，录像保存目录可在线切换并自动记住，重启后依然生效。</div>
+          </div>
+        </div>
+        <div class="hcard">
+          <div class="hnum">04</div>
+          <div>
+            <div class="ht">全链路国产化适配</div>
+            <div class="hd">从视频编码标准到操作系统都支持国产方案，安装包一键部署，无需额外配置。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 项目价值 -->
+  <section class="slide">
+    <h2 class="stitle"><span class="bar"></span>项目价值</h2>
+    <p class="stab">对业务的实际意义</p>
+    <div class="sbody">
+      <div class="vals">
+        <div class="vrow">
+          <div class="vt">自主可控</div>
+          <div class="vd">采用我国自主知识产权的视频编码标准，从摄像机到平台不再依赖国外技术方案。</div>
+        </div>
+        <div class="vrow">
+          <div class="vt">无缝对接</div>
+          <div class="vd">沿用现有平台的使用方式和对接流程，已有系统和操作习惯不用改，可直接接入使用。</div>
+        </div>
+        <div class="vrow">
+          <div class="vt">部署轻量</div>
+          <div class="vd">不依赖额外第三方组件，普通服务器即可运行，节省采购与运维成本。</div>
+        </div>
+        <div class="vrow">
+          <div class="vt">稳定可靠</div>
+          <div class="vd">在成熟框架上做增量扩展，原有各项功能完整保留、不受影响，新能力可以独立升级。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 总结 -->
+  <section class="slide">
+    <h2 class="stitle"><span class="bar"></span>汇报总结</h2>
+    <p class="stab">国产 SVAC 视频能力已全面建成，达到可交付、可部署状态</p>
+    <div class="sbody" style="justify-content:center;gap:22px;">
+      <div class="sum">
+        <div class="scard">
+          <div class="sn">接入与转发</div>
+          <div class="sd">国产摄像机画面顺利接入平台，并可实时分发给多个客户端与上级平台。</div>
+        </div>
+        <div class="scard">
+          <div class="sn">录像与回放</div>
+          <div class="sd">录像保存、多路并录、灵活回放、录像下载，形成从存储到调阅的完整闭环。</div>
+        </div>
+        <div class="scard">
+          <div class="sn">管理与交付</div>
+          <div class="sd">存储空间在线管理、状态自动上报，支持国产操作系统一键部署。</div>
+        </div>
+      </div>
+      <div style="text-align:center;font-size:17px;color:var(--ink-2);line-height:1.9;">
+        平台原有能力 <strong>完整保留</strong>，国产 SVAC 视频能力 <strong>全部就绪</strong>，可直接投入使用。
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="ui" id="bar"><i></i></div>
+<button class="ui" id="menuBtn">目录</button>
+<div class="ui" id="tip">← → 翻页　·　F 全屏　·　O 目录</div>
+<div class="ui" id="pager">
+  <button id="prev" title="上一页">‹</button>
+  <span id="count">1 / 6</span>
+  <button id="next" title="下一页">›</button>
+</div>
+
+<div id="menu">
+  <div id="menuBox">
+    <h3>目录</h3>
+    <ol id="menuList"></ol>
+    <p class="hint">点击跳转 · 按 Esc 关闭</p>
+  </div>
+</div>
+
+<script>
+(function(){
+  var stage  = document.getElementById('stage');
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var barIn  = document.querySelector('#bar i');
+  var count  = document.getElementById('count');
+  var menu   = document.getElementById('menu');
+  var menuList = document.getElementById('menuList');
+  var cur = 0;
+  var pad = function(n){ return n < 10 ? '0' + n : '' + n; };
+
+  function fit(){
+    var s = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    stage.style.transform = 'translate(-50%,-50%) scale(' + s + ')';
+  }
+
+  function buildMenu(){
+    slides.forEach(function(sl, i){
+      var titleEl = sl.querySelector('h1, .stitle');
+      var title = titleEl ? titleEl.textContent.replace(/\s+/g, ' ').trim() : ('第 ' + (i+1) + ' 页');
+      var li = document.createElement('li');
+      var a  = document.createElement('a');
+      a.innerHTML = '<b>' + pad(i+1) + '</b>' + title;
+      a.onclick = function(){ go(i); closeMenu(); };
+      li.appendChild(a);
+      menuList.appendChild(li);
+    });
+  }
+
+  function markMenu(){
+    Array.prototype.forEach.call(menuList.children, function(li, i){
+      li.firstChild.className = (i === cur ? 'cur' : '');
+    });
+  }
+
+  function render(){
+    slides.forEach(function(sl, i){ sl.classList.toggle('active', i === cur); });
+    count.textContent = (cur + 1) + ' / ' + slides.length;
+    barIn.style.width = ((cur + 1) / slides.length * 100) + '%';
+    markMenu();
+  }
+
+  function go(i){
+    if (i < 0) i = 0;
+    if (i > slides.length - 1) i = slides.length - 1;
+    if (i === cur) return;
+    cur = i;
+    render();
+  }
+  function next(){ go(cur + 1); }
+  function prev(){ go(cur - 1); }
+
+  function openMenu(){ menu.classList.add('on'); }
+  function closeMenu(){ menu.classList.remove('on'); }
+
+  document.getElementById('next').onclick = next;
+  document.getElementById('prev').onclick = prev;
+  document.getElementById('menuBtn').onclick = function(){ menu.classList.contains('on') ? closeMenu() : openMenu(); };
+  menu.onclick = function(e){ if (e.target === menu) closeMenu(); };
+
+  document.addEventListener('keydown', function(e){
+    var k = e.key;
+    if (k === 'ArrowRight' || k === 'ArrowDown' || k === 'PageDown' || k === ' ') { e.preventDefault(); next(); return; }
+    if (k === 'ArrowLeft'  || k === 'ArrowUp'   || k === 'PageUp')                 { e.preventDefault(); prev(); return; }
+    if (k === 'Home')      { e.preventDefault(); go(0); return; }
+    if (k === 'End')       { e.preventDefault(); go(slides.length - 1); return; }
+    if (k === 'o' || k === 'O') { e.preventDefault(); menu.classList.contains('on') ? closeMenu() : openMenu(); return; }
+    if (k === 'Escape')    { closeMenu(); return; }
+    if (k === 'f' || k === 'F') {
+      e.preventDefault();
+      if (document.fullscreenElement) { document.exitFullscreen(); }
+      else if (document.documentElement.requestFullscreen) { document.documentElement.requestFullscreen(); }
+    }
+  });
+
+  var x0 = null;
+  document.addEventListener('touchstart', function(e){ x0 = e.touches[0].clientX; }, {passive:true});
+  document.addEventListener('touchend', function(e){
+    if (x0 === null) return;
+    var dx = e.changedTouches[0].clientX - x0;
+    if (Math.abs(dx) > 55) { dx < 0 ? next() : prev(); }
+    x0 = null;
+  }, {passive:true});
+
+  var t = null;
+  window.addEventListener('resize', function(){
+    clearTimeout(t); t = setTimeout(fit, 80);
+  });
+
+  buildMenu(); fit(); render();
+  window.addEventListener('load', fit);
+})();
+</script>
+</body>
+</html>
